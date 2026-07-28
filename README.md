@@ -1,0 +1,1 @@
+# 2026_11_05-workshop_coimbra
