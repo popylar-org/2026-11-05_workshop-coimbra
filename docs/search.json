@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Popylar Population Receptive Field Modeling Workshop",
+    "section": "",
+    "text": "When: 5th and 6th of November 2026. Where: FPCE - UC Edifício 2, University of Coimbra, Portugal. Costs: 125 Euros (including lunch, drinks, and social dinner). Sign up: external link.\nThis is the website of the Popylar population receptive field (pRF) modelling workshop on November 5th and 6th 2026 at the University of Coimbra in Coimbra, Portugal. In this two-day workshop, we will present different applications of pRF modelling and how to implement them using the new prfmodel Python package. The workshop will contain a few lectures, but its main focus will lie on hands-on programming tutorials. We will use example datasets from different experiments (e.g., visual, tonotopic, numerosity) and neuroimaging domains (e.g., fMRI, ECoG).\nIf you are interested and want to attend, please sign up via this link at the University of Coimbra homepage.\nPlease note that there will only be a limited number of spots so that we can assist all participants during the hands-on sessions.\nWe hope you will join us!\nOn behalf of the Spinoza Center for Neuroimaging and the Netherlands eScience Center,\nThe Popylar Team"
+  },
+  {
+    "objectID": "index.html#practicalities",
+    "href": "index.html#practicalities",
+    "title": "Popylar Population Receptive Field Modeling Workshop",
+    "section": "Practicalities",
+    "text": "Practicalities\nThe workshop will be two full days (i.e., 9 am to 5 pm). Lunch will be provided and there will be a social dinner on the 6th after the workshop. Both are included in the workshop fee of 125 Euros. Participants must organize and cover their own accommodation."
+  },
+  {
+    "objectID": "index.html#requirements",
+    "href": "index.html#requirements",
+    "title": "Popylar Population Receptive Field Modeling Workshop",
+    "section": "Requirements",
+    "text": "Requirements\nParticipants should be either PhD students, postdocs or faculty. They should have basic programming skills in Python (e.g., they should know how to install packages, write a function, and work with Jupyter notebooks)."
+  },
+  {
+    "objectID": "index.html#what-is-the-new-prfmodel-software",
+    "href": "index.html#what-is-the-new-prfmodel-software",
+    "title": "Popylar Population Receptive Field Modeling Workshop",
+    "section": "What is the new prfmodel software?",
+    "text": "What is the new prfmodel software?\nprfmodel is a new Python package developed by the Spinoza Center and the Netherlands eScience Center. Its goal is to provide an easy-to-use yet flexible tool for fitting population receptive field models to neuroimaging data. prfmodel leverages GPU-accelerated backends (i.e., TensorFlow, PyTorch, and JAX) to fit models at break-neck speed and follows good research software development practices to ensure its sustainability.\nYou can take a peek at the development version of prfmodel on GitHub here."
+  },
+  {
+    "objectID": "index.html#contact",
+    "href": "index.html#contact",
+    "title": "Popylar Population Receptive Field Modeling Workshop",
+    "section": "Contact",
+    "text": "Contact\nTomas Knapen (t.knapen@spinozacentre.nl)\nMalte Lüken (m.luken@esciencecenter.nl)"
+  }
+]
