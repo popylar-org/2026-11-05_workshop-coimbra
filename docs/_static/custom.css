@@ -4,3 +4,18 @@
   vertical-align: middle;
   margin-right: 0.5em;
 }
+
+/* Exercises (see _highlight_exercises in _ext/colab_notebooks.py) */
+
+.admonition.exercise {
+  border-color: var(--pst-color-success);
+}
+
+.admonition.exercise > .admonition-title {
+  background-color: var(--pst-color-success-bg);
+}
+
+.admonition.exercise > .admonition-title::after {
+  color: var(--pst-color-success);
+  content: "\f303"; /* Font Awesome pencil */
+}

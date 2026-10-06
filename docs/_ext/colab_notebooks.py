@@ -6,6 +6,9 @@ A MyST document counts as a notebook when its jupytext front matter defines a
 * adds an "Open in Colab" badge and a download link below the page title, and
 * writes ``<outdir>/<colab_notebook_dir>/<docname>.ipynb`` after an HTML build.
 
+On every page, blockquotes that start with a bold "Exercise ..." label are
+rendered as exercise admonitions.
+
 Colab can only open notebooks hosted on GitHub, so the badge points to the
 ``colab_branch`` of ``colab_repo``, where the deployed HTML output lives.
 """
@@ -60,6 +63,31 @@ def _add_colab_links(app: Sphinx, doctree: nodes.document) -> None:
         doctree.insert(0, node)
 
 
+def _highlight_exercises(app: Sphinx, doctree: nodes.document) -> None:
+    """Turn blockquotes starting with a bold "Exercise ..." label into admonitions.
+
+    Notebook pages write exercises as ``> **Exercise 1:** ...`` so that they
+    render on Colab; on the website they get the theme's admonition styling.
+    """
+    for quote in list(doctree.findall(nodes.block_quote)):
+        if not quote.children or not isinstance(quote[0], nodes.paragraph):
+            continue
+        paragraph = quote[0]
+        # MyST may emit empty text nodes before the label.
+        for child in [c for c in paragraph.children if isinstance(c, nodes.Text) and not c.astext()]:
+            paragraph.remove(child)
+        label = paragraph[0] if paragraph.children else None
+        if not isinstance(label, nodes.strong) or not label.astext().startswith("Exercise"):
+            continue
+        paragraph.remove(label)
+        if paragraph.children and isinstance(paragraph[0], nodes.Text):
+            paragraph[0] = nodes.Text(paragraph[0].astext().lstrip())
+        admonition = nodes.admonition("", classes=["exercise"])
+        admonition += nodes.title("", label.astext().rstrip(":"))
+        admonition.extend(quote.children)
+        quote.replace_self(admonition)
+
+
 def _write_notebooks(app: Sphinx, exception: Exception | None) -> None:
     if exception is not None or app.builder.format != "html":
         return
@@ -98,6 +126,7 @@ def setup(app: Sphinx) -> dict:
     app.connect("env-purge-doc", _purge_doc)
     app.connect("env-merge-info", _merge_info)
     app.connect("doctree-read", _add_colab_links)
+    app.connect("doctree-read", _highlight_exercises)
     app.connect("build-finished", _write_notebooks)
 
     return {"version": "0.1", "parallel_read_safe": True, "parallel_write_safe": True}
