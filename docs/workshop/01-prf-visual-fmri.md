@@ -556,48 +556,21 @@ plot_surf_stat_map_helper(project_to_surface(response_sd), vmax=5.0, title="BOLD
 
 +++
 
-### Splitting the data for cross-validation
+### Selecting valid voxels
 
-A pRF model that fits the data it was estimated on well does not necessarily predict new data well, because it can also fit the noise in the data. That is, it can overfit the *training* data and generalize poorly to new *test* data. To evaluate how well our pRF model generalizes, we use cross-validation: We fit the model on the first half of the experiment (the training data) and evaluate its predictions on the second half (the test data). Because the second half repeats the bar sweeps of the first half in the opposite direction, both halves cover the same locations in the visual field but have independent noise.
-
-This "split-half" cross-validation is only appropriate for symmetric or repeated designs, where both halfs repeat the same design matrix. This is the case for this dataset but might not be true for other datasets you encounter in the field and important to keep in mind when designing new pRF experiments.
-
-We split both the stimulus design and the BOLD response at the midpoint of the time axis.
+Some voxels in the mask do not have valid timecourses, that is, their timecourses are constant and do not contain any signal. We filter out all voxels that have a constant timecourse.
 
 ```{code-cell} ipython3
-from prfmodel.stimuli import PRFStimulus
+response_is_valid = response_psc.std(axis=1) > 0.0
 
-num_frames = response_psc.shape[1]
-
-num_frames_train = num_frames // 2
-
-# The training stimulus contains the first half of the design and the same grid
-stimulus_train = PRFStimulus(
-    design=stimulus.design[:num_frames_train],
-    grid=stimulus.grid,
-    dimension_labels=stimulus.dimension_labels,
-)
-
-response_train = response_psc[:, :num_frames_train]
-response_test = response_psc[:, num_frames_train:]
-
-print(stimulus_train)
-```
-
-Some voxels in the mask do not have valid timecourses, that is, their timecourses are constant and do not contain any signal. We filter out all voxels that have a constant timecourse in either half of the data.
-
-```{code-cell} ipython3
-response_is_valid = (response_train.std(axis=1) > 0.0) & (response_test.std(axis=1) > 0.0)
-
-response_train_valid = response_train[response_is_valid]
-response_test_valid = response_test[response_is_valid]
+response_valid = response_psc[response_is_valid]
 
 response_is_valid.mean()  # Fraction of valid voxels
 ```
 
 ### Defining the pRF model
 
-Now that training stimulus and training BOLD response are in place, we can fit the canonical Gaussian 2D pRF model. However, we need to slightly customize the model: The stimulus design matrix and the BOLD response were recorded with a repetition time (TR) of 0.9 seconds. By default, pRF models in prfmodel assume a TR of 1 second. The TR is set through the resolution of the impulse response model, so we replace the default with a custom impulse response model that has a resolution of 0.9 seconds. Matching the TR of the impulse response model with the resoluton ot the impulse response model ensures that predicted pRF model response has the same sampling rate as the stimulus and the observed BOLD timecourses. For details, see the [Important Details](https://popylar-org.github.io/prfmodel/important_details.html) section in the online documentation of prfmodel.
+Now that the stimulus and the BOLD response are in place, we can fit the canonical Gaussian 2D pRF model. However, we need to slightly customize the model: The stimulus design matrix and the BOLD response were recorded with a repetition time (TR) of 0.9 seconds. By default, pRF models in prfmodel assume a TR of 1 second. The TR is set through the resolution of the impulse response model, so we replace the default with a custom impulse response model that has a resolution of 0.9 seconds. Matching the TR of the impulse response model with the resoluton ot the impulse response model ensures that predicted pRF model response has the same sampling rate as the stimulus and the observed BOLD timecourses. For details, see the [Important Details](https://popylar-org.github.io/prfmodel/important_details.html) section in the online documentation of prfmodel.
 
 ```{code-cell} ipython3
 # Define repetition time (TR)
@@ -629,7 +602,7 @@ grid_param_ranges = {
 }
 ```
 
-To run the grid search, we construct the `prfmodel.fitters.grid.GridFitter`. Note that we pass the training stimulus and set `batch_size=20` to let the fitter evaluate 20 parameter combinations at the same time which saves us some memory. By default, the `loss` (i.e., the metric the fitter minimizes between model predictions and data) is the negative correlation coefficient, which ignores differences in baseline and amplitude between model predictions and observed data.
+To run the grid search, we construct the `prfmodel.fitters.grid.GridFitter`. Note that we set `batch_size=20` to let the fitter evaluate 20 parameter combinations at the same time which saves us some memory. By default, the `loss` (i.e., the metric the fitter minimizes between model predictions and data) is the negative correlation coefficient, which ignores differences in baseline and amplitude between model predictions and observed data.
 
 ```{code-cell} ipython3
 from prfmodel.fitters import GridFitter
@@ -637,13 +610,13 @@ from prfmodel.fitters import GridFitter
 # Create grid fitter object
 grid_fitter = GridFitter(
     model=prf_model,
-    stimulus=stimulus_train,
+    stimulus=stimulus,
     compile_step=True,  # Setting 'compile_step=True' speeds up the fitting
 )
 
 # Run grid search
 grid_history, grid_params = grid_fitter.fit(
-    data=response_train_valid,
+    data=response_valid,
     parameter_values=grid_param_ranges,
     batch_size=20,
 )
@@ -669,12 +642,12 @@ from prfmodel.fitters import LeastSquaresFitter
 # Create least-squares fitter
 ls_fitter = LeastSquaresFitter(
     model=prf_model,
-    stimulus=stimulus_train,
+    stimulus=stimulus,
 )
 
 # Run least squares fit
 ls_history, ls_params = ls_fitter.fit(
-    data=response_train_valid,
+    data=response_valid,
     parameters=grid_params,
     slope_name="amplitude",  # Names of parameters to be optimized with least squares
     intercept_name="baseline",
@@ -690,40 +663,31 @@ ls_params
 
 ## Evaluating the model fit
 
-Now that the pRF tuning profile parameters and the auxiliary baseline and amplitude parameters are optimized, we can compare the model predictions against the observed responses. Because we want to make predictions for all voxels at once, we wrap our `prf_model` in the `prfmodel.utils.batched` modifier function. The modifier changes the behavior of the model to make predictions for batches of voxels sequentially. This saves us a lot of memory at the expense of minimal runtime overhead.
-
-For the test data, we need to be careful: The hemodynamic response to the bar at the end of the first half carries over into the beginning of the second half. If we made predictions with the second half of the design alone, the model would miss this carry-over. Therefore, we make predictions for the *full* stimulus and split the predicted timecourses in the same way as the observed ones. The predictions for the first half are identical to the predictions for the training stimulus because nothing precedes the first time frame.
+Now that the pRF tuning profile parameters and the auxiliary baseline and amplitude parameters are optimized, we can compare the model predictions against the observed responses. Because we want to make predictions for all voxels at once, we wrap our `prf_model` in the `prfmodel.utils.batched` function. The modifier changes the behavior of the model to make predictions for batches of voxels sequentially. This saves us a lot of memory at the expense of minimal runtime overhead.
 
 ```{code-cell} ipython3
 from prfmodel.utils import batched
 
 predict_batched = batched(prf_model)
 
-# Make predictions for the full stimulus with the parameters estimated on the training set
+# Make predictions with the estimated parameters
 pred_response = np.asarray(predict_batched(stimulus, ls_params, batch_size=200))
-
-pred_response_train = pred_response[:, :num_frames_train]
-pred_response_test = pred_response[:, num_frames_train:]
 ```
 
-We can quantify how well the predictions align with the observed timecourses using the R-squared metric. This metric indicates the proportion of variance in the observed data explained by our model predictions. We start by comparing the model predictions to the observed timecourses of the training data. Because we used the training data to fit our pRF model, we are assessing its in-sample fit.
+We can quantify how well the predictions align with the observed timecourses using the R-squared metric. This metric indicates the proportion of variance in the observed data explained by our model predictions.
 
 ```{code-cell} ipython3
 from keras.metrics import R2Score
 
 r2_metric = R2Score(class_aggregation=None)  # Don't aggregate score over voxels
 
-r_squared_train = np.asarray(
-    r2_metric(response_train_valid.T, pred_response_train.T)
+r_squared = np.asarray(
+    r2_metric(response_valid.T, pred_response.T)
 )  # Transpose to compute score across time frames
-r_squared_train.shape
+r_squared.shape
 ```
 
-> **Exercise 14:** Compute the R-squared score on the test data and assess the out-of-sample fit. How much do the test R-squared scores differ from the training R-squared scores? How well does the canonical Gaussian 2D pRF model generalize to the test data?
-
-+++
-
-> **Exercise 15:** Plot the test R-squared score on the inflated surface. You can use the helper function below. For which voxels does the model generalize better or worse?
+> **Exercise 14:** Plot the R-squared score on the inflated surface. You can use the helper function below. For which voxels does the model fit the data better or worse?
 
 ```{code-cell} ipython3
 def fill_valid_voxels(values: np.ndarray) -> np.ndarray:
@@ -733,23 +697,23 @@ def fill_valid_voxels(values: np.ndarray) -> np.ndarray:
     return values_full
 ```
 
-> **Exercise 16:** In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot in- and out-of-sample predictions against observed response for a subset of voxels. Does the plot confirm the impression you got from the R-squared scores? Why does the model not generalize well for some voxels?
+> **Exercise 15:** In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot predictions against observed responses for a subset of voxels. Does the plot confirm the impression you got from the R-squared scores? Why does the model not fit well for some voxels?
 
 +++
 
 ## Interpreting the model parameters
 
-To analyze and interpret the pRF parameters, we will zoom in on surface vertices with an out-of-sample R-squared above a certain threshold (e.g., 0.3; note that this threshold is often somewhat arbitrary). Because we select vertices based on the test set, which was not used for fitting, the selection is not biased towards vertices whose fits mostly capture noise.
+To analyze and interpret the pRF parameters, we will zoom in on voxels with an R-squared above a certain threshold (e.g., 0.3; note that this threshold is often somewhat arbitrary).
 
-For these vertices, we can look at different quantities to interpret the pRFs estimated by our model.
-
-+++
-
-> **Exercise 17:** Create a mask that selects voxels above a test R-squared threshold. Plot the pRF size `sigma` for voxels that pass the threshold on the inflated surface. Which pattern do you see? Change the threshold and recreate the plot. Does the pattern change?
+For these voxels, we can look at different quantities to interpret the pRFs estimated by our model.
 
 +++
 
-> **Exercise 18:** Compute the polar angle of the pRF center using the helper function below. Plot the polar angle for voxels that pass the threshold on the inflated surface (hint: use a cyclic colormap, e.g., `cmap="hsv"`). Which pattern do you see?
+> **Exercise 16:** Create a mask that selects voxels above an R-squared threshold. Plot the pRF size `sigma` for voxels that pass the threshold on the inflated surface. Which pattern do you see? Change the threshold and recreate the plot. Does the pattern change?
+
++++
+
+> **Exercise 17:** Compute the polar angle of the pRF center using the helper function below. Plot the polar angle for voxels that pass the threshold on the inflated surface (hint: use a cyclic colormap, e.g., `cmap="hsv"`). Which pattern do you see?
 
 ```{code-cell} ipython3
 def calc_polar_angle(mu_x: float, mu_y: float) -> float:
@@ -757,7 +721,7 @@ def calc_polar_angle(mu_x: float, mu_y: float) -> float:
     return np.angle(mu_x + mu_y * 1j)
 ```
 
-> **Exercise 19:** Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) using the helper function below. Plot it for voxels that pass the threshold it on the inflated surface. Which pattern do you see
+> **Exercise 18:** Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) using the helper function below. Plot it for voxels that pass the threshold it on the inflated surface. Which pattern do you see
 
 ```{code-cell} ipython3
 def calc_eccentricity(mu_x: float, mu_y: float) -> float:
@@ -765,15 +729,11 @@ def calc_eccentricity(mu_x: float, mu_y: float) -> float:
     return np.abs(mu_x + mu_y * 1j)
 ```
 
-> **Exercise 20 (optional):** Compare the polar angle and eccentricity patterns you observed to the ones reported in the paper by Dumouline and Wandell (2008). Do your results agree with theirs?
+> **Exercise 19 (optional):** Compare the polar angle and eccentricity patterns you observed to the ones reported in the paper by Dumouline and Wandell (2008). Do your results agree with theirs?
 
 +++
 
-> **Exercise 21 (optional, advanced):** Fit the model on the test data and evaluate it on the training data (i.e., two-fold cross-validation). How do you account for the carry-over from training stimulus when fitting the model? Do you see any difference in in- and out-of-sample fit? Average the test R-squared from both folds. Do your conlcusions about how well the model generalizes change?
-
-+++
-
-> **Exercise 22 (optional, advanced):** Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the `prfmodel.models.prf.Gaussian2DCSSPRFModel` class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.
+> **Exercise 20 (optional, advanced):** Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the `prfmodel.models.prf.Gaussian2DCSSPRFModel` class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.
 
 +++
 
