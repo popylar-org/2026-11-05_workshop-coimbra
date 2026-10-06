@@ -68,14 +68,14 @@ cell in the stimulus design matrix. Together, the stimulus design matrix and gri
 
 We can look at the experimental stimulus that is attached to the dataset that we will use in this example. The dataset is
 called the Arrow-of-Time (AOT) dataset and the BOLD response was recorded with a 7 Tesla MRI scanner. Therefore, the
-dataset has the tag `7t-aot-visual`. We also specify that we want to load a flat surface of the subject that we will
+dataset has the tag `7t-aot-visual`. We also specify that we want to load an inflated surface of the subject that we will
 use later for visualization.
 
 ```{code-cell} ipython3
 from prfmodel.examples import load_dataset
 
 # Downloads on first use and caches in a user data directory (see prfmodel.examples.get_data_dir)
-dataset = load_dataset("7t-aot-visual", surface_type="flat")
+dataset = load_dataset("7t-aot-visual", surface_type="inflated")
 ```
 
 The stimulus can be accessed through the `data.stimulus` attribute.
@@ -460,15 +460,36 @@ def project_to_surface(voxel_values: np.ndarray) -> np.ndarray:
     ])
 ```
 
-We also define a helper function to plot a per-voxel statistic on a flatmap of the surface.
+We also define a helper function to plot a per-voxel statistic on the inflated surface. The inflated surfaces of both hemispheres overlap in space, so we first move them apart. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior).
 
 ```{code-cell} ipython3
+import matplotlib as mpl
 from nilearn.plotting import plot_surf_stat_map
+from nilearn.surface import InMemoryMesh
 
 
-mesh = dataset.mesh
+def separate_hemispheres(mesh: PolyMesh, gap: float = 10.0) -> PolyMesh:
+    """Shift the hemispheres of a surface mesh apart along the left-right axis so that they do not overlap."""
+    left, right = mesh.parts["left"], mesh.parts["right"]
+    left_coords = left.coordinates.copy()
+    right_coords = right.coordinates.copy()
+    left_coords[:, 0] -= left_coords[:, 0].max() + gap / 2
+    right_coords[:, 0] -= right_coords[:, 0].min() - gap / 2
+    return PolyMesh(
+        left=InMemoryMesh(left_coords, left.faces),
+        right=InMemoryMesh(right_coords, right.faces),
+    )
 
-SURF_VIEW = (90, 270)
+
+mesh = separate_hemispheres(dataset.mesh)
+num_vertices_left = mesh.parts["left"].n_vertices
+
+# Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain
+SURF_VIEWS = {
+    "Left medial": ("left", -10, 330),
+    "Posterior": ("both", 0, 270),
+    "Right medial": ("right", -10, 210),
+}
 
 
 def plot_surf_stat_map_helper(
@@ -477,31 +498,49 @@ def plot_surf_stat_map_helper(
         vmax: float | None = None,
         title: str | None = None,
         cmap: str = "inferno",
-    ) -> tuple[plt.Figure, plt.Axes]:
-    """Helper function to plot a surface with a stat map."""
-    fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(8, 6))
+    ) -> tuple[plt.Figure, np.ndarray]:
+    """Helper function to plot a surface with a stat map from medial and posterior views."""
+    # Use the same color range for all views
+    vmin = np.nanmin(stat_map) if vmin is None else vmin
+    vmax = np.nanmax(stat_map) if vmax is None else vmax
 
-    plot_surf_stat_map(
-        mesh,
-        stat_map,
-        vmin=vmin,
-        vmax=vmax,
-        hemi="both",
-        view=SURF_VIEW,
-        cmap=cmap,
-        axes=ax,
-        figure=fig,
-        title=title,
+    # Stat maps for each hemisphere (left first)
+    stat_maps = {
+        "left": stat_map[:num_vertices_left],
+        "right": stat_map[num_vertices_left:],
+        "both": stat_map,
+    }
+
+    fig, axes = plt.subplots(
+        1, len(SURF_VIEWS), subplot_kw={"projection": "3d"}, figsize=(12, 4.5), layout="constrained",
     )
 
-    # Expand the 3D axes to fill the space to the left of the colorbar
-    surf_axes = [a for a in fig.axes if a.name == "3d"]
-    cbar_axes = [a for a in fig.axes if a.name != "3d"]
-    cbar_x0 = min(a.get_position().x0 for a in cbar_axes)
-    for a in surf_axes:
-        a.set_position([0.0, 0.0, cbar_x0 - 0.01, 0.97])
+    for ax, (view_name, (hemi, elev, azim)) in zip(axes, SURF_VIEWS.items()):
+        plot_surf_stat_map(
+            mesh if hemi == "both" else mesh.parts[hemi],
+            stat_maps[hemi],
+            vmin=vmin,
+            vmax=vmax,
+            symmetric_cbar=False,
+            hemi=hemi,
+            view=(elev, azim),
+            cmap=cmap,
+            colorbar=False,
+            axes=ax,
+            figure=fig,
+        )
+        ax.set_title(view_name)
 
-    return fig, ax
+    fig.colorbar(
+        mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax), cmap=cmap),
+        ax=axes,
+        shrink=0.6,
+    )
+
+    if title is not None:
+        fig.suptitle(title)
+
+    return fig, axes
 ```
 
 We can use the helper to plot, for example, the standard deviation of each timecourse on the surface to get an overview of the variability in the BOLD timecourses across the surface.
@@ -513,7 +552,7 @@ response_sd = response_psc.std(axis=1)
 plot_surf_stat_map_helper(project_to_surface(response_sd), vmax=5.0, title="BOLD response standard deviation");
 ```
 
-> **Exercise 12:** What do you see on the surface flatmap? Can you explain the displayed pattern of response standard deviation? Plot a different statistic on the surface. Do you see any interesting patterns?
+> **Exercise 12:** What do you see on the inflated surface? Can you explain the displayed pattern of response standard deviation? Plot a different statistic on the surface. Do you see any interesting patterns?
 
 +++
 
@@ -684,7 +723,7 @@ r_squared_train.shape
 
 +++
 
-> **Exercise 15:** Plot the test R-squared score on the flat surface. You can use the helper function below. For which voxels does the model generalize better or worse?
+> **Exercise 15:** Plot the test R-squared score on the inflated surface. You can use the helper function below. For which voxels does the model generalize better or worse?
 
 ```{code-cell} ipython3
 def fill_valid_voxels(values: np.ndarray) -> np.ndarray:
@@ -706,11 +745,11 @@ For these vertices, we can look at different quantities to interpret the pRFs es
 
 +++
 
-> **Exercise 17:** Create a mask that selects voxels above a test R-squared threshold. Plot the pRF size `sigma` for voxels that pass the threshold on the flat surface. Which pattern do you see? Change the threshold and recreate the plot. Does the pattern change?
+> **Exercise 17:** Create a mask that selects voxels above a test R-squared threshold. Plot the pRF size `sigma` for voxels that pass the threshold on the inflated surface. Which pattern do you see? Change the threshold and recreate the plot. Does the pattern change?
 
 +++
 
-> **Exercise 18:** Compute the polar angle of the pRF center using the helper function below. Plot the polar angle for voxels that pass the threshold on the flat surface (hint: use a cyclic colormap, e.g., `cmap="hsv"`). Which pattern do you see?
+> **Exercise 18:** Compute the polar angle of the pRF center using the helper function below. Plot the polar angle for voxels that pass the threshold on the inflated surface (hint: use a cyclic colormap, e.g., `cmap="hsv"`). Which pattern do you see?
 
 ```{code-cell} ipython3
 def calc_polar_angle(mu_x: float, mu_y: float) -> float:
@@ -718,7 +757,7 @@ def calc_polar_angle(mu_x: float, mu_y: float) -> float:
     return np.angle(mu_x + mu_y * 1j)
 ```
 
-> **Exercise 19:** Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) using the helper function below. Plot it for voxels that pass the threshold it on the flat surface. Which pattern do you see
+> **Exercise 19:** Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) using the helper function below. Plot it for voxels that pass the threshold it on the inflated surface. Which pattern do you see
 
 ```{code-cell} ipython3
 def calc_eccentricity(mu_x: float, mu_y: float) -> float:
