@@ -34,6 +34,8 @@ exclude_patterns = [
 myst_enable_extensions = ["colon_fence", "deflist", "html_image"]
 # Code is not executed at build time; participants run the notebooks on Colab.
 nb_execution_mode = "off"
+# Shell commands such as `!pip install` are not valid Python and cannot be highlighted.
+suppress_warnings = ["misc.highlighting_failure"]
 
 # -- HTML output -------------------------------------------------------------
 
