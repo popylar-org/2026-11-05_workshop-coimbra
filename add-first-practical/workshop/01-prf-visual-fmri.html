@@ -1,0 +1,1666 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Practical 1: The canonical Gaussian 2D population receptive field model &#8212; Popylar Population Receptive Field Modeling Workshop</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bab1f737" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'workshop/01-prf-visual-fmri';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Workshop materials" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Popylar Population Receptive Field Modeling Workshop</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Overview
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../schedule.html">Schedule</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Workshop materials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Practical 1: The canonical Gaussian 2D population receptive field model</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="article-header-buttons">
+
+
+
+<div class="dropdown polyversion-switcher">
+  <button class="btn polyversion-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          aria-expanded="false" aria-label="Version: add-first-practical" title="Switch version">
+    <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+    <span class="polyversion-name">add-first-practical</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end polyversion-menu">
+  <li><h6 class="dropdown-header">Branches</h6></li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">main</span><span class="polyversion-badge">latest</span>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item active"
+       href="../../add-first-practical/" aria-current="true">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-first-practical</span><i class="fa-solid fa-check polyversion-check" aria-hidden="true"></i>
+    </a>
+  </li>
+  </ul>
+</div>
+<script>
+  document.querySelectorAll(".polyversion-item").forEach((item) => {
+    item.addEventListener("click", async (event) => {
+      // Open the current page in the selected version, or its home page if the page does not exist there.
+      event.preventDefault();
+      const versionRoot = new URL(item.getAttribute("href"), window.location.href);
+      const page = new URL("workshop/01-prf-visual-fmri.html", versionRoot);
+      try {
+        const response = await fetch(page, { method: "HEAD" });
+        window.location.href = response.ok ? page : versionRoot;
+      } catch {
+        window.location.href = versionRoot;
+      }
+    });
+  });
+</script>
+<a href="https://github.com/popylar-org/2026-11-05_workshop-coimbra" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Practical 1: The canonical Gaussian 2D population receptive field model</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-canonical-gaussian-2d-prf-model">The canonical Gaussian 2D pRF model</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-stimulus-design-matrix-and-grid">Input: Stimulus design matrix and grid</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-model-step-by-step">Building the model step by step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuning-profiles">Tuning profiles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stimulus-encoding">Stimulus encoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#impulse-response-models-for-bold-measurements">Impulse response models for BOLD measurements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-models">Scaling models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-canonical-model">The full canonical model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model-to-data">Fitting the model to data</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-data">Inspecting the data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-valid-voxels">Selecting valid voxels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-prf-model">Defining the pRF model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid-search">Grid search</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#least-squares">Least-squares</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-gradient-descent">Stochastic gradient descent</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit">Evaluating the model fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="practical-1-the-canonical-gaussian-2d-population-receptive-field-model">
+<h1>Practical 1: The canonical Gaussian 2D population receptive field model<a class="headerlink" href="#practical-1-the-canonical-gaussian-2d-population-receptive-field-model" title="Link to this heading">#</a></h1>
+<p class="colab-links"><a href="https://colab.research.google.com/github/popylar-org/2026-11-05_workshop-coimbra/blob/gh-pages/add-first-practical/notebooks/workshop/01-prf-visual-fmri.ipynb" target="_blank" rel="noopener"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> <a href="../notebooks/workshop/01-prf-visual-fmri.ipynb" download>Download notebook</a></p><p>This is the notebook for the first practical of the workshop. This practical covers the canonical Gaussian 2D population receptive field (pRF) model, its different computational parts, and how to fit it to empirical data from a visual functional magnetic resonance imaging (fMRI) experiment.</p>
+<p><strong>We recommend going through this notebook first to get familiar with the prfmodel package before starting with the notebooks of the other practicals.</strong></p>
+<section id="installation-and-setup">
+<h2>Installation and Setup<a class="headerlink" href="#installation-and-setup" title="Link to this heading">#</a></h2>
+<p>First, we need to install prfmodel from GitHub. We install the package with the TensorFlow backend (for more information on the different backends, see the <a class="reference external" href="https://popylar-org.github.io/prfmodel/development/backends.html">Backends</a> section in the package documentation).</p>
+<p><strong>Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow] @ git+https://github.com/popylar-org/prfmodel.git"</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We set the backend to TensorFlow and a default for printing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Set keras backend to 'tensorflow' (this is normally the default)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"KERAS_BACKEND"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"tensorflow"</span>
+<span class="c1"># Print parameter DataFrames with three decimals</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 1</p>
+<p>Import the prfmodel package and check whether the TensorFlow backend has been installed with GPU support (hint: use <code class="docutils literal notranslate"><span class="pre">tensorflow.config.list_physical_devices('GPU')</span></code> and <code class="docutils literal notranslate"><span class="pre">tensorflow.test.is_built_with_cuda()</span></code>).</p>
+</div>
+</section>
+<section id="the-canonical-gaussian-2d-prf-model">
+<h2>The canonical Gaussian 2D pRF model<a class="headerlink" href="#the-canonical-gaussian-2d-prf-model" title="Link to this heading">#</a></h2>
+<p>A population receptive field (pRF) model maps the recorded activity of neuron populations to an experimental stimulus
+that is presented during the recording. In this example, we use the canonical Gaussian 2D pRF model adapted from Dumoulin and Wandell (2008) to map the recorded blood oxygenation level-dependent (BOLD) response from an fMRI experiment to a series of bar apertures that move through the visual field of the recorded subject (i.e., the bar moves on a computer screen in front of the subject).</p>
+<section id="input-stimulus-design-matrix-and-grid">
+<h3>Input: Stimulus design matrix and grid<a class="headerlink" href="#input-stimulus-design-matrix-and-grid" title="Link to this heading">#</a></h3>
+<p>A pRF is defined in the <em>feature space</em> of the experimental stimulus. In this example, the stimulus has a two-dimensional visual feature space. How the position of the bar on the screen changes during the experiment is recorded as a stimulus <em>design matrix</em>. The design matrix indicates which cell in feature space is stimulated by the bar at which <em>time frame</em> (i.e., recording sample) of the experiment. The stimulus <em>grid</em> contains the feature space coordinates of every
+cell in the stimulus design matrix. In this example, the unit of the coordinates is degree of visual angle (but it could also be, e.g., screen pixels).</p>
+<p>We can look at the experimental stimulus that is attached to the dataset that we will use in this example. The dataset is
+called the Arrow-of-Time (AOT) dataset and the BOLD response was recorded with a 7 Tesla MRI scanner. Therefore, the
+dataset has the tag <code class="docutils literal notranslate"><span class="pre">7t-aot-visual</span></code>. We also specify that we want to load an inflated surface of the subject that we will
+use later for visualization.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.examples</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="c1"># Downloads on first use and caches in a user data directory (see prfmodel.examples.get_data_dir)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"7t-aot-visual"</span><span class="p">,</span> <span class="n">surface_type</span><span class="o">=</span><span class="s2">"inflated"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The stimulus can be accessed through the <code class="docutils literal notranslate"><span class="pre">dataset.stimulus</span></code> attribute.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stimulus</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">stimulus</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 2</p>
+<p>Inspect the stimulus design matrix and grid. What do the dimensions and values refer to? Hint: You can
+get an overview of the stimulus with <code class="docutils literal notranslate"><span class="pre">print(stimulus)</span></code>.</p>
+</div>
+<p>To get an impression of the experimental stimulus, we can also visualize the stimulus design matrix projected into grid
+coordinates as a video.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTML</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">animate_2d_prf_stimulus</span>
+
+<span class="n">ani</span> <span class="o">=</span> <span class="n">animate_2d_prf_stimulus</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>  <span class="c1"># Pause 25 ms between time frames</span>
+
+<span class="n">HTML</span><span class="p">(</span><span class="n">ani</span><span class="o">.</span><span class="n">to_html5_video</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 3</p>
+<p>Going back to Exercise 2, does the video confirm your assumptions about what the stimulus design and grid dimensions refer to?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 4</p>
+<p>What do you expect the activity of a neuron population that responds to this stimulus to look like?</p>
+</div>
+</section>
+<section id="building-the-model-step-by-step">
+<h3>Building the model step by step<a class="headerlink" href="#building-the-model-step-by-step" title="Link to this heading">#</a></h3>
+<p>The pRF is the part of the stimulus feature space that stimulates activity of the neuron population. The pRF model takes
+the stimulus design matrix and grid as input and predicts the neuron population activity given a set of parameters. By comparing the predicted against observed activity and optimizing the model parameters, the pRF model can estimate the
+pRF properties for the neuron population of the observed activity. Typically, pRFs are defined through a location (e.g.,
+a center x- and y-coordinate in visual space) and a size or tuning width.</p>
+<p>The canonical Gaussian 2D pRF model gets from input (i.e., stimulus design matrix and grid) to output (i.e., predicted BOLD response) in several steps. Each step is performed by a <em>submodel</em> that does a dedicated computation:</p>
+<ol class="arabic simple">
+<li><p>The <em>tuning profile</em> describes which part of the visual field stimulates the neuron population.</p></li>
+<li><p>The <em>stimulus encoding</em> computes the overlap between the tuning profile and the stimulus at every time frame, which gives the predicted neuron population activity.</p></li>
+<li><p>The <em>impulse response</em> turns the neuron population activity into a predicted BOLD response.</p></li>
+<li><p>The <em>scaling</em> adjusts the baseline and amplitude of the predicted BOLD response.</p></li>
+</ol>
+<p>We build up the model one submodel at a time and then combine all submodels into the full model.</p>
+<p>To explore how the parameters of each submodel affect its predictions, we use interactive figures. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters. The figure updates when you release a slider. You can expand a hidden cell if you are curious about its code.</p>
+<p>The first hidden cell defines helper functions for the interactive figures.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Helper functions for the interactive figures { display-mode: "form" }</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ipywidgets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">widgets</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span>
+
+<span class="n">BLUE</span> <span class="o">=</span> <span class="s2">"#2a78d6"</span>
+<span class="n">ORANGE</span> <span class="o">=</span> <span class="s2">"#eb6834"</span>
+<span class="n">GRAY</span> <span class="o">=</span> <span class="s2">"#8c8c8c"</span>
+<span class="n">TUNING_CMAP</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
+    <span class="s2">"tuning"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"#ffffff"</span><span class="p">,</span> <span class="s2">"#cde2fb"</span><span class="p">,</span> <span class="s2">"#86b6ef"</span><span class="p">,</span> <span class="s2">"#3987e5"</span><span class="p">,</span> <span class="s2">"#1c5cab"</span><span class="p">,</span> <span class="s2">"#0d366b"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Visual field coordinates of the stimulus grid (dimensions are ordered as y, x)</span>
+<span class="n">x_coords</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">y_coords</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">FIELD_EXTENT</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">time_frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># Starting value, minimum, maximum, and step size of the slider for each parameter</span>
+<span class="n">PARAM_SLIDERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"mu_x"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+    <span class="s2">"mu_y"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+    <span class="s2">"sigma"</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+    <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+    <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span>
+    <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">START_VALUES</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">PARAM_SLIDERS</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_sliders</span><span class="p">(</span><span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">FloatSlider</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Create a slider for each parameter."""</span>
+    <span class="n">sliders</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">PARAM_SLIDERS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">sliders</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">FloatSlider</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+            <span class="nb">min</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+            <span class="nb">max</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">continuous_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Only update the figure when the slider is released</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sliders</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">show_interactive</span><span class="p">(</span><span class="n">plot_fn</span><span class="p">,</span> <span class="n">sliders</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ValueWidget</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Show sliders above a figure that `plot_fn` redraws whenever a slider changes."""</span>
+    <span class="n">controls</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">GridBox</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">sliders</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+        <span class="n">layout</span><span class="o">=</span><span class="n">widgets</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">grid_template_columns</span><span class="o">=</span><span class="s2">"repeat(3, max-content)"</span><span class="p">,</span> <span class="n">grid_gap</span><span class="o">=</span><span class="s2">"4px 24px"</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">widgets</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="n">controls</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">interactive_output</span><span class="p">(</span><span class="n">plot_fn</span><span class="p">,</span> <span class="n">sliders</span><span class="p">)]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Turn parameter values into a parameter DataFrame with a single row."""</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Label the axes and make the frame and grid recede behind the data."""</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s2">"top"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">"#e6e6e6"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_legend</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Place the legend above the top right corner of the plot so that it does not cover the data."""</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"lower right"</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_prf_location</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="n">mu_x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">mu_y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw the pRF center and size (a circle with radius `sigma`) in the visual field."""</span>
+    <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">FIELD_EXTENT</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+        <span class="n">mpl</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">),</span> <span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">"#f2f2f2"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">+</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">"Stimulus area"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#595959"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">mpl</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Circle</span><span class="p">((</span><span class="n">mu_x</span><span class="p">,</span> <span class="n">mu_y</span><span class="p">),</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mu_x</span><span class="p">,</span> <span class="n">mu_y</span><span class="p">,</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">"equal"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"x (degrees visual angle)"</span><span class="p">,</span> <span class="s2">"y (degrees visual angle)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="tuning-profiles">
+<h3>Tuning profiles<a class="headerlink" href="#tuning-profiles" title="Link to this heading">#</a></h3>
+<p>In prfmodel, the core of every pRF model is called <em>tuning profile</em>. In the canonical Gaussian 2D pRF model, the tuning
+profile is an isotropic multivariate Gaussian density. This means that the Gaussian has the same standard deviation in all dimensions and no correlation between them (i.e., its covariance matrix is the identity matrix multiplied by the variance). It describes the stimulation of the neuron population at every input from the visual field.</p>
+<p>To illustrate this, we create an instance of a Gaussian tuning profile and evaluate it on the stimulus grid. The Gaussian 2D tuning profile only has three parameters, namely, the x- and y-coordinate of its center, and the size defined as the standard deviation. Parameters in prfmodel live in <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> objects where each row corresponds to a different unit (e.g., a vertex or voxel in fMRI) and each column to a different model parameter.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gaussian2DPRFTuning</span>
+
+<span class="n">prf_tuning</span> <span class="o">=</span> <span class="n">Gaussian2DPRFTuning</span><span class="p">()</span>
+
+<span class="n">tuning_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"mu_x"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"mu_y"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"sigma"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Predict the tuning profile</span>
+<span class="n">simulated_tuning_profile</span> <span class="o">=</span> <span class="n">prf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">tuning_params</span><span class="p">)</span>
+
+<span class="n">simulated_tuning_profile</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One value for every cell of the stimulus grid</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The predicted tuning profile assigns a value to every cell of the stimulus grid. We can visualize it as a heatmap in visual field coordinates: the darkest cells lie at the pRF center (<code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>), and the spread of the profile is determined by its size (<code class="docutils literal notranslate"><span class="pre">sigma</span></code>).</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Tuning profile { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_tuning</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">prf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+    <span class="n">image</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">FIELD_EXTENT</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">TUNING_CMAP</span><span class="p">)</span>  <span class="c1"># Positive y-coordinates point up</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Tuning"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Tuning profile"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"x (degrees visual angle)"</span><span class="p">,</span> <span class="s2">"y (degrees visual angle)"</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_tuning</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"mu_x"</span><span class="p">,</span> <span class="s2">"mu_y"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 5</p>
+<p>Use the sliders to change the tuning parameters to the following combinations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mu_x=2.1</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y=1.4</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma=2.0</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mu_x=-2.1</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y=-1.4</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma=0.7</span></code></p></li>
+</ul>
+<p>How does the predicted tuning profile change and why?</p>
+</div>
+</section>
+<section id="stimulus-encoding">
+<h3>Stimulus encoding<a class="headerlink" href="#stimulus-encoding" title="Link to this heading">#</a></h3>
+<p>In pRF models, the tuning profile is typically encoded with the stimulus design matrix through a dot-product operation. This operation computes the overlap between tuning profile and stimulus design matrix at every time frame and returns the predicted neuron population activity.</p>
+<p>We illustrate this by creating an instance of the pRF stimulus encoder.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRFStimulusEncoder</span>
+
+<span class="n">prf_encoder</span> <span class="o">=</span> <span class="n">PRFStimulusEncoder</span><span class="p">()</span>
+
+<span class="c1"># We first predict the tuning profile</span>
+<span class="n">simulated_tuning_profile</span> <span class="o">=</span> <span class="n">prf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">tuning_params</span><span class="p">)</span>
+
+<span class="c1"># Then we stimulus-encode it</span>
+<span class="n">simulated_encoded_profile</span> <span class="o">=</span> <span class="n">prf_encoder</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">simulated_tuning_profile</span><span class="p">,</span> <span class="n">tuning_params</span><span class="p">)</span>
+
+<span class="n">simulated_encoded_profile</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One value per time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the stimulus at a single time frame together with the contours of the tuning profile (left) and the predicted neuron population activity (right). The <code class="docutils literal notranslate"><span class="pre">time_frame</span></code> slider selects the time frame shown on the left, which is marked with a dot on the right.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Stimulus encoding { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">predict_encoded</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Predict the tuning profile and the stimulus-encoded response."""</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">prf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">profile</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">prf_encoder</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">params</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_encoding</span><span class="p">(</span><span class="n">time_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">profile</span><span class="p">,</span> <span class="n">encoded</span> <span class="o">=</span> <span class="n">predict_encoded</span><span class="p">(</span><span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_field</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Stimulated cells are black</span>
+    <span class="n">ax_field</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[</span><span class="n">time_frame</span><span class="p">],</span> <span class="n">extent</span><span class="o">=</span><span class="n">FIELD_EXTENT</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">"Greys"</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">profile</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ax_field</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+            <span class="n">x_coords</span><span class="p">,</span> <span class="n">y_coords</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]),</span> <span class="n">colors</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">ax_field</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Stimulus and tuning profile</span><span class="se">\n</span><span class="s2">at time frame </span><span class="si">{</span><span class="n">time_frame</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_field</span><span class="p">,</span> <span class="s2">"x (degrees visual angle)"</span><span class="p">,</span> <span class="s2">"y (degrees visual angle)"</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">encoded</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">time_frame</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">time_frame</span><span class="p">,</span> <span class="n">encoded</span><span class="p">[</span><span class="n">time_frame</span><span class="p">],</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted neuron population activity"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted activity"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="c1"># Start at the time frame where the stimulus overlaps most with the starting tuning profile</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">start_encoded</span> <span class="o">=</span> <span class="n">predict_encoded</span><span class="p">(</span><span class="n">to_frame</span><span class="p">(</span><span class="n">mu_x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">mu_y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
+<span class="n">time_frame_slider</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">IntSlider</span><span class="p">(</span>
+    <span class="n">value</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">start_encoded</span><span class="p">)),</span>
+    <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="nb">max</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">time_frames</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"time_frame"</span><span class="p">,</span>
+    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_encoding</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time_frame"</span><span class="p">:</span> <span class="n">time_frame_slider</span><span class="p">,</span> <span class="o">**</span><span class="n">make_sliders</span><span class="p">(</span><span class="s2">"mu_x"</span><span class="p">,</span> <span class="s2">"mu_y"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">)})</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 6</p>
+<p>Why does the predicted neuron population activity have this particular shape? How does it relate to the experimental stimulus (compare it to the video and move the <code class="docutils literal notranslate"><span class="pre">time_frame</span></code> slider)?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 7</p>
+<p>Change the tuning parameters to the same combinations as in Exercise 5:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mu_x=2.1</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y=1.4</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma=2.0</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mu_x=-2.1</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y=-1.4</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma=0.7</span></code></p></li>
+</ul>
+<p>How does the predicted neuron population activity change and why?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 8</p>
+<p>What happens to the predicted neuron population activity when you move the sliders to their extremes (e.g., a very small <code class="docutils literal notranslate"><span class="pre">sigma</span></code> or a pRF center at the edge of the stimulus)? Why?</p>
+</div>
+</section>
+<section id="impulse-response-models-for-bold-measurements">
+<h3>Impulse response models for BOLD measurements<a class="headerlink" href="#impulse-response-models-for-bold-measurements" title="Link to this heading">#</a></h3>
+<p>The predicted neuron population activity does not yet account for the characteristic shape of the BOLD recording. By default, the canonical Gaussian 2D pRF model in prfmodel approximates the shape of the BOLD response with the weighted difference of two gamma densities. From this difference, we then also subtract its weighted derivative. While the parameters for the difference weight and the gamma densities are typically fixed at default values, we estimate the weight of the derivative. This is the <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> parameter.</p>
+<p>We create an instance of the default impulse response model, define a set of parameters, and predict the impulse response.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.impulse</span><span class="w"> </span><span class="kn">import</span> <span class="n">DerivativeTwoGammaImpulse</span>
+
+<span class="n">impulse_model</span> <span class="o">=</span> <span class="n">DerivativeTwoGammaImpulse</span><span class="p">()</span>
+
+<span class="n">impulse_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">]})</span>
+
+<span class="n">simulated_impulse_response</span> <span class="o">=</span> <span class="n">impulse_model</span><span class="p">(</span><span class="n">impulse_params</span><span class="p">)</span>
+
+<span class="n">simulated_impulse_response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One value per time frame of the impulse response</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the impulse response for the <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> that you set with the slider. The dashed gray line shows the impulse response without the derivative (i.e., <code class="docutils literal notranslate"><span class="pre">weight_deriv</span> <span class="pre">=</span> <span class="pre">0</span></code>).</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Impulse response { display-mode: "form" }</span>
+<span class="n">no_deriv_impulse</span> <span class="o">=</span> <span class="n">impulse_model</span><span class="p">(</span><span class="n">to_frame</span><span class="p">(</span><span class="n">weight_deriv</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">impulse_frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">no_deriv_impulse</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_impulse</span><span class="p">(</span><span class="n">weight_deriv</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">impulse</span> <span class="o">=</span> <span class="n">impulse_model</span><span class="p">(</span><span class="n">to_frame</span><span class="p">(</span><span class="n">weight_deriv</span><span class="o">=</span><span class="n">weight_deriv</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#bdbdbd"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">impulse_frames</span><span class="p">,</span> <span class="n">no_deriv_impulse</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"weight_deriv = 0"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">impulse_frames</span><span class="p">,</span> <span class="n">impulse</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"weight_deriv = </span><span class="si">{</span><span class="n">weight_deriv</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Impulse response"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted impulse response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_impulse</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"weight_deriv"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>To predict the response that accounts for the shape of the BOLD measurement, the canonical Gaussian 2D pRF model convolves the predicted neuron population activity with the impulse response.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.impulse</span><span class="w"> </span><span class="kn">import</span> <span class="n">convolve_prf_impulse_response</span>
+
+<span class="n">convolution_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"mu_x"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"mu_y"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"sigma"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+        <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># We first predict the tuning profile</span>
+<span class="n">simulated_tuning_profile</span> <span class="o">=</span> <span class="n">prf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">convolution_params</span><span class="p">)</span>
+
+<span class="c1"># We stimulus-encode the tuning profile</span>
+<span class="n">simulated_encoded_profile</span> <span class="o">=</span> <span class="n">prf_encoder</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">simulated_tuning_profile</span><span class="p">,</span> <span class="n">convolution_params</span><span class="p">)</span>
+
+<span class="c1"># We predict the impulse response</span>
+<span class="n">simulated_impulse_response</span> <span class="o">=</span> <span class="n">impulse_model</span><span class="p">(</span><span class="n">convolution_params</span><span class="p">)</span>
+
+<span class="c1"># We convolve the encoded tuning profile with the impulse response</span>
+<span class="n">convolved_response</span> <span class="o">=</span> <span class="n">convolve_prf_impulse_response</span><span class="p">(</span><span class="n">simulated_encoded_profile</span><span class="p">,</span> <span class="n">simulated_impulse_response</span><span class="p">)</span>
+
+<span class="n">convolved_response</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Convolution with the impulse response { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">predict_convolved</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Predict the neuron population activity and its convolution with the impulse response."""</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">encoded</span> <span class="o">=</span> <span class="n">predict_encoded</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">convolved</span> <span class="o">=</span> <span class="n">convolve_prf_impulse_response</span><span class="p">(</span><span class="n">encoded</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">impulse_model</span><span class="p">(</span><span class="n">params</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">encoded</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">convolved</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_convolution</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">encoded</span><span class="p">,</span> <span class="n">convolved</span> <span class="o">=</span> <span class="n">predict_convolved</span><span class="p">(</span><span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">encoded</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Neuron population activity"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">convolved</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">ORANGE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Convolved with impulse response"</span><span class="p">)</span>
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted response before and after convolution"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_convolution</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"mu_x"</span><span class="p">,</span> <span class="s2">"mu_y"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">,</span> <span class="s2">"weight_deriv"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 9</p>
+<p>Move the <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> slider to change the impulse model parameter. How does the convolved response change and why?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 10</p>
+<p>Imagine a pRF model that is not applied to BOLD, but for example, electrocorticography (ECoG) measurements. Would the model still require a convolution of the predicted neuron population activity with an impulse response?</p>
+</div>
+</section>
+<section id="scaling-models">
+<h3>Scaling models<a class="headerlink" href="#scaling-models" title="Link to this heading">#</a></h3>
+<p>The predicted convolved pRF model response has a certain amplitude (i.e., scale) and a baseline of zero (i.e., no activity when the screen is blank). However, observed BOLD responses of different neuron populations often differ in their amplitude and baseline from the predictions of the canonical Gaussian 2D pRF model (e.g., due to differences in the vasculature or in the distance to the receiver coil). To account for these differences, a <em>scaling</em> submodel can modify the amplitude and baseline of the predicted response.</p>
+<p>We create an instance of a scaling model and modify the predicted convolved model response.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.scaling</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaselineAmplitude</span>
+
+<span class="n">scaling_model</span> <span class="o">=</span> <span class="n">BaselineAmplitude</span><span class="p">()</span>
+
+<span class="n">scaling_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]})</span>
+
+<span class="n">scaled_response</span> <span class="o">=</span> <span class="n">scaling_model</span><span class="p">(</span><span class="n">convolved_response</span><span class="p">,</span> <span class="n">scaling_params</span><span class="p">)</span>
+
+<span class="n">scaled_response</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the convolved response before (blue) and after (orange) scaling. The dashed gray line shows the scaled response for the starting parameters.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Scaling { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">predict_scaled</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Predict the convolved response before and after scaling."""</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">START_VALUES</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">})</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">convolved</span> <span class="o">=</span> <span class="n">predict_convolved</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">convolved</span><span class="p">,</span> <span class="n">scaling_model</span><span class="p">(</span><span class="n">convolved</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">params</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="n">_</span><span class="p">,</span> <span class="n">start_scaled</span> <span class="o">=</span> <span class="n">predict_scaled</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_scaling</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">convolved</span><span class="p">,</span> <span class="n">scaled</span> <span class="o">=</span> <span class="n">predict_scaled</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">start_scaled</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Starting parameters (scaled)"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">convolved</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Before scaling"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">scaled</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">ORANGE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"After scaling"</span><span class="p">)</span>
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Convolved response before and after scaling"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_scaling</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"baseline"</span><span class="p">,</span> <span class="s2">"amplitude"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 11</p>
+<p>Move the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> sliders. How does the predicted response change and why?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 12</p>
+<p>Change both the <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> parameter at the same time. How does this affect the scale of the predicted response?</p>
+</div>
+</section>
+<section id="the-full-canonical-model">
+<h3>The full canonical model<a class="headerlink" href="#the-full-canonical-model" title="Link to this heading">#</a></h3>
+<p>Now that we have seen every submodel, we can combine them into the full pRF model. In prfmodel, we call this a <em>canonical</em> model because it performs all necessary steps to get from input (i.e., stimulus design matrix and grid) to output (i.e., predicted BOLD response): tuning profile, stimulus encoding, convolution with the impulse response, and scaling. We create an instance of the canonical Gaussian 2D pRF model, which uses the submodels from above by default, and make a prediction with all parameters at once.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gaussian2DPRFModel</span>
+
+<span class="n">prf_model</span> <span class="o">=</span> <span class="n">Gaussian2DPRFModel</span><span class="p">()</span>
+
+<span class="n">start_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"mu_x"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"mu_y"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"sigma"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+        <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span>
+        <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Make prediction with pRF model</span>
+<span class="n">simulated_response</span> <span class="o">=</span> <span class="n">prf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">start_params</span><span class="p">)</span>
+
+<span class="n">simulated_response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One predicted timecourse with one value per time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the pRF in the visual field (left) and the predicted BOLD response of the full model (right). The dashed gray line shows the prediction for the starting parameters above. Use the sliders to see how all parameters together shape the predicted BOLD response.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Full model { display-mode: "form" }</span>
+<span class="n">start_response</span> <span class="o">=</span> <span class="n">prf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">START_VALUES</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_prediction</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">prf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_field</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">draw_prf_location</span><span class="p">(</span><span class="n">ax_field</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">"mu_x"</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">"mu_y"</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">])</span>
+    <span class="n">ax_field</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"pRF in the visual field"</span><span class="p">)</span>
+
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Starting parameters"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Current parameters"</span><span class="p">)</span>
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax_response</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted BOLD response"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted BOLD response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_prediction</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"mu_x"</span><span class="p">,</span> <span class="s2">"mu_y"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">,</span> <span class="s2">"weight_deriv"</span><span class="p">,</span> <span class="s2">"baseline"</span><span class="p">,</span> <span class="s2">"amplitude"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+</section>
+<section id="fitting-the-model-to-data">
+<h2>Fitting the model to data<a class="headerlink" href="#fitting-the-model-to-data" title="Link to this heading">#</a></h2>
+<section id="inspecting-the-data">
+<h3>Inspecting the data<a class="headerlink" href="#inspecting-the-data" title="Link to this heading">#</a></h3>
+<p>Before we fit the canonical Gaussian 2D pRF model to empirical data, we first load and inspect the recorded BOLD response timecourses. The BOLD response was recorded in a volume of voxels with a size of 2 mm. The dataset only contains the voxels that
+fall inside a (dilated) gray matter mask. We can access the timecourses from the <code class="docutils literal notranslate"><span class="pre">dataset.response</span></code> attribute.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_raw</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">response</span>
+<span class="n">response_raw</span><span class="o">.</span><span class="n">shape</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 13</p>
+<p>What do the dimensions of <code class="docutils literal notranslate"><span class="pre">response_raw</span></code> refer to? Visualize one or multiple timecourses with matplotlib or plotly. What is the unit of the BOLD response? Do you see any patterns in the timecourses and if so, how do they relate to the stimulus?</p>
+</div>
+<!-- The `response_raw` object contains the BOLD response timecourse for each voxel inside the mask. It has shape `(num_voxels, num_frames)` where `num_voxels` is the number of voxels in the mask and `num_frames` the number of time frames of the recording. The BOLD response timecourses have 340 time frames. They have already been converted to percent signal change (PSC) relative to a baseline of 100, so we subtract 100 to center each timecourse around zero. --><p>We transform the raw BOLD response timecourses by subtracting their baseline. This makes fitting the pRF model easier because it does not need to account for baseline differences between model predictions and observed data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_no_baseline</span> <span class="o">=</span> <span class="n">response_raw</span> <span class="o">-</span> <span class="mf">100.0</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To get a more complete overview of the BOLD timecourses, we can plot them for all voxels at once in a heatmap with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_response_heatmap</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_response_heatmap</span>
+
+<span class="c1"># Uses matplotlib because plotly cannot handle this many voxels</span>
+<span class="n">plot_response_heatmap</span><span class="p">(</span>
+    <span class="n">response_no_baseline</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Time frame (in TR)"</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Voxel index"</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="o">=</span><span class="s2">"BOLD response"</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 14</p>
+<p>Which patterns do you see in the heatmap and how do they relate to the stimulus?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 15</p>
+<p>Why do BOLD response patterns differ between voxels?</p>
+</div>
+<p>To visualize the response on the cortical surface, we need to project it from the volume onto the surface. The volume and the surfaces of the subject share the same coordinate system, so we can use <code class="docutils literal notranslate"><span class="pre">nilearn.surface.vol_to_surf</span></code> for the projection. The function samples the volume at several depths between the pial surface and the white matter surface, so we load these surfaces as well. To map a value per voxel back into the volume, we fill the values into the voxels inside the gray matter mask from the dataset.</p>
+<p>The projection linearly interpolates between neighboring voxels. To prevent voxels outside the mask or voxels with <code class="docutils literal notranslate"><span class="pre">NaN</span></code> values from affecting the result, we set them to zero and additionally project a volume that is one for all other (valid) voxels and zero otherwise. Dividing the first projection by the second gives a weighted average of only the valid voxels at each vertex. Vertices without any valid voxels are <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">new_img_like</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.surface</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolyMesh</span><span class="p">,</span> <span class="n">vol_to_surf</span>
+
+<span class="c1"># The pial and white matter surfaces are always downloaded together with the dataset</span>
+<span class="n">pial_mesh</span> <span class="o">=</span> <span class="n">PolyMesh</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"pia_lh"</span><span class="p">],</span> <span class="n">right</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"pia_rh"</span><span class="p">])</span>
+<span class="n">wm_mesh</span> <span class="o">=</span> <span class="n">PolyMesh</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"wm_lh"</span><span class="p">],</span> <span class="n">right</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"wm_rh"</span><span class="p">])</span>
+
+<span class="n">is_in_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">project_to_surface</span><span class="p">(</span><span class="n">voxel_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Project one value per voxel in the mask onto the vertices of both hemispheres (left first)."""</span>
+    <span class="n">voxel_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">voxel_values</span><span class="p">)</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">voxel_values</span><span class="p">)</span>
+    <span class="c1"># Stack the values (zero for invalid voxels) and the weights (one for valid voxels) into a 4D volume</span>
+    <span class="n">volume_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">volume_data</span><span class="p">[</span><span class="n">is_in_mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_valid</span><span class="p">,</span> <span class="n">voxel_values</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">volume_data</span><span class="p">[</span><span class="n">is_in_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_valid</span>
+    <span class="n">volume</span> <span class="o">=</span> <span class="n">new_img_like</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">volume_data</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="c1"># Vertices without any samples inside the mask are NaN; nilearn warns about them</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">"Mean of empty slice"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">surf_values</span><span class="p">,</span> <span class="n">surf_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
+            <span class="n">vol_to_surf</span><span class="p">(</span>
+                <span class="n">volume</span><span class="p">,</span>
+                <span class="n">pial_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
+                <span class="n">inner_mesh</span><span class="o">=</span><span class="n">wm_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
+                <span class="n">mask_img</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span>  <span class="c1"># Ignore samples outside the gray matter mask</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">)</span>
+        <span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="c1"># Weighted average of valid voxels; NaN for vertices without valid voxels</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">surf_values</span><span class="p">,</span> <span class="n">surf_weights</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">surf_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">surf_weights</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We also define a helper function to plot a per-voxel statistic on the inflated surface. The inflated surfaces of both hemispheres overlap in space, so we first move them apart. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_surf_stat_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.surface</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryMesh</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">separate_hemispheres</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">PolyMesh</span><span class="p">,</span> <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolyMesh</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Shift the hemispheres of a surface mesh apart along the left-right axis so that they do not overlap."""</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span>
+    <span class="n">left_coords</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">right_coords</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">left_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">left_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">gap</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">right_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">right_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">gap</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">PolyMesh</span><span class="p">(</span>
+        <span class="n">left</span><span class="o">=</span><span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">left_coords</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">faces</span><span class="p">),</span>
+        <span class="n">right</span><span class="o">=</span><span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">right_coords</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">faces</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">separate_hemispheres</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">num_vertices_left</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span><span class="o">.</span><span class="n">n_vertices</span>
+
+<span class="c1"># Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain</span>
+<span class="n">SURF_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Left medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">330</span><span class="p">),</span>
+    <span class="s2">"Posterior"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"both"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span>
+    <span class="s2">"Right medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"right"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">210</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_surf_stat_map_helper</span><span class="p">(</span>
+        <span class="n">stat_map</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"inferno"</span><span class="p">,</span>
+        <span class="n">cyclic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Helper function to plot a surface with a stat map from medial and posterior views.</span>
+
+<span class="sd">    Set `cyclic=True` for angles in radians (e.g., polar angle) to use the color range [-pi, pi] with the cyclic</span>
+<span class="sd">    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
+        <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s2">"hsv"</span>
+
+    <span class="c1"># Use the same color range for all views</span>
+    <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmin</span>
+    <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmax</span>
+
+    <span class="c1"># Stat maps for each hemisphere (left first)</span>
+    <span class="n">stat_maps</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"left"</span><span class="p">:</span> <span class="n">stat_map</span><span class="p">[:</span><span class="n">num_vertices_left</span><span class="p">],</span>
+        <span class="s2">"right"</span><span class="p">:</span> <span class="n">stat_map</span><span class="p">[</span><span class="n">num_vertices_left</span><span class="p">:],</span>
+        <span class="s2">"both"</span><span class="p">:</span> <span class="n">stat_map</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">SURF_VIEWS</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"projection"</span><span class="p">:</span> <span class="s2">"3d"</span><span class="p">},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">view_name</span><span class="p">,</span> <span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">SURF_VIEWS</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">plot_surf_stat_map</span><span class="p">(</span>
+            <span class="n">mesh</span> <span class="k">if</span> <span class="n">hemi</span> <span class="o">==</span> <span class="s2">"both"</span> <span class="k">else</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
+            <span class="n">stat_maps</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="n">symmetric_cbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">hemi</span><span class="o">=</span><span class="n">hemi</span><span class="p">,</span>
+            <span class="n">view</span><span class="o">=</span><span class="p">(</span><span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="p">),</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">view_name</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+        <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">),</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span>
+        <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can use the helper to plot, for example, the standard deviation of each timecourse on the surface to get an overview of the variability in the BOLD timecourses across the surface.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate standard deviation of each timecourse</span>
+<span class="n">response_sd</span> <span class="o">=</span> <span class="n">response_no_baseline</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plot_surf_stat_map_helper</span><span class="p">(</span><span class="n">project_to_surface</span><span class="p">(</span><span class="n">response_sd</span><span class="p">),</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"BOLD response standard deviation"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 16</p>
+<p>What can the response standard deviation tell us about neuron activity in different brain regions? Can you find the primary visual cortex (i.e., V1)?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 17</p>
+<p>Plot the average response of each timecourse on the surface. Do you see any interesting patterns?</p>
+</div>
+</section>
+<section id="selecting-valid-voxels">
+<h3>Selecting valid voxels<a class="headerlink" href="#selecting-valid-voxels" title="Link to this heading">#</a></h3>
+<p>Some voxels in the mask do not have valid timecourses, that is, their timecourses are constant and do not contain any signal. We filter out all voxels that have a constant timecourse.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_is_valid</span> <span class="o">=</span> <span class="n">response_no_baseline</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+
+<span class="n">response_valid</span> <span class="o">=</span> <span class="n">response_no_baseline</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span>
+
+<span class="n">response_is_valid</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># Fraction of valid voxels</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="defining-the-prf-model">
+<h3>Defining the pRF model<a class="headerlink" href="#defining-the-prf-model" title="Link to this heading">#</a></h3>
+<p>Now that the stimulus and the BOLD response are in place, we can fit the canonical Gaussian 2D pRF model. However, we need to slightly customize the model: The stimulus design matrix and the BOLD response were recorded with a repetition time (TR) of 0.9 seconds. By default, pRF models in prfmodel assume a TR of 1 second. The TR is set through the resolution of the impulse response model, so we replace the default with a custom impulse response model that has a resolution of 0.9 seconds. Matching the resolution of the impulse response model with the TR ensures that the predicted pRF model response has the same sampling rate as the stimulus and the observed BOLD timecourses. For details, see the <a class="reference external" href="https://popylar-org.github.io/prfmodel/important_details.html">Important Details</a> section in the online documentation of prfmodel.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define repetition time (TR)</span>
+<span class="n">tr</span> <span class="o">=</span> <span class="mf">0.9</span>
+
+<span class="c1"># Create custom impulse model</span>
+<span class="n">impulse_model</span> <span class="o">=</span> <span class="n">DerivativeTwoGammaImpulse</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="n">tr</span><span class="p">)</span>
+
+<span class="c1"># Define pRF model with custom impulse response submodel</span>
+<span class="n">prf_model</span> <span class="o">=</span> <span class="n">Gaussian2DPRFModel</span><span class="p">(</span>
+    <span class="n">impulse_model</span><span class="o">=</span><span class="n">impulse_model</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="grid-search">
+<h3>Grid search<a class="headerlink" href="#grid-search" title="Link to this heading">#</a></h3>
+<p>We fit the canonical Gaussian 2D pRF model in two stages. In the first stage, we perform a “brute-force” grid search to find good estimates for the parameters of the pRF tuning profile (i.e., <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code>).</p>
+<p>For the grid search, we define ranges of <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> that we want to construct a grid of parameter values from. We create them from the stimulus with <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.grid_values_2d_prf</span></code>. Here, the values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> span twice the visual field covered by the stimulus (<code class="docutils literal notranslate"><span class="pre">mu_extent=2.0</span></code>). Later, we will filter out voxels for which the pRF center lies outside the stimulus grid because their responses cannot be reliably measured by the experiment. The values for <code class="docutils literal notranslate"><span class="pre">sigma</span></code> are log-spaced between 0.05 and 4 degrees. We use 21 values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> so that the center (0 degrees) and edges ($\pm 4$ degrees) of the stimulus land on grid values. If they did not, <code class="docutils literal notranslate"><span class="pre">grid_values_2d_prf</span></code> would warn us and suggest a number of values that aligns them.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">baseline</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, and <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>, we only provide a single value so that they will stay constant across the entire grid.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_values_2d_prf</span>
+
+<span class="n">grid_param_ranges</span> <span class="o">=</span> <span class="n">grid_values_2d_prf</span><span class="p">(</span>
+    <span class="n">stimulus</span><span class="p">,</span>
+    <span class="n">num_mu</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span>
+    <span class="n">mu_extent</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># Span twice the visual field covered by the stimulus</span>
+    <span class="n">num_sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">sigma_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span>  <span class="c1"># Log-spaced by default</span>
+<span class="p">)</span> <span class="o">|</span> <span class="p">{</span>  <span class="c1"># Add constant parameters</span>
+    <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span>
+    <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+    <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">grid_param_ranges</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To run the grid search, we construct the <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.GridFitter</span></code>. Note that we set <code class="docutils literal notranslate"><span class="pre">batch_size=20</span></code> to let the fitter evaluate 20 parameter combinations at the same time which saves us a lot of memory. By default, the <code class="docutils literal notranslate"><span class="pre">loss</span></code> (i.e., the metric the fitter minimizes between model predictions and data) is the negative correlation coefficient, which ignores differences in baseline and amplitude between model predictions and observed data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridFitter</span>
+
+<span class="c1"># Create grid fitter object</span>
+<span class="n">grid_fitter</span> <span class="o">=</span> <span class="n">GridFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">prf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+    <span class="n">compile_step</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Setting 'compile_step=True' speeds up the fitting</span>
+<span class="p">)</span>
+
+<span class="c1"># Run grid search</span>
+<span class="n">grid_history</span><span class="p">,</span> <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">parameter_values</span><span class="o">=</span><span class="n">grid_param_ranges</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can print the parameters estimated by the grid search.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grid_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Because the grid search can only return values that are in the grid, it is worth checking how the estimates are distributed across the grid. We plot the distribution of the pRF centers with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_2d_prf_centers</span></code> and the distribution of the pRF sizes with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_grid_parameter_distribution</span></code>. The rectangle marks the part of the visual field covered by the stimulus, and pRF sizes at the smallest or largest value of the grid are highlighted in red.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_2d_prf_centers</span><span class="p">,</span> <span class="n">plot_grid_parameter_distribution</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="c1"># Count estimates for each combination of pRF center coordinates in the grid</span>
+<span class="n">plot_2d_prf_centers</span><span class="p">(</span><span class="n">grid_params</span><span class="p">,</span> <span class="n">grid_param_ranges</span><span class="p">,</span> <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">"mu_x (in degrees)"</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">"mu_y (in degrees)"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"pRF centers"</span><span class="p">)</span>
+
+<span class="c1"># Count estimates for each pRF size in the grid</span>
+<span class="n">plot_grid_parameter_distribution</span><span class="p">(</span><span class="n">grid_params</span><span class="p">,</span> <span class="n">grid_param_ranges</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Detects log spacing</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">"sigma (in degrees)"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"pRF sizes"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 18</p>
+<p>Compare the parameter estimates to the ranges of the grid search. What do you observe in the distributions of pRF centers and sizes? Change the grid ranges with the arguments of <code class="docutils literal notranslate"><span class="pre">grid_values_2d_prf</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">mu_extent</span></code>, <code class="docutils literal notranslate"><span class="pre">num_mu</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma_range</span></code>; you can also create a range for <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>). Can you get to a lower (i.e., better) mean loss across voxels (shown in the progress bar under <code class="docutils literal notranslate"><span class="pre">loss</span></code>)?</p>
+</div>
+</section>
+<section id="least-squares">
+<h3>Least-squares<a class="headerlink" href="#least-squares" title="Link to this heading">#</a></h3>
+<p>In the grid search, we ignored <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameters. In prfmodel, we estimate them with least-squares by regressing the observed responses on the predicted pRF model responses for each voxel. The intercept and slope of the least-squares regression become the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameter, respectively.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeastSquaresFitter</span>
+
+<span class="c1"># Create least-squares fitter</span>
+<span class="n">ls_fitter</span> <span class="o">=</span> <span class="n">LeastSquaresFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">prf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Run least squares fit</span>
+<span class="n">ls_history</span><span class="p">,</span> <span class="n">ls_params</span> <span class="o">=</span> <span class="n">ls_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">grid_params</span><span class="p">,</span>
+    <span class="n">slope_name</span><span class="o">=</span><span class="s2">"amplitude"</span><span class="p">,</span>  <span class="c1"># Names of parameters to be optimized with least squares</span>
+    <span class="n">intercept_name</span><span class="o">=</span><span class="s2">"baseline"</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can print the parameter estimates from the grid search together with the least-squares parameter estimates.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ls_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="stochastic-gradient-descent">
+<h3>Stochastic gradient descent<a class="headerlink" href="#stochastic-gradient-descent" title="Link to this heading">#</a></h3>
+<p>After least-squares estimation, the estimates for the tuning profile parameters are still lying on one of our grid points. Moreover, least-squares estimates <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> <em>given</em> the other parameters, but it cannot adjust these other parameters to achieve a better fit. To finetune all parameters (or a subset) at once, we use stochastic gradient descent (SGD). It calculates the gradient of each parameter with respect to a loss function between model predictions and observed data and adjusts the parameters accordingly in small steps to minimize the loss. Importantly, the default mean squared error loss function in SGD is scale-sensitive, meaning that large differences in scale between model predictions and observed data can impair SGD estimation or make it inefficient.  Thus, SGD requires good starting values for the parameters, so that it quickly converges to a good minimum of the loss function instead of getting stuck in a poor local minimum. Therefore, we <em>first</em> perform the grid search <em>and</em> least-squares optimization and use their parameter estimates as starting values for SGD.</p>
+<p>Without any adjustments, SGD moves parameter estimates in an unconstrained space, which can potentially lead to implausible values for parameters that are strictly positive, such as <code class="docutils literal notranslate"><span class="pre">sigma</span></code>. Therefore, and to make the estimation more efficient, we create an adapter with a parameter transformation that allows SGD to optimize <code class="docutils literal notranslate"><span class="pre">sigma</span></code> in an unconstrained log space while converting it to a strictly positive space when making model predictions. This way, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> always has plausible values when making predictions.</p>
+<p>We limit the flexibility of the estimation by fixing <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> to its starting value. This forces SGD to focus on the other parameters.</p>
+<p><strong>Note:</strong> SGD is computationally very heavy for BOLD fMRI timecourses from an entire brain. Therefore, we only use a small number of steps (<code class="docutils literal notranslate"><span class="pre">num_steps=100</span></code>) to illustrate the procedure. In practice, more steps should be used (the default is <code class="docutils literal notranslate"><span class="pre">num_steps=1000</span></code>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">SGDFitter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">ParameterTransform</span>
+
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">Adapter</span><span class="p">([</span><span class="n">ParameterTransform</span><span class="p">([</span><span class="s2">"sigma"</span><span class="p">],</span> <span class="n">transform_fun</span><span class="o">=</span><span class="n">ops</span><span class="o">.</span><span class="n">log</span><span class="p">,</span> <span class="n">inverse_fun</span><span class="o">=</span><span class="n">ops</span><span class="o">.</span><span class="n">exp</span><span class="p">)])</span>
+
+<span class="n">sgd_fitter</span> <span class="o">=</span> <span class="n">SGDFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">prf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+    <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span><span class="p">,</span>
+    <span class="n">compile_step</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Setting 'compile_step=True' speeds up the fitting</span>
+<span class="p">)</span>
+
+<span class="n">sgd_history</span><span class="p">,</span> <span class="n">sgd_params</span> <span class="o">=</span> <span class="n">sgd_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">init_parameters</span><span class="o">=</span><span class="n">ls_params</span><span class="p">,</span>
+    <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">"weight_deriv"</span><span class="p">],</span>  <span class="c1"># Fix weight_deriv to starting value</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">20_000</span><span class="p">,</span>
+    <span class="n">num_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can print the SGD parameter estimates.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sgd_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 19</p>
+<p>Compare the SGD parameter estimates against the grid search and least-squares estimates. How do they differ? (hint: you can use <code class="docutils literal notranslate"><span class="pre">plot_2d_prf_centers</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_grid_parameter_distribution</span></code>)</p>
+</div>
+</section>
+</section>
+<section id="evaluating-the-model-fit">
+<h2>Evaluating the model fit<a class="headerlink" href="#evaluating-the-model-fit" title="Link to this heading">#</a></h2>
+<p>Now that the pRF model parameters are estimated, we can compare the model predictions against the observed responses. Because we want to make predictions for all voxels at once, we wrap our <code class="docutils literal notranslate"><span class="pre">prf_model</span></code> in the <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.batched</span></code> function. The modifier changes the behavior of the model to make predictions for batches of voxels sequentially. This saves us a lot of memory at the expense of minimal runtime overhead.</p>
+<p>We first evaluate the fit of the pRF model using the grid search and least-squares parameter estimates.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched</span>
+
+<span class="n">predict_batched</span> <span class="o">=</span> <span class="n">batched</span><span class="p">(</span><span class="n">prf_model</span><span class="p">)</span>
+
+<span class="c1"># Make predictions with the estimated parameters</span>
+<span class="n">pred_response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">predict_batched</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">ls_params</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can quantify how well the predictions align with the observed timecourses using the R-squared metric, which we compute with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_r_squared</span></code>. This metric indicates the proportion of variance in the observed data explained by our model predictions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_r_squared</span>
+
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">calculate_r_squared</span><span class="p">(</span><span class="n">response_valid</span><span class="p">,</span> <span class="n">pred_response</span><span class="p">)</span>  <span class="c1"># One score per voxel</span>
+<span class="n">r_squared</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can look at the distribution of R-squared scores across voxels with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_hist</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_r_squared_hist</span>
+
+<span class="c1"># Many voxels have scores close to zero; a log scale also shows the voxels with higher scores</span>
+<span class="n">plot_r_squared_hist</span><span class="p">(</span><span class="n">r_squared</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 20</p>
+<p>Plot the R-squared score on the inflated surface. You can use the helper function below. For which brain regions does the model fit the data well?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fill_valid_voxels</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fill values for the valid voxels into an array with one value per voxel in the mask."""</span>
+    <span class="n">values_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">response_no_baseline</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">values_full</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+    <span class="k">return</span> <span class="n">values_full</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 21</p>
+<p>In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot predictions against observed responses for voxels with different fit quality, for example, by sorting them according to R-squared (e.g., with <code class="docutils literal notranslate"><span class="pre">np.argsort(r_squared)</span></code>; hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code>). Does the plot confirm the impression you get from the R-squared scores? Why does the model not fit well for some voxels?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 22</p>
+<p>Evaluate the model fit based on the SGD parameter estimates and compare it against the grid search and least-squares fit. Does SGD improve the fit and if not, why? (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_comparison</span></code> to compare R-squared scores).</p>
+</div>
+</section>
+<section id="interpreting-the-model-parameters">
+<h2>Interpreting the model parameters<a class="headerlink" href="#interpreting-the-model-parameters" title="Link to this heading">#</a></h2>
+<p>To analyze and interpret the pRF parameters, we zoom in on voxels for which we can trust the pRF estimates. We select
+voxels that fulfill three criteria:</p>
+<ul class="simple">
+<li><p>The R-squared is above 0.3 (note that this threshold is somewhat arbitrary).</p></li>
+<li><p>The pRF center lies inside the visual field covered by the stimulus. We extended the grid for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>
+beyond the stimulus, but pRF centers outside the stimulus are only weakly constrained by the data.</p></li>
+<li><p>The pRF size is below the largest <code class="docutils literal notranslate"><span class="pre">sigma</span></code> value in the grid. An estimate at the ceiling of the grid suggests
+that the best fitting pRF size lies outside the grid.</p></li>
+</ul>
+<p>We select voxels instead of surface vertices because we fitted the pRF model to the timecourse of each voxel. The
+projection onto the surface averages neighboring voxels, so selecting vertices would mix the parameters of poorly fitting
+voxels into the selected vertices. Instead, we set the parameters of voxels that are not selected to <code class="docutils literal notranslate"><span class="pre">NaN</span></code> before
+the projection, so that they are ignored.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mu_x</span> <span class="o">=</span> <span class="n">ls_params</span><span class="p">[</span><span class="s2">"mu_x"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">mu_y</span> <span class="o">=</span> <span class="n">ls_params</span><span class="p">[</span><span class="s2">"mu_y"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">ls_params</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="n">r_squared_threshold</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">edge_tolerance</span> <span class="o">=</span> <span class="mf">1e-3</span>  <span class="c1"># in degrees</span>
+
+<span class="n">grid_min_xy</span><span class="p">,</span> <span class="n">grid_max_xy</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">selection_criteria</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="sa">f</span><span class="s2">"r_squared &gt; </span><span class="si">{</span><span class="n">r_squared_threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="n">r_squared</span> <span class="o">&gt;</span> <span class="n">r_squared_threshold</span><span class="p">,</span>
+    <span class="c1"># The tolerance includes the grid values at the stimulus edges, which can be off due to rounding</span>
+    <span class="s2">"center inside stimulus"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">mu_x</span> <span class="o">&gt;=</span> <span class="n">grid_min_xy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">edge_tolerance</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">mu_x</span> <span class="o">&lt;=</span> <span class="n">grid_max_xy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">edge_tolerance</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">mu_y</span> <span class="o">&gt;=</span> <span class="n">grid_min_xy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">edge_tolerance</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">mu_y</span> <span class="o">&lt;=</span> <span class="n">grid_max_xy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">edge_tolerance</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="c1"># Least squares does not change sigma, so it is always one of the grid values</span>
+    <span class="s2">"sigma below grid ceiling"</span><span class="p">:</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">grid_param_ranges</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">])),</span>
+<span class="p">})</span>
+
+<span class="n">is_selected</span> <span class="o">=</span> <span class="n">selection_criteria</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">project_selected</span><span class="p">(</span><span class="n">voxel_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Project values of the selected voxels onto the surface, ignoring all other voxels."""</span>
+    <span class="k">return</span> <span class="n">project_to_surface</span><span class="p">(</span><span class="n">fill_valid_voxels</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_selected</span><span class="p">,</span> <span class="n">voxel_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)))</span>
+
+
+<span class="c1"># Fraction of valid voxels that fulfill each criterion and all criteria together</span>
+<span class="n">selection_criteria</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">all_criteria</span><span class="o">=</span><span class="n">is_selected</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>First, we look at the pRF size indicated by <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and plot it on the surface.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">size_surf</span> <span class="o">=</span> <span class="n">project_selected</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+
+<span class="n">plot_surf_stat_map_helper</span><span class="p">(</span><span class="n">size_surf</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"pRF size (sigma)"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 23</p>
+<p>How does the pRF size change across the inflated surface? Change the R-squared threshold (<code class="docutils literal notranslate"><span class="pre">r_squared_threshold</span></code>) and recreate the plot. Does the pattern change?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 24</p>
+<p>Compute the polar angle of the pRF center with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_polar_angle</span></code>. Plot the polar angle of the selected voxels on the inflated surface (hint: use <code class="docutils literal notranslate"><span class="pre">cyclic=True</span></code> in the plotting helper to get a cyclic colormap). How does polar angle change on the inflated surface? Note that the projection onto the surface averages neighboring voxels, but angles cannot be averaged directly because they wrap around from $-\pi$ to $\pi$. Instead, project <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> onto the surface separately and compute the polar angle afterwards.</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 25</p>
+<p>Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_eccentricity</span></code>. Plot it for the selected voxels on the inflated surface. How does eccentricity change across the inflated surface?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 26 (optional)</p>
+<p>Compare the polar angle and eccentricity patterns you observed to the ones reported in the paper by Dumoulin and Wandell (2008). Do your results agree with theirs?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 27 (optional, advanced)</p>
+<p>Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.Gaussian2DCSSPRFModel</span></code> class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.</p>
+</div>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Dumoulin, S. O., &amp; Wandell, B. A. (2008). Population receptive field estimates in human visual cortex. <em>NeuroImage</em>, <em>39</em>(2), 647-660. https://doi.org/10.1016/j.neuroimage.2007.09.034</p>
+<p>Kay, K. N., Winawer, J., Mezer, A., &amp; Wandell, B. A. (2013). Compressive spatial summation in human visual cortex. <em>Journal of Neurophysiology</em>, <em>110</em>(2), 481-494. https://doi.org/10.1152/jn.00105.2013</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Workshop materials</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-canonical-gaussian-2d-prf-model">The canonical Gaussian 2D pRF model</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-stimulus-design-matrix-and-grid">Input: Stimulus design matrix and grid</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-model-step-by-step">Building the model step by step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuning-profiles">Tuning profiles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stimulus-encoding">Stimulus encoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#impulse-response-models-for-bold-measurements">Impulse response models for BOLD measurements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-models">Scaling models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-canonical-model">The full canonical model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model-to-data">Fitting the model to data</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-data">Inspecting the data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-valid-voxels">Selecting valid voxels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-prf-model">Defining the pRF model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid-search">Grid search</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#least-squares">Least-squares</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-gradient-descent">Stochastic gradient descent</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit">Evaluating the model fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Popylar Team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Spinoza Centre for Neuroimaging and Netherlands eScience Center.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
