@@ -49,6 +49,8 @@ html_theme_options = {
     "use_download_button": False,
     "home_page_in_toc": True,
     "show_toc_level": 2,
+    # No search bar in the header; search stays available in the sidebar.
+    "navbar_persistent": [],
 }
 
 # -- Colab notebooks (see _ext/colab_notebooks.py) ---------------------------

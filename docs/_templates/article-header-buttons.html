@@ -1,5 +1,6 @@
 {#- Override of sphinx-book-theme's article-header-buttons.html that adds the
-    version switcher right before the repository (GitHub) button. -#}
+    version switcher right before the repository (GitHub) button and drops the
+    search button (search stays available in the primary sidebar). -#}
 {% from "../macros/buttons.html" import render_funcs with context %}
 
 {%- set source_labels = ["source-repository-button", "source-buttons"] %}
@@ -20,6 +21,5 @@
 
 {#- Extra theme buttons #}
 {% include "theme-switcher.html" %}
-{% include "search-button.html" %}
 {% include "toggle-secondary-sidebar.html" %}
 </div>
