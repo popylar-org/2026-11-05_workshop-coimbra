@@ -647,10 +647,6 @@ response_raw.shape
 
 +++
 
-<!-- The `response_raw` object contains the BOLD response timecourse for each voxel inside the mask. It has shape `(num_voxels, num_frames)` where `num_voxels` is the number of voxels in the mask and `num_frames` the number of time frames of the recording. The BOLD response timecourses have 340 time frames. They have already been converted to percent signal change (PSC) relative to a baseline of 100, so we subtract 100 to center each timecourse around zero. -->
-
-+++
-
 We transform the raw BOLD response timecourses by subtracting their baseline. This makes fitting the pRF model easier because it does not need to account for baseline differences between model predictions and observed data.
 
 ```{code-cell} ipython3

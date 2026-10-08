@@ -1008,7 +1008,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <p class="admonition-title">Exercise 13</p>
 <p>What do the dimensions of <code class="docutils literal notranslate"><span class="pre">response_raw</span></code> refer to? Visualize one or multiple timecourses with matplotlib or plotly. What is the unit of the BOLD response? Do you see any patterns in the timecourses and if so, how do they relate to the stimulus?</p>
 </div>
-<!-- The `response_raw` object contains the BOLD response timecourse for each voxel inside the mask. It has shape `(num_voxels, num_frames)` where `num_voxels` is the number of voxels in the mask and `num_frames` the number of time frames of the recording. The BOLD response timecourses have 340 time frames. They have already been converted to percent signal change (PSC) relative to a baseline of 100, so we subtract 100 to center each timecourse around zero. --><p>We transform the raw BOLD response timecourses by subtracting their baseline. This makes fitting the pRF model easier because it does not need to account for baseline differences between model predictions and observed data.</p>
+<p>We transform the raw BOLD response timecourses by subtracting their baseline. This makes fitting the pRF model easier because it does not need to account for baseline differences between model predictions and observed data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_no_baseline</span> <span class="o">=</span> <span class="n">response_raw</span> <span class="o">-</span> <span class="mf">100.0</span>
