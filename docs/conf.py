@@ -3,6 +3,9 @@
 import sys
 from pathlib import Path
 
+from sphinx_polyversion.api import LoadError, load
+from sphinx_polyversion.git import GitRef  # noqa: F401 (registers GitRef for load())
+
 sys.path.insert(0, str(Path(__file__).parent / "_ext"))
 
 project = "Popylar Population Receptive Field Modeling Workshop"
@@ -15,7 +18,16 @@ extensions = [
     "colab_notebooks",
 ]
 
-exclude_patterns = ["_build", "_ext", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
+templates_path = ["_templates"]
+exclude_patterns = [
+    "_build",
+    "_ext",
+    "_polyversion",
+    "_templates",
+    "Thumbs.db",
+    ".DS_Store",
+    "**.ipynb_checkpoints",
+]
 
 # -- MyST / MyST-NB ----------------------------------------------------------
 
@@ -46,3 +58,22 @@ colab_branch = "gh-pages"
 colab_notebook_dir = "notebooks"
 # Prepended as the first code cell of every generated notebook.
 colab_setup_cell = "%pip install git+https://github.com/popylar-org/prfmodel.git"
+
+# -- Versions (see poly.py) --------------------------------------------------
+
+try:
+    # Adds the revision being built ("current"), all "revisions", their output
+    # "paths", and the "root_branch" to html_context for the version switcher.
+    load(globals())
+except LoadError:
+    # Plain sphinx-build: a single version without version switcher.
+    pass
+else:
+    _revision = html_context["current"].name
+    # The root branch is built into the site root, every other version into a
+    # directory named after its branch or tag.
+    _path = html_context["paths"].get(_revision, _revision)
+    html_context["polyversion_root"] = "../" * (_path.count("/") + 1) if _path else ""
+    colab_path_prefix = _path
+    if _revision != "local":
+        html_theme_options["repository_branch"] = _revision

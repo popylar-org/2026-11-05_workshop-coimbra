@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Popylar Population Receptive Field Modeling Workshop</title>
+</head>
+<body>
+  <p>Available versions of the website:</p>
+  <ul>
+    {%- for rev, path in versions %}
+    <li><a href="{{ path }}/">{{ rev.name }}</a></li>
+    {%- endfor %}
+  </ul>
+</body>
+</html>

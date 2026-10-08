@@ -1,0 +1,25 @@
+{#- Override of sphinx-book-theme's article-header-buttons.html that adds the
+    version switcher right before the repository (GitHub) button. -#}
+{% from "../macros/buttons.html" import render_funcs with context %}
+
+{%- set source_labels = ["source-repository-button", "source-buttons"] %}
+{%- set has_source_button = header_buttons | selectattr("label", "in", source_labels) | list | length > 0 %}
+<div class="article-header-buttons">
+{%- for button in header_buttons -%}
+{% set btype = button.get("type") %}
+{% set bopts = button.copy() %}
+{% set _ = bopts.pop("type") %}
+{%- if button.get("label") in source_labels %}
+{% include "polyversion-switcher.html" %}
+{%- endif %}
+{{ render_funcs[btype](**bopts) }}
+{%- endfor -%}
+{%- if not has_source_button %}
+{% include "polyversion-switcher.html" %}
+{%- endif %}
+
+{#- Extra theme buttons #}
+{% include "theme-switcher.html" %}
+{% include "search-button.html" %}
+{% include "toggle-secondary-sidebar.html" %}
+</div>

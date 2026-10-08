@@ -2407,6 +2407,15 @@ wheels = [
 ]
 
 [[package]]
+name = "sphinx-polyversion"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/63/b3/4192a156c9970ab903e1bc297f98820b2fe482554bf6807b89a7be35a51d/sphinx_polyversion-3.0.0.tar.gz", hash = "sha256:b716098fb7971c14ce117d85af1f3e09c37bdddc83f37f857a489bf7dd030050", size = 32881, upload-time = "2026-07-29T13:12:02.5Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/19/e6/d0423fc188fc584257131618d82efa950afa4697397a32b0c4eb6440c3e2/sphinx_polyversion-3.0.0-py3-none-any.whl", hash = "sha256:5774b16a5f05b539d396da9f1aea0130b862790d6735f7321a4cb021749dfe44", size = 36727, upload-time = "2026-07-29T13:12:03.736Z" },
+]
+
+[[package]]
 name = "sphinxcontrib-applehelp"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2739,6 +2748,7 @@ docs = [
     { name = "sphinx" },
     { name = "sphinx-book-theme" },
     { name = "sphinx-copybutton" },
+    { name = "sphinx-polyversion" },
 ]
 
 [package.metadata]
@@ -2754,6 +2764,7 @@ docs = [
     { name = "sphinx", specifier = ">=9.1.0" },
     { name = "sphinx-book-theme", specifier = ">=1.4.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.2" },
+    { name = "sphinx-polyversion", specifier = ">=3.0.0" },
 ]
 
 [[package]]

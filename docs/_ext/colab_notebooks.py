@@ -10,7 +10,9 @@ On every page, blockquotes that start with a bold "Exercise ..." label are
 rendered as exercise admonitions.
 
 Colab can only open notebooks hosted on GitHub, so the badge points to the
-``colab_branch`` of ``colab_repo``, where the deployed HTML output lives.
+``colab_branch`` of ``colab_repo``, where the deployed HTML output lives. If
+the output is deployed to a subdirectory of that branch (e.g. one per version),
+set ``colab_path_prefix`` to that subdirectory.
 """
 
 from pathlib import Path
@@ -41,9 +43,10 @@ def _add_colab_links(app: Sphinx, doctree: nodes.document) -> None:
 
     config = app.config
     notebook_path = f"{config.colab_notebook_dir}/{docname}.ipynb"
+    deployed_path = "/".join(filter(None, [config.colab_path_prefix, notebook_path]))
     colab_url = (
         f"https://colab.research.google.com/github/{config.colab_repo}"
-        f"/blob/{config.colab_branch}/{notebook_path}"
+        f"/blob/{config.colab_branch}/{deployed_path}"
     )
     download_url = "../" * docname.count("/") + notebook_path
     html = (
@@ -120,6 +123,7 @@ def setup(app: Sphinx) -> dict:
     app.add_config_value("colab_repo", "", "html")
     app.add_config_value("colab_branch", "gh-pages", "html")
     app.add_config_value("colab_notebook_dir", "notebooks", "html")
+    app.add_config_value("colab_path_prefix", "", "html")
     app.add_config_value("colab_setup_cell", "", "html")
 
     app.connect("builder-inited", lambda app: _init_env(app, app.env))
