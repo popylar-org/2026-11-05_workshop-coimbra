@@ -1,0 +1,56 @@
+name: Build and deploy website
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ["*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Every deployment rebuilds all versions, so a newer one supersedes older ones.
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # sphinx-polyversion builds every branch and tag from the git history.
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked --only-group docs
+
+      - name: Build website and notebooks
+        if: github.event_name == 'pull_request'
+        run: uv run --no-sync sphinx-build -W --keep-going -b html docs _build/html
+
+      - name: Build all versions of the website and notebooks
+        if: github.event_name != 'pull_request'
+        run: |
+          # sphinx-polyversion only considers local branches.
+          git fetch --update-head-ok origin '+refs/heads/*:refs/heads/*'
+          uv run --no-sync sphinx-polyversion docs/poly.py -v
+          # Failed versions are only logged, so check that the triggering one was built.
+          # main is built into the site root, all other versions into subdirectories.
+          if [ "$GITHUB_REF_NAME" = main ]; then dir=.; else dir="$GITHUB_REF_NAME"; fi
+          test -f "_build/html/$dir/index.html"
+          touch _build/html/.nojekyll
+
+      - name: Deploy to gh-pages
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _build/html
+          publish_branch: gh-pages

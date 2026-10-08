@@ -1,0 +1,55 @@
+{#- Version switcher for builds made with sphinx-polyversion (see docs/poly.py). -#}
+{%- if current is defined %}
+{%- set site_root = (pathto('', 1) ~ polyversion_root) or './' %}
+{%- set branches = revisions | rejectattr("type_.name", "equalto", "TAG") | list %}
+{%- set tags = revisions | selectattr("type_.name", "equalto", "TAG") | list %}
+{%- macro icon(rev) -%}
+<i class="fa-solid {{ 'fa-tag' if rev.type_.name == 'TAG' else 'fa-code-branch' }} fa-fw" aria-hidden="true"></i>
+{%- endmacro %}
+{%- macro version_items(title, revs) %}
+  {%- if revs %}
+  <li><h6 class="dropdown-header">{{ title }}</h6></li>
+  {%- for rev in revs %}
+  {%- set path = paths.get(rev.name, rev.name) %}
+  {%- set is_current = rev.name == current.name %}
+  <li>
+    <a class="dropdown-item polyversion-item{% if is_current %} active{% endif %}"
+       href="{{ site_root }}{{ path ~ '/' if path }}"{% if is_current %} aria-current="true"{% endif %}>
+      {{ icon(rev) }}
+      <span class="polyversion-name">{{ rev.name }}</span>
+      {%- if rev.name == root_branch %}<span class="polyversion-badge">latest</span>{% endif %}
+      {%- if is_current %}<i class="fa-solid fa-check polyversion-check" aria-hidden="true"></i>{% endif %}
+    </a>
+  </li>
+  {%- endfor %}
+  {%- endif %}
+{%- endmacro %}
+<div class="dropdown polyversion-switcher">
+  <button class="btn polyversion-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          aria-expanded="false" aria-label="Version: {{ current.name }}" title="Switch version">
+    {{ icon(current) }}
+    <span class="polyversion-name">{{ current.name }}</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end polyversion-menu">
+    {{- version_items("Branches", branches) }}
+    {%- if branches and tags %}<li><hr class="dropdown-divider"></li>{% endif %}
+    {{- version_items("Tags", tags) }}
+  </ul>
+</div>
+<script>
+  document.querySelectorAll(".polyversion-item").forEach((item) => {
+    item.addEventListener("click", async (event) => {
+      // Open the current page in the selected version, or its home page if the page does not exist there.
+      event.preventDefault();
+      const versionRoot = new URL(item.getAttribute("href"), window.location.href);
+      const page = new URL("{{ pagename }}{{ file_suffix }}", versionRoot);
+      try {
+        const response = await fetch(page, { method: "HEAD" });
+        window.location.href = response.ok ? page : versionRoot;
+      } catch {
+        window.location.href = versionRoot;
+      }
+    });
+  });
+</script>
+{%- endif %}
