@@ -70,7 +70,9 @@ pd.set_option("display.precision", 3)
 
 > **Exercise 1:** Import the prfmodel package and check whether the TensorFlow backend has been installed with GPU support (hint: use `tensorflow.config.list_physical_devices('GPU')` and `tensorflow.test.is_built_with_cuda()`).
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 ## The canonical Gaussian 2D pRF model
 
@@ -107,7 +109,9 @@ stimulus = dataset.stimulus
 > **Exercise 2:** Inspect the stimulus design matrix and grid. What do the dimensions and values refer to? Hint: You can
 > get an overview of the stimulus with `print(stimulus)`.
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 To get an impression of the experimental stimulus, we can also visualize the stimulus design matrix projected into grid
 coordinates as a video.
@@ -671,7 +675,9 @@ response_raw.shape
 
 > **Exercise 13:** What do the dimensions of `response_raw` refer to? Visualize one or multiple timecourses with matplotlib or plotly. What is the unit of the BOLD response? Do you see any patterns in the timecourses and if so, how do they relate to the stimulus?
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 We transform the raw BOLD response timecourses by subtracting their baseline. With a `baseline` parameter of zero, our pRF model predicts a response of zero at blank stimulus frames, so setting the baseline to zero matches this default and makes the numbers a bit easier to work with.
 
@@ -901,7 +907,9 @@ plot_surf_stat_map_helper(project_to_surface(response_sd), vmax=5.0, title="BOLD
 
 > **Exercise 17:** Plot the average response of each timecourse on the surface. Do you see any interesting patterns?
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 ### Selecting valid voxels
 
@@ -1002,7 +1010,9 @@ axes[1].set(xlabel="sigma (in degrees)", title="pRF sizes");
 
 > **Exercise 18:** Compare the parameter estimates to the ranges of the grid search. What do you observe in the distributions of pRF centers and sizes? Change the grid ranges with the arguments of `grid_values_2d_prf` (e.g., `mu_extent`, `num_mu`, `sigma_range`; you can also create a range for `weight_deriv`). Can you get to a lower (i.e., better) mean loss across voxels (shown in the progress bar under `loss`)?
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 ### Least-squares
 
@@ -1074,7 +1084,9 @@ sgd_params
 
 > **Exercise 19:** Compare the SGD parameter estimates against the grid search and least-squares estimates. How do they differ? (hint: you can use `plot_2d_prf_centers` and `plot_grid_parameter_distribution`)
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 ## Evaluating the model fit
 
@@ -1119,13 +1131,21 @@ def fill_valid_voxels(values: np.ndarray) -> np.ndarray:
     return values_full
 ```
 
+```{code-cell} ipython3
+# Your code goes here
+```
+
 > **Exercise 21:** In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot predictions against observed responses for voxels with different fit quality, for example, by sorting them according to R-squared (e.g., with `np.argsort(r_squared)`; hint: use `prfmodel.plotting.plot_observed_predicted`). Does the plot confirm the impression you get from the R-squared scores? Why does the model not fit well for some voxels?
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 > **Exercise 22:** Evaluate the model fit based on the SGD parameter estimates and compare it against the grid search and least-squares fit. Does SGD improve the fit and if not, why? (hint: use `prfmodel.plotting.plot_r_squared_comparison` to compare R-squared scores).
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 ## Interpreting the model parameters
 
@@ -1188,15 +1208,21 @@ plot_surf_stat_map_helper(size_surf, vmin=0.0, vmax=5.0, title="pRF size (sigma)
 
 > **Exercise 23:** How does the pRF size change across the inflated surface? Change the R-squared threshold (`r_squared_threshold`) and recreate the plot. Does the pattern change?
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 > **Exercise 24:** Compute the polar angle of the pRF center with `prfmodel.utils.calculate_polar_angle`. Plot the polar angle of the selected voxels on the inflated surface (hint: use `cyclic=True` in the plotting helper to get a cyclic colormap). How does polar angle change on the inflated surface? Note that the projection onto the surface averages neighboring voxels, but angles cannot be averaged directly because they wrap around from $-\pi$ to $\pi$. Instead, project `mu_x` and `mu_y` onto the surface separately and compute the polar angle afterwards.
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 > **Exercise 25:** Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) with `prfmodel.utils.calculate_eccentricity`. Plot it for the selected voxels on the inflated surface. How does eccentricity change across the inflated surface?
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 > **Exercise 26 (optional):** Compare the polar angle and eccentricity patterns you observed to the ones reported in the paper by Dumoulin and Wandell (2008). Do your results agree with theirs?
 
@@ -1204,7 +1230,9 @@ plot_surf_stat_map_helper(size_surf, vmin=0.0, vmax=5.0, title="pRF size (sigma)
 
 > **Exercise 27 (optional, advanced):** Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the `prfmodel.models.prf.Gaussian2DCSSPRFModel` class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.
 
-+++
+```{code-cell} ipython3
+# Your code goes here
+```
 
 ## References
 
