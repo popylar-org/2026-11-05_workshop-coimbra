@@ -662,7 +662,7 @@ show_interactive(plot_prediction, make_sliders("mu_x", "mu_y", "sigma", "weight_
 ### Inspecting the data
 
 Before we fit the canonical Gaussian 2D pRF model to empirical data, we first load and inspect the recorded BOLD response timecourses. The BOLD response was recorded in a volume of voxels with a size of 2 mm. The dataset only contains the voxels that
-fall inside a (dilated) gray matter mask. We can access the timecourses from the `dataset.response` attribute.
+fall inside a (dilated) gray matter mask. We can access the timecourses from the `dataset.response` attribute. Note that the raw response includes a non-zero baseline to accommodate pRF models that cannot predict a zero baseline (e.g., the divisive normalization pRF model; Aqil et al., 2020).
 
 ```{code-cell} ipython3
 response_raw = dataset.response
@@ -673,7 +673,7 @@ response_raw.shape
 
 +++
 
-We transform the raw BOLD response timecourses by subtracting their baseline. This makes fitting the pRF model easier because it does not need to account for baseline differences between model predictions and observed data.
+We transform the raw BOLD response timecourses by subtracting their baseline. With a `baseline` parameter of zero, our pRF model predicts a response of zero at blank stimulus frames, so setting the baseline to zero matches this default and makes the numbers a bit easier to work with.
 
 ```{code-cell} ipython3
 response_no_baseline = response_raw - 100.0
