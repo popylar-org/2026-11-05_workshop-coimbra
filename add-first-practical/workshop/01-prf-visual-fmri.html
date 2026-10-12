@@ -416,6 +416,13 @@
 <p class="admonition-title">Exercise 1</p>
 <p>Import the prfmodel package and check whether the TensorFlow backend has been installed with GPU support (hint: use <code class="docutils literal notranslate"><span class="pre">tensorflow.config.list_physical_devices('GPU')</span></code> and <code class="docutils literal notranslate"><span class="pre">tensorflow.test.is_built_with_cuda()</span></code>).</p>
 </div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="the-canonical-gaussian-2d-prf-model">
 <h2>The canonical Gaussian 2D pRF model<a class="headerlink" href="#the-canonical-gaussian-2d-prf-model" title="Link to this heading">#</a></h2>
@@ -451,6 +458,13 @@ use later for visualization.</p>
 <p class="admonition-title">Exercise 2</p>
 <p>Inspect the stimulus design matrix and grid. What do the dimensions and values refer to? Hint: You can
 get an overview of the stimulus with <code class="docutils literal notranslate"><span class="pre">print(stimulus)</span></code>.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 <p>To get an impression of the experimental stimulus, we can also visualize the stimulus design matrix projected into grid
 coordinates as a video.</p>
@@ -531,11 +545,11 @@ a center x- and y-coordinate in visual space) and a size or tuning width.</p>
 <span class="n">START_VALUES</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">PARAM_SLIDERS</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">make_sliders</span><span class="p">(</span><span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">FloatSlider</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Create a slider for each parameter."""</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_sliders</span><span class="p">(</span><span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">custom_sliders</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">FloatSlider</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Create a slider for each parameter; `custom_sliders` replace the values from `PARAM_SLIDERS` for a parameter."""</span>
     <span class="n">sliders</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-        <span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">PARAM_SLIDERS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">custom_sliders</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">PARAM_SLIDERS</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
         <span class="n">sliders</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">FloatSlider</span><span class="p">(</span>
             <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
             <span class="nb">min</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
@@ -1040,6 +1054,13 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <p class="admonition-title">Exercise 13</p>
 <p>What do the dimensions of <code class="docutils literal notranslate"><span class="pre">response_raw</span></code> refer to? Visualize one or multiple timecourses with matplotlib or plotly. What is the unit of the BOLD response? Do you see any patterns in the timecourses and if so, how do they relate to the stimulus?</p>
 </div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
 <p>We transform the raw BOLD response timecourses by subtracting their baseline. With a <code class="docutils literal notranslate"><span class="pre">baseline</span></code> parameter of zero, our pRF model predicts a response of zero at blank stimulus frames, so setting the baseline to zero matches this default and makes the numbers a bit easier to work with.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1121,9 +1142,15 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </div>
 <p>We also define a helper function to plot a per-voxel statistic on the inflated surface. The inflated surfaces of both hemispheres overlap in space, so we first move them apart. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior).</p>
 <p>Each hemisphere of the surface has about 150,000 vertices, which makes plotting slow (especially on Colab). Because the figures are too small to show that much detail, the helper plots a downsampled surface: All vertices that fall into the same cube of a 2 mm grid are merged into a single vertex that gets the average value of the merged vertices. This reduces the surface to about 27,000 vertices per hemisphere.</p>
-<div class="cell docutils container">
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Helper functions for plotting on the surface { display-mode: "form" }</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_surf_stat_map</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.surface</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryMesh</span>
@@ -1258,6 +1285,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </pre></div>
 </div>
 </div>
+</details>
 </div>
 <p>We can use the helper to plot, for example, the standard deviation of each timecourse on the surface to get an overview of the variability in the BOLD timecourses across the surface.</p>
 <div class="cell docutils container">
@@ -1277,6 +1305,13 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <div class="exercise admonition">
 <p class="admonition-title">Exercise 17</p>
 <p>Plot the average response of each timecourse on the surface. Do you see any interesting patterns?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="selecting-valid-voxels">
@@ -1312,6 +1347,66 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </pre></div>
 </div>
 </div>
+</div>
+<p>Before we let prfmodel fit the model, you can try to fit it yourself. The figure below shows the observed BOLD response of a voxel with a clear signal (gray) together with the prediction of the pRF model (blue). The R-squared in the title shows how much of the variance in the observed response the prediction explains (1 is a perfect fit). Note that the amplitude of the observed response is much smaller than in the simulations above, so the <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> slider covers a smaller range.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Manual fit? { display-mode: "form" }</span>
+<span class="n">voxel_index</span> <span class="o">=</span> <span class="mi">60686</span>  <span class="c1"># A valid voxel with a clear response to the stimulus</span>
+<span class="n">voxel_response</span> <span class="o">=</span> <span class="n">response_valid</span><span class="p">[</span><span class="n">voxel_index</span><span class="p">]</span>
+
+<span class="c1"># Show the full range of the observed response, even when the prediction is much larger</span>
+<span class="n">response_margin</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">voxel_response</span><span class="p">)</span>
+<span class="n">response_limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">voxel_response</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">response_margin</span><span class="p">,</span> <span class="n">voxel_response</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">response_margin</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_manual_fit</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">r_squared</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">voxel_response</span> <span class="o">-</span> <span class="n">prediction</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">voxel_response</span> <span class="o">-</span> <span class="n">voxel_response</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_field</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">draw_prf_location</span><span class="p">(</span><span class="n">ax_field</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">"mu_x"</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">"mu_y"</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">])</span>
+    <span class="n">ax_field</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"pRF in the visual field"</span><span class="p">)</span>
+
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">voxel_response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Observed"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Predicted"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">response_limits</span><span class="p">)</span>
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax_response</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Voxel </span><span class="si">{</span><span class="n">voxel_index</span><span class="si">}</span><span class="s2">: R-squared = </span><span class="si">{</span><span class="n">r_squared</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"BOLD response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span>
+    <span class="n">plot_manual_fit</span><span class="p">,</span>
+    <span class="n">make_sliders</span><span class="p">(</span>
+        <span class="s2">"mu_x"</span><span class="p">,</span>
+        <span class="s2">"mu_y"</span><span class="p">,</span>
+        <span class="s2">"sigma"</span><span class="p">,</span>
+        <span class="s2">"weight_deriv"</span><span class="p">,</span>
+        <span class="s2">"baseline"</span><span class="p">,</span>
+        <span class="s2">"amplitude"</span><span class="p">,</span>
+        <span class="n">baseline</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
+        <span class="n">amplitude</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 18</p>
+<p>Move the sliders until the prediction matches the observed response as well as you can. Which R-squared can you reach? Which parameters are easy to find and which are hard? Why?</p>
 </div>
 </section>
 <section id="grid-search">
@@ -1389,8 +1484,15 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 18</p>
+<p class="admonition-title">Exercise 19</p>
 <p>Compare the parameter estimates to the ranges of the grid search. What do you observe in the distributions of pRF centers and sizes? Change the grid ranges with the arguments of <code class="docutils literal notranslate"><span class="pre">grid_values_2d_prf</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">mu_extent</span></code>, <code class="docutils literal notranslate"><span class="pre">num_mu</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma_range</span></code>; you can also create a range for <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>). Can you get to a lower (i.e., better) mean loss across voxels (shown in the progress bar under <code class="docutils literal notranslate"><span class="pre">loss</span></code>)?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="least-squares">
@@ -1468,8 +1570,15 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 19</p>
+<p class="admonition-title">Exercise 20</p>
 <p>Compare the SGD parameter estimates against the grid search and least-squares estimates. How do they differ? (hint: you can use <code class="docutils literal notranslate"><span class="pre">plot_2d_prf_centers</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_grid_parameter_distribution</span></code>)</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -1512,7 +1621,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 20</p>
+<p class="admonition-title">Exercise 21</p>
 <p>Plot the R-squared score on the inflated surface. You can use the helper function below. For which brain regions does the model fit the data well?</p>
 </div>
 <div class="cell docutils container">
@@ -1526,13 +1635,34 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </div>
 </div>
 </div>
-<div class="exercise admonition">
-<p class="admonition-title">Exercise 21</p>
-<p>In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot predictions against observed responses for voxels with different fit quality, for example, by sorting them according to R-squared (e.g., with <code class="docutils literal notranslate"><span class="pre">np.argsort(r_squared)</span></code>; hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code>). Does the plot confirm the impression you get from the R-squared scores? Why does the model not fit well for some voxels?</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="exercise admonition">
 <p class="admonition-title">Exercise 22</p>
+<p>In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot predictions against observed responses for voxels with different fit quality, for example, by sorting them according to R-squared (e.g., with <code class="docutils literal notranslate"><span class="pre">np.argsort(r_squared)</span></code>; hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code>). Does the plot confirm the impression you get from the R-squared scores? Why does the model not fit well for some voxels?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 23</p>
 <p>Evaluate the model fit based on the SGD parameter estimates and compare it against the grid search and least-squares fit. Does SGD improve the fit and if not, why? (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_comparison</span></code> to compare R-squared scores).</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="interpreting-the-model-parameters">
@@ -1599,28 +1729,57 @@ the projection, so that they are ignored.</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 23</p>
+<p class="admonition-title">Exercise 24</p>
 <p>How does the pRF size change across the inflated surface? Change the R-squared threshold (<code class="docutils literal notranslate"><span class="pre">r_squared_threshold</span></code>) and recreate the plot. Does the pattern change?</p>
 </div>
-<div class="exercise admonition">
-<p class="admonition-title">Exercise 24</p>
-<p>Compute the polar angle of the pRF center with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_polar_angle</span></code>. Plot the polar angle of the selected voxels on the inflated surface (hint: use <code class="docutils literal notranslate"><span class="pre">cyclic=True</span></code> in the plotting helper to get a cyclic colormap). How does polar angle change on the inflated surface? Note that the projection onto the surface averages neighboring voxels, but angles cannot be averaged directly because they wrap around from $-\pi$ to $\pi$. Instead, project <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> onto the surface separately and compute the polar angle afterwards.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="exercise admonition">
 <p class="admonition-title">Exercise 25</p>
-<p>Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_eccentricity</span></code>. Plot it for the selected voxels on the inflated surface. How does eccentricity change across the inflated surface?</p>
+<p>Compute the polar angle of the pRF center with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_polar_angle</span></code>. Plot the polar angle of the selected voxels on the inflated surface (hint: use <code class="docutils literal notranslate"><span class="pre">cyclic=True</span></code> in the plotting helper to get a cyclic colormap). How does polar angle change on the inflated surface? Note that the projection onto the surface averages neighboring voxels, but angles cannot be averaged directly because they wrap around from $-\pi$ to $\pi$. Instead, project <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> onto the surface separately and compute the polar angle afterwards.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 26 (optional)</p>
+<p class="admonition-title">Exercise 26</p>
+<p>Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_eccentricity</span></code>. Plot it for the selected voxels on the inflated surface. How does eccentricity change across the inflated surface?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 27 (optional)</p>
 <p>Compare the polar angle and eccentricity patterns you observed to the ones reported in the paper by Dumoulin and Wandell (2008). Do your results agree with theirs?</p>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 27 (optional, advanced)</p>
+<p class="admonition-title">Exercise 28 (optional, advanced)</p>
 <p>Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.Gaussian2DCSSPRFModel</span></code> class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Aqil, M., Knapen, T., &amp; Dumoulin, S. O. (2021). Divisive normalization unifies disparate response signatures throughout the human visual hierarchy. <em>Proceedings of the National Academy of Sciences</em>, <em>118</em>(46), e2108713118. https://doi.org/10.1073/pnas.2108713118</p>
 <p>Dumoulin, S. O., &amp; Wandell, B. A. (2008). Population receptive field estimates in human visual cortex. <em>NeuroImage</em>, <em>39</em>(2), 647-660. https://doi.org/10.1016/j.neuroimage.2007.09.034</p>
 <p>Kay, K. N., Winawer, J., Mezer, A., &amp; Wandell, B. A. (2013). Compressive spatial summation in human visual cortex. <em>Journal of Neurophysiology</em>, <em>110</em>(2), 481-494. https://doi.org/10.1152/jn.00105.2013</p>
 </section>
