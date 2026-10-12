@@ -193,11 +193,11 @@ PARAM_SLIDERS = {
 START_VALUES = {name: value for name, (value, *_) in PARAM_SLIDERS.items()}
 
 
-def make_sliders(*names: str) -> dict[str, widgets.FloatSlider]:
-    """Create a slider for each parameter."""
+def make_sliders(*names: str, **custom_sliders: tuple[float, float, float, float]) -> dict[str, widgets.FloatSlider]:
+    """Create a slider for each parameter; `custom_sliders` replace the values from `PARAM_SLIDERS` for a parameter."""
     sliders = {}
     for name in names:
-        value, min_value, max_value, step = PARAM_SLIDERS[name]
+        value, min_value, max_value, step = custom_sliders.get(name, PARAM_SLIDERS[name])
         sliders[name] = widgets.FloatSlider(
             value=value,
             min=min_value,
@@ -947,6 +947,64 @@ prf_model = Gaussian2DPRFModel(
 )
 ```
 
+Before we let prfmodel fit the model, you can try to fit it yourself. The figure below shows the observed BOLD response of a voxel with a clear signal (gray) together with the prediction of the pRF model (blue). The R-squared in the title shows how much of the variance in the observed response the prediction explains (1 is a perfect fit). Note that the amplitude of the observed response is much smaller than in the simulations above, so the `amplitude` slider covers a smaller range.
+
+```{code-cell} ipython3
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Manual fit? { display-mode: "form" }
+voxel_index = 60686  # A valid voxel with a clear response to the stimulus
+voxel_response = response_valid[voxel_index]
+
+# Show the full range of the observed response, even when the prediction is much larger
+response_margin = 0.1 * np.ptp(voxel_response)
+response_limits = (voxel_response.min() - response_margin, voxel_response.max() + response_margin)
+
+
+def plot_manual_fit(**params: float) -> None:
+    prediction = np.asarray(prf_model(stimulus, to_frame(**params))[0])
+    r_squared = 1.0 - np.sum((voxel_response - prediction) ** 2) / np.sum((voxel_response - voxel_response.mean()) ** 2)
+
+    fig, (ax_field, ax_response) = plt.subplots(
+        1, 2, figsize=(12, 3.8), gridspec_kw={"width_ratios": [1, 3]}, layout="constrained",
+    )
+
+    draw_prf_location(ax_field, params["mu_x"], params["mu_y"], params["sigma"])
+    ax_field.set_title("pRF in the visual field")
+
+    ax_response.plot(time_frames, voxel_response, color=GRAY, linewidth=1, label="Observed")
+    ax_response.plot(time_frames, prediction, color=BLUE, linewidth=2, label="Predicted")
+    ax_response.set_ylim(response_limits)
+    add_legend(ax_response)
+    ax_response.set_title(f"Voxel {voxel_index}: R-squared = {r_squared:.2f}", loc="left")
+    style_axes(ax_response, "Time frame", "BOLD response")
+
+    plt.show()
+
+
+show_interactive(
+    plot_manual_fit,
+    make_sliders(
+        "mu_x",
+        "mu_y",
+        "sigma",
+        "weight_deriv",
+        "baseline",
+        "amplitude",
+        baseline=(0.0, -2.0, 2.0, 0.05),
+        amplitude=(0.05, 0.0, 0.5, 0.01),
+    ),
+)
+```
+
+> **Exercise 18:** Move the sliders until the prediction matches the observed response as well as you can. Which R-squared can you reach? Which parameters are easy to find and which are hard? Why?
+
++++
+
 ### Grid search
 
 We fit the canonical Gaussian 2D pRF model in two stages. In the first stage, we perform a "brute-force" grid search to find good estimates for the parameters of the pRF tuning profile (i.e., `mu_x`, `mu_y`, and `sigma`).
@@ -1015,7 +1073,7 @@ plot_grid_parameter_distribution(grid_params, grid_param_ranges, "sigma", ax=axe
 axes[1].set(xlabel="sigma (in degrees)", title="pRF sizes");
 ```
 
-> **Exercise 18:** Compare the parameter estimates to the ranges of the grid search. What do you observe in the distributions of pRF centers and sizes? Change the grid ranges with the arguments of `grid_values_2d_prf` (e.g., `mu_extent`, `num_mu`, `sigma_range`; you can also create a range for `weight_deriv`). Can you get to a lower (i.e., better) mean loss across voxels (shown in the progress bar under `loss`)?
+> **Exercise 19:** Compare the parameter estimates to the ranges of the grid search. What do you observe in the distributions of pRF centers and sizes? Change the grid ranges with the arguments of `grid_values_2d_prf` (e.g., `mu_extent`, `num_mu`, `sigma_range`; you can also create a range for `weight_deriv`). Can you get to a lower (i.e., better) mean loss across voxels (shown in the progress bar under `loss`)?
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -1089,7 +1147,7 @@ We can print the SGD parameter estimates.
 sgd_params
 ```
 
-> **Exercise 19:** Compare the SGD parameter estimates against the grid search and least-squares estimates. How do they differ? (hint: you can use `plot_2d_prf_centers` and `plot_grid_parameter_distribution`)
+> **Exercise 20:** Compare the SGD parameter estimates against the grid search and least-squares estimates. How do they differ? (hint: you can use `plot_2d_prf_centers` and `plot_grid_parameter_distribution`)
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -1128,7 +1186,7 @@ from prfmodel.plotting import plot_r_squared_hist
 plot_r_squared_hist(r_squared, log=True);
 ```
 
-> **Exercise 20:** Plot the R-squared score on the inflated surface. You can use the helper function below. For which brain regions does the model fit the data well?
+> **Exercise 21:** Plot the R-squared score on the inflated surface. You can use the helper function below. For which brain regions does the model fit the data well?
 
 ```{code-cell} ipython3
 def fill_valid_voxels(values: np.ndarray) -> np.ndarray:
@@ -1142,13 +1200,13 @@ def fill_valid_voxels(values: np.ndarray) -> np.ndarray:
 # Your code goes here
 ```
 
-> **Exercise 21:** In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot predictions against observed responses for voxels with different fit quality, for example, by sorting them according to R-squared (e.g., with `np.argsort(r_squared)`; hint: use `prfmodel.plotting.plot_observed_predicted`). Does the plot confirm the impression you get from the R-squared scores? Why does the model not fit well for some voxels?
+> **Exercise 22:** In addition to computing model fit with R-squared, we also recommend comparing model predictions against observed timecourses for individual voxels. Plot predictions against observed responses for voxels with different fit quality, for example, by sorting them according to R-squared (e.g., with `np.argsort(r_squared)`; hint: use `prfmodel.plotting.plot_observed_predicted`). Does the plot confirm the impression you get from the R-squared scores? Why does the model not fit well for some voxels?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 22:** Evaluate the model fit based on the SGD parameter estimates and compare it against the grid search and least-squares fit. Does SGD improve the fit and if not, why? (hint: use `prfmodel.plotting.plot_r_squared_comparison` to compare R-squared scores).
+> **Exercise 23:** Evaluate the model fit based on the SGD parameter estimates and compare it against the grid search and least-squares fit. Does SGD improve the fit and if not, why? (hint: use `prfmodel.plotting.plot_r_squared_comparison` to compare R-squared scores).
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -1213,29 +1271,29 @@ size_surf = project_selected(sigma)
 plot_surf_stat_map_helper(size_surf, vmin=0.0, vmax=5.0, title="pRF size (sigma)");
 ```
 
-> **Exercise 23:** How does the pRF size change across the inflated surface? Change the R-squared threshold (`r_squared_threshold`) and recreate the plot. Does the pattern change?
+> **Exercise 24:** How does the pRF size change across the inflated surface? Change the R-squared threshold (`r_squared_threshold`) and recreate the plot. Does the pattern change?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 24:** Compute the polar angle of the pRF center with `prfmodel.utils.calculate_polar_angle`. Plot the polar angle of the selected voxels on the inflated surface (hint: use `cyclic=True` in the plotting helper to get a cyclic colormap). How does polar angle change on the inflated surface? Note that the projection onto the surface averages neighboring voxels, but angles cannot be averaged directly because they wrap around from $-\pi$ to $\pi$. Instead, project `mu_x` and `mu_y` onto the surface separately and compute the polar angle afterwards.
+> **Exercise 25:** Compute the polar angle of the pRF center with `prfmodel.utils.calculate_polar_angle`. Plot the polar angle of the selected voxels on the inflated surface (hint: use `cyclic=True` in the plotting helper to get a cyclic colormap). How does polar angle change on the inflated surface? Note that the projection onto the surface averages neighboring voxels, but angles cannot be averaged directly because they wrap around from $-\pi$ to $\pi$. Instead, project `mu_x` and `mu_y` onto the surface separately and compute the polar angle afterwards.
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 25:** Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) with `prfmodel.utils.calculate_eccentricity`. Plot it for the selected voxels on the inflated surface. How does eccentricity change across the inflated surface?
+> **Exercise 26:** Compute the eccentricity (i.e., the distance of the pRF center from the center of the screen) with `prfmodel.utils.calculate_eccentricity`. Plot it for the selected voxels on the inflated surface. How does eccentricity change across the inflated surface?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 26 (optional):** Compare the polar angle and eccentricity patterns you observed to the ones reported in the paper by Dumoulin and Wandell (2008). Do your results agree with theirs?
+> **Exercise 27 (optional):** Compare the polar angle and eccentricity patterns you observed to the ones reported in the paper by Dumoulin and Wandell (2008). Do your results agree with theirs?
 
 +++
 
-> **Exercise 27 (optional, advanced):** Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the `prfmodel.models.prf.Gaussian2DCSSPRFModel` class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.
+> **Exercise 28 (optional, advanced):** Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the `prfmodel.models.prf.Gaussian2DCSSPRFModel` class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.
 
 ```{code-cell} ipython3
 # Your code goes here
