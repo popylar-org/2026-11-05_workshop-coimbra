@@ -758,6 +758,13 @@ We also define a helper function to plot a per-voxel statistic on the inflated s
 Each hemisphere of the surface has about 150,000 vertices, which makes plotting slow (especially on Colab). Because the figures are too small to show that much detail, the helper plots a downsampled surface: All vertices that fall into the same cube of a 2 mm grid are merged into a single vertex that gets the average value of the merged vertices. This reduces the surface to about 27,000 vertices per hemisphere.
 
 ```{code-cell} ipython3
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Helper functions for plotting on the surface { display-mode: "form" }
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from nilearn.plotting import plot_surf_stat_map
