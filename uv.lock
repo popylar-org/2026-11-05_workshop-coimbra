@@ -1818,7 +1818,7 @@ wheels = [
 [[package]]
 name = "prfmodel"
 version = "0.0.1"
-source = { git = "https://github.com/popylar-org/prfmodel.git#dad61f7d33d23e98ec223820d51b4b8225dc1788" }
+source = { git = "https://github.com/popylar-org/prfmodel.git#37139ca9b2468aa8df65c51731863fd7f64f5ec8" }
 dependencies = [
     { name = "keras" },
     { name = "matplotlib" },
