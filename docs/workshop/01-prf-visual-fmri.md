@@ -17,6 +17,32 @@ This is the notebook for the first practical of the workshop. This practical cov
 
 **We recommend going through this notebook first to get familiar with the prfmodel package before starting with the notebooks of the other practicals.**
 
+The first part of this practical goes through the canonical Gaussian 2D pRF model step-by-step. The model input and output as well as every submodel is motivated and explained with interavtive visualizations. This part only looks at model prediction but not at fitting the model to data. This is what the second part is about: Fitting the model to an empirical dataset obtained with a 7T fMRI scanner. This part covers data inspection and visualization on an inflated surface of the brain. It goes through multiple consecutive fitting stages (grid search, least-squares, and SGD) and concludes with evaluation the model fit and interpreting its parameters. 
+
++++
+
+## Contents
+
+- [Installation and Setup](#installation-and-setup)
+- [The canonical Gaussian 2D pRF model](#the-canonical-gaussian-2d-prf-model)
+  - [Input: Stimulus design matrix and grid](#input-stimulus-design-matrix-and-grid)
+  - [Building the model step by step](#building-the-model-step-by-step)
+  - [Tuning profiles](#tuning-profiles)
+  - [Stimulus encoding](#stimulus-encoding)
+  - [Impulse response models for BOLD measurements](#impulse-response-models-for-bold-measurements)
+  - [Scaling models](#scaling-models)
+  - [The full canonical model](#the-full-canonical-model)
+- [Fitting the model to data](#fitting-the-model-to-data)
+  - [Inspecting the data](#inspecting-the-data)
+  - [Selecting valid voxels](#selecting-valid-voxels)
+  - [Defining the pRF model](#defining-the-prf-model)
+  - [Grid search](#grid-search)
+  - [Least-squares](#least-squares)
+  - [Stochastic gradient descent](#stochastic-gradient-descent)
+- [Evaluating the model fit](#evaluating-the-model-fit)
+- [Interpreting the model parameters](#interpreting-the-model-parameters)
+- [References](#references)
+
 +++
 
 ## Installation and Setup
