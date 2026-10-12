@@ -316,6 +316,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-canonical-gaussian-2d-prf-model">The canonical Gaussian 2D pRF model</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-stimulus-design-matrix-and-grid">Input: Stimulus design matrix and grid</a></li>
@@ -354,6 +355,37 @@
 <h1>Practical 1: The canonical Gaussian 2D population receptive field model<a class="headerlink" href="#practical-1-the-canonical-gaussian-2d-population-receptive-field-model" title="Link to this heading">#</a></h1>
 <p class="colab-links"><a href="https://colab.research.google.com/github/popylar-org/2026-11-05_workshop-coimbra/blob/gh-pages/add-first-practical/notebooks/workshop/01-prf-visual-fmri.ipynb" target="_blank" rel="noopener"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> <a href="../notebooks/workshop/01-prf-visual-fmri.ipynb" download>Download notebook</a></p><p>This is the notebook for the first practical of the workshop. This practical covers the canonical Gaussian 2D population receptive field (pRF) model, its different computational parts, and how to fit it to empirical data from a visual functional magnetic resonance imaging (fMRI) experiment.</p>
 <p><strong>We recommend going through this notebook first to get familiar with the prfmodel package before starting with the notebooks of the other practicals.</strong></p>
+<p>The first part of this practical goes through the canonical Gaussian 2D pRF model step-by-step. The model input and output as well as every submodel is motivated and explained with interavtive visualizations. This part only looks at model prediction but not at fitting the model to data. This is what the second part is about: Fitting the model to an empirical dataset obtained with a 7T fMRI scanner. This part covers data inspection and visualization on an inflated surface of the brain. It goes through multiple consecutive fitting stages (grid search, least-squares, and SGD) and concludes with evaluation the model fit and interpreting its parameters.</p>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#installation-and-setup">Installation and Setup</a></p></li>
+<li><p><a class="reference internal" href="#the-canonical-gaussian-2d-prf-model">The canonical Gaussian 2D pRF model</a></p>
+<ul>
+<li><p><a class="reference internal" href="#input-stimulus-design-matrix-and-grid">Input: Stimulus design matrix and grid</a></p></li>
+<li><p><a class="reference internal" href="#building-the-model-step-by-step">Building the model step by step</a></p></li>
+<li><p><a class="reference internal" href="#tuning-profiles">Tuning profiles</a></p></li>
+<li><p><a class="reference internal" href="#stimulus-encoding">Stimulus encoding</a></p></li>
+<li><p><a class="reference internal" href="#impulse-response-models-for-bold-measurements">Impulse response models for BOLD measurements</a></p></li>
+<li><p><a class="reference internal" href="#scaling-models">Scaling models</a></p></li>
+<li><p><a class="reference internal" href="#the-full-canonical-model">The full canonical model</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fitting-the-model-to-data">Fitting the model to data</a></p>
+<ul>
+<li><p><a class="reference internal" href="#inspecting-the-data">Inspecting the data</a></p></li>
+<li><p><a class="reference internal" href="#selecting-valid-voxels">Selecting valid voxels</a></p></li>
+<li><p><a class="reference internal" href="#defining-the-prf-model">Defining the pRF model</a></p></li>
+<li><p><a class="reference internal" href="#grid-search">Grid search</a></p></li>
+<li><p><a class="reference internal" href="#least-squares">Least-squares</a></p></li>
+<li><p><a class="reference internal" href="#stochastic-gradient-descent">Stochastic gradient descent</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#evaluating-the-model-fit">Evaluating the model fit</a></p></li>
+<li><p><a class="reference internal" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></p></li>
+<li><p><a class="reference internal" href="#references">References</a></p></li>
+</ul>
+</section>
 <section id="installation-and-setup">
 <h2>Installation and Setup<a class="headerlink" href="#installation-and-setup" title="Link to this heading">#</a></h2>
 <p>First, we need to install prfmodel from GitHub. We install the package with the TensorFlow backend (for more information on the different backends, see the <a class="reference external" href="https://popylar-org.github.io/prfmodel/development/backends.html">Backends</a> section in the package documentation).</p>
@@ -995,7 +1027,7 @@ profile is an isotropic multivariate Gaussian density. This means that the Gauss
 <section id="inspecting-the-data">
 <h3>Inspecting the data<a class="headerlink" href="#inspecting-the-data" title="Link to this heading">#</a></h3>
 <p>Before we fit the canonical Gaussian 2D pRF model to empirical data, we first load and inspect the recorded BOLD response timecourses. The BOLD response was recorded in a volume of voxels with a size of 2 mm. The dataset only contains the voxels that
-fall inside a (dilated) gray matter mask. We can access the timecourses from the <code class="docutils literal notranslate"><span class="pre">dataset.response</span></code> attribute.</p>
+fall inside a (dilated) gray matter mask. We can access the timecourses from the <code class="docutils literal notranslate"><span class="pre">dataset.response</span></code> attribute. Note that the raw response includes a non-zero baseline to accommodate pRF models that cannot predict a zero baseline (e.g., the divisive normalization pRF model; Aqil et al., 2020).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_raw</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">response</span>
@@ -1008,7 +1040,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <p class="admonition-title">Exercise 13</p>
 <p>What do the dimensions of <code class="docutils literal notranslate"><span class="pre">response_raw</span></code> refer to? Visualize one or multiple timecourses with matplotlib or plotly. What is the unit of the BOLD response? Do you see any patterns in the timecourses and if so, how do they relate to the stimulus?</p>
 </div>
-<p>We transform the raw BOLD response timecourses by subtracting their baseline. This makes fitting the pRF model easier because it does not need to account for baseline differences between model predictions and observed data.</p>
+<p>We transform the raw BOLD response timecourses by subtracting their baseline. With a <code class="docutils literal notranslate"><span class="pre">baseline</span></code> parameter of zero, our pRF model predicts a response of zero at blank stimulus frames, so setting the baseline to zero matches this default and makes the numbers a bit easier to work with.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_no_baseline</span> <span class="o">=</span> <span class="n">response_raw</span> <span class="o">-</span> <span class="mf">100.0</span>
@@ -1088,6 +1120,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </div>
 </div>
 <p>We also define a helper function to plot a per-voxel statistic on the inflated surface. The inflated surfaces of both hemispheres overlap in space, so we first move them apart. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior).</p>
+<p>Each hemisphere of the surface has about 150,000 vertices, which makes plotting slow (especially on Colab). Because the figures are too small to show that much detail, the helper plots a downsampled surface: All vertices that fall into the same cube of a 2 mm grid are merged into a single vertex that gets the average value of the merged vertices. This reduces the surface to about 27,000 vertices per hemisphere.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
@@ -1109,13 +1142,54 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
     <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">downsample_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">cell_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Merge all vertices that fall into the same cube of a grid with spacing `cell_size` into a single vertex.</span>
+
+<span class="sd">    Returns the downsampled mesh and, for every original vertex, the index of the vertex it was merged into.</span>
+<span class="sd">    """</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">/</span> <span class="n">cell_size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">merged_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">merged_index</span> <span class="o">=</span> <span class="n">merged_index</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="c1"># Each merged vertex lies at the mean position of the vertices that were merged into it</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">dim_coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim_coords</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">T</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">merged_index</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">faces</span><span class="p">]</span>
+    <span class="c1"># Remove faces whose corners were merged into fewer than three vertices and duplicate faces</span>
+    <span class="n">is_triangle</span> <span class="o">=</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">faces</span><span class="p">[</span><span class="n">is_triangle</span><span class="p">]</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">first_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">first_index</span><span class="p">)]),</span> <span class="n">merged_index</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">merged_index</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cyclic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Average the values of the vertices that were merged into the same vertex, ignoring NaN values."""</span>
+    <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
+        <span class="c1"># Average angles as unit vectors so that angles close to -pi and pi do not cancel out</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span>
+            <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">stat_map</span><span class="p">),</span> <span class="n">merged_index</span><span class="p">),</span>
+            <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">stat_map</span><span class="p">),</span> <span class="n">merged_index</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span>
+    <span class="n">num_merged</span> <span class="o">=</span> <span class="n">merged_index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">stat_map</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="n">num_merged</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="n">num_merged</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">num_merged</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">counts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">separate_hemispheres</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
 <span class="n">num_vertices_left</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span><span class="o">.</span><span class="n">n_vertices</span>
 
-<span class="c1"># Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain</span>
+<span class="c1"># Downsample each hemisphere for plotting</span>
+<span class="n">downsampled</span> <span class="o">=</span> <span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">downsample_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span> <span class="n">cell_size</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">)}</span>
+<span class="n">plot_mesh</span> <span class="o">=</span> <span class="n">PolyMesh</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">downsampled</span><span class="p">[</span><span class="s2">"left"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">right</span><span class="o">=</span><span class="n">downsampled</span><span class="p">[</span><span class="s2">"right"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">merged_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">merged_index</span> <span class="k">for</span> <span class="n">hemi</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">merged_index</span><span class="p">)</span> <span class="ow">in</span> <span class="n">downsampled</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="c1"># Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain and the</span>
+<span class="c1"># posterior view looks slightly upward from below to show more of the occipital cortex</span>
 <span class="n">SURF_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"Left medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">330</span><span class="p">),</span>
-    <span class="s2">"Posterior"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"both"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span>
+    <span class="s2">"Posterior"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"both"</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span>
     <span class="s2">"Right medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"right"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">210</span><span class="p">),</span>
 <span class="p">}</span>
 
@@ -1131,7 +1205,8 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <span class="w">    </span><span class="sd">"""Helper function to plot a surface with a stat map from medial and posterior views.</span>
 
 <span class="sd">    Set `cyclic=True` for angles in radians (e.g., polar angle) to use the color range [-pi, pi] with the cyclic</span>
-<span class="sd">    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`).</span>
+<span class="sd">    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`). The angles of merged vertices are then averaged</span>
+<span class="sd">    as unit vectors.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
         <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s2">"hsv"</span>
@@ -1140,12 +1215,12 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
     <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmin</span>
     <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmax</span>
 
-    <span class="c1"># Stat maps for each hemisphere (left first)</span>
+    <span class="c1"># Downsampled stat maps for each hemisphere (left first)</span>
     <span class="n">stat_maps</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"left"</span><span class="p">:</span> <span class="n">stat_map</span><span class="p">[:</span><span class="n">num_vertices_left</span><span class="p">],</span>
-        <span class="s2">"right"</span><span class="p">:</span> <span class="n">stat_map</span><span class="p">[</span><span class="n">num_vertices_left</span><span class="p">:],</span>
-        <span class="s2">"both"</span><span class="p">:</span> <span class="n">stat_map</span><span class="p">,</span>
+        <span class="s2">"left"</span><span class="p">:</span> <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">[:</span><span class="n">num_vertices_left</span><span class="p">],</span> <span class="n">merged_indices</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">cyclic</span><span class="p">),</span>
+        <span class="s2">"right"</span><span class="p">:</span> <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">[</span><span class="n">num_vertices_left</span><span class="p">:],</span> <span class="n">merged_indices</span><span class="p">[</span><span class="s2">"right"</span><span class="p">],</span> <span class="n">cyclic</span><span class="p">),</span>
     <span class="p">}</span>
+    <span class="n">stat_maps</span><span class="p">[</span><span class="s2">"both"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">stat_maps</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">stat_maps</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]])</span>
 
     <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
         <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">SURF_VIEWS</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"projection"</span><span class="p">:</span> <span class="s2">"3d"</span><span class="p">},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
@@ -1153,7 +1228,10 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 
     <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">view_name</span><span class="p">,</span> <span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">SURF_VIEWS</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="n">plot_surf_stat_map</span><span class="p">(</span>
-            <span class="n">mesh</span> <span class="k">if</span> <span class="n">hemi</span> <span class="o">==</span> <span class="s2">"both"</span> <span class="k">else</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
+            <span class="c1"># nilearn centers the coordinates of a single hemisphere in place, which would undo separate_hemispheres</span>
+            <span class="n">plot_mesh</span> <span class="k">if</span> <span class="n">hemi</span> <span class="o">==</span> <span class="s2">"both"</span> <span class="k">else</span> <span class="n">InMemoryMesh</span><span class="p">(</span>
+                <span class="n">plot_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">plot_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span>
+            <span class="p">),</span>
             <span class="n">stat_maps</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
             <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
             <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
@@ -1586,6 +1664,7 @@ the projection, so that they are ignored.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-canonical-gaussian-2d-prf-model">The canonical Gaussian 2D pRF model</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-stimulus-design-matrix-and-grid">Input: Stimulus design matrix and grid</a></li>

@@ -17,6 +17,32 @@ This is the notebook for the first practical of the workshop. This practical cov
 
 **We recommend going through this notebook first to get familiar with the prfmodel package before starting with the notebooks of the other practicals.**
 
+The first part of this practical goes through the canonical Gaussian 2D pRF model step-by-step. The model input and output as well as every submodel is motivated and explained with interavtive visualizations. This part only looks at model prediction but not at fitting the model to data. This is what the second part is about: Fitting the model to an empirical dataset obtained with a 7T fMRI scanner. This part covers data inspection and visualization on an inflated surface of the brain. It goes through multiple consecutive fitting stages (grid search, least-squares, and SGD) and concludes with evaluation the model fit and interpreting its parameters. 
+
++++
+
+## Contents
+
+- [Installation and Setup](#installation-and-setup)
+- [The canonical Gaussian 2D pRF model](#the-canonical-gaussian-2d-prf-model)
+  - [Input: Stimulus design matrix and grid](#input-stimulus-design-matrix-and-grid)
+  - [Building the model step by step](#building-the-model-step-by-step)
+  - [Tuning profiles](#tuning-profiles)
+  - [Stimulus encoding](#stimulus-encoding)
+  - [Impulse response models for BOLD measurements](#impulse-response-models-for-bold-measurements)
+  - [Scaling models](#scaling-models)
+  - [The full canonical model](#the-full-canonical-model)
+- [Fitting the model to data](#fitting-the-model-to-data)
+  - [Inspecting the data](#inspecting-the-data)
+  - [Selecting valid voxels](#selecting-valid-voxels)
+  - [Defining the pRF model](#defining-the-prf-model)
+  - [Grid search](#grid-search)
+  - [Least-squares](#least-squares)
+  - [Stochastic gradient descent](#stochastic-gradient-descent)
+- [Evaluating the model fit](#evaluating-the-model-fit)
+- [Interpreting the model parameters](#interpreting-the-model-parameters)
+- [References](#references)
+
 +++
 
 ## Installation and Setup
@@ -636,7 +662,7 @@ show_interactive(plot_prediction, make_sliders("mu_x", "mu_y", "sigma", "weight_
 ### Inspecting the data
 
 Before we fit the canonical Gaussian 2D pRF model to empirical data, we first load and inspect the recorded BOLD response timecourses. The BOLD response was recorded in a volume of voxels with a size of 2 mm. The dataset only contains the voxels that
-fall inside a (dilated) gray matter mask. We can access the timecourses from the `dataset.response` attribute.
+fall inside a (dilated) gray matter mask. We can access the timecourses from the `dataset.response` attribute. Note that the raw response includes a non-zero baseline to accommodate pRF models that cannot predict a zero baseline (e.g., the divisive normalization pRF model; Aqil et al., 2020).
 
 ```{code-cell} ipython3
 response_raw = dataset.response
@@ -647,7 +673,7 @@ response_raw.shape
 
 +++
 
-We transform the raw BOLD response timecourses by subtracting their baseline. This makes fitting the pRF model easier because it does not need to account for baseline differences between model predictions and observed data.
+We transform the raw BOLD response timecourses by subtracting their baseline. With a `baseline` parameter of zero, our pRF model predicts a response of zero at blank stimulus frames, so setting the baseline to zero matches this default and makes the numbers a bit easier to work with.
 
 ```{code-cell} ipython3
 response_no_baseline = response_raw - 100.0
@@ -723,6 +749,8 @@ def project_to_surface(voxel_values: np.ndarray) -> np.ndarray:
 
 We also define a helper function to plot a per-voxel statistic on the inflated surface. The inflated surfaces of both hemispheres overlap in space, so we first move them apart. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior).
 
+Each hemisphere of the surface has about 150,000 vertices, which makes plotting slow (especially on Colab). Because the figures are too small to show that much detail, the helper plots a downsampled surface: All vertices that fall into the same cube of a 2 mm grid are merged into a single vertex that gets the average value of the merged vertices. This reduces the surface to about 27,000 vertices per hemisphere.
+
 ```{code-cell} ipython3
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -743,13 +771,54 @@ def separate_hemispheres(mesh: PolyMesh, gap: float = 10.0) -> PolyMesh:
     )
 
 
+def downsample_mesh(mesh: InMemoryMesh, cell_size: float) -> tuple[InMemoryMesh, np.ndarray]:
+    """Merge all vertices that fall into the same cube of a grid with spacing `cell_size` into a single vertex.
+
+    Returns the downsampled mesh and, for every original vertex, the index of the vertex it was merged into.
+    """
+    cells = np.floor(mesh.coordinates / cell_size).astype(int)
+    _, merged_index = np.unique(cells, axis=0, return_inverse=True)
+    merged_index = merged_index.ravel()
+    # Each merged vertex lies at the mean position of the vertices that were merged into it
+    coords = np.stack(
+        [np.bincount(merged_index, weights=dim_coords) for dim_coords in mesh.coordinates.T], axis=1,
+    ) / np.bincount(merged_index)[:, np.newaxis]
+    faces = merged_index[mesh.faces]
+    # Remove faces whose corners were merged into fewer than three vertices and duplicate faces
+    is_triangle = (faces[:, 0] != faces[:, 1]) & (faces[:, 1] != faces[:, 2]) & (faces[:, 0] != faces[:, 2])
+    faces = faces[is_triangle]
+    _, first_index = np.unique(np.sort(faces, axis=1), axis=0, return_index=True)
+    return InMemoryMesh(coords, faces[np.sort(first_index)]), merged_index
+
+
+def downsample_stat_map(stat_map: np.ndarray, merged_index: np.ndarray, cyclic: bool = False) -> np.ndarray:
+    """Average the values of the vertices that were merged into the same vertex, ignoring NaN values."""
+    if cyclic:
+        # Average angles as unit vectors so that angles close to -pi and pi do not cancel out
+        return np.arctan2(
+            downsample_stat_map(np.sin(stat_map), merged_index),
+            downsample_stat_map(np.cos(stat_map), merged_index),
+        )
+    is_valid = np.isfinite(stat_map)
+    num_merged = merged_index.max() + 1
+    sums = np.bincount(merged_index[is_valid], weights=stat_map[is_valid], minlength=num_merged)
+    counts = np.bincount(merged_index[is_valid], minlength=num_merged)
+    return np.divide(sums, counts, out=np.full(num_merged, np.nan), where=counts > 0)
+
+
 mesh = separate_hemispheres(dataset.mesh)
 num_vertices_left = mesh.parts["left"].n_vertices
 
-# Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain
+# Downsample each hemisphere for plotting
+downsampled = {hemi: downsample_mesh(mesh.parts[hemi], cell_size=2.0) for hemi in ("left", "right")}
+plot_mesh = PolyMesh(left=downsampled["left"][0], right=downsampled["right"][0])
+merged_indices = {hemi: merged_index for hemi, (_, merged_index) in downsampled.items()}
+
+# Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain and the
+# posterior view looks slightly upward from below to show more of the occipital cortex
 SURF_VIEWS = {
     "Left medial": ("left", -10, 330),
-    "Posterior": ("both", 0, 270),
+    "Posterior": ("both", -20, 270),
     "Right medial": ("right", -10, 210),
 }
 
@@ -765,7 +834,8 @@ def plot_surf_stat_map_helper(
     """Helper function to plot a surface with a stat map from medial and posterior views.
 
     Set `cyclic=True` for angles in radians (e.g., polar angle) to use the color range [-pi, pi] with the cyclic
-    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`).
+    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`). The angles of merged vertices are then averaged
+    as unit vectors.
     """
     if cyclic:
         vmin, vmax, cmap = -np.pi, np.pi, "hsv"
@@ -774,12 +844,12 @@ def plot_surf_stat_map_helper(
     vmin = np.nanmin(stat_map) if vmin is None else vmin
     vmax = np.nanmax(stat_map) if vmax is None else vmax
 
-    # Stat maps for each hemisphere (left first)
+    # Downsampled stat maps for each hemisphere (left first)
     stat_maps = {
-        "left": stat_map[:num_vertices_left],
-        "right": stat_map[num_vertices_left:],
-        "both": stat_map,
+        "left": downsample_stat_map(stat_map[:num_vertices_left], merged_indices["left"], cyclic),
+        "right": downsample_stat_map(stat_map[num_vertices_left:], merged_indices["right"], cyclic),
     }
+    stat_maps["both"] = np.concatenate([stat_maps["left"], stat_maps["right"]])
 
     fig, axes = plt.subplots(
         1, len(SURF_VIEWS), subplot_kw={"projection": "3d"}, figsize=(12, 4.5), layout="constrained",
@@ -787,7 +857,10 @@ def plot_surf_stat_map_helper(
 
     for ax, (view_name, (hemi, elev, azim)) in zip(axes, SURF_VIEWS.items()):
         plot_surf_stat_map(
-            mesh if hemi == "both" else mesh.parts[hemi],
+            # nilearn centers the coordinates of a single hemisphere in place, which would undo separate_hemispheres
+            plot_mesh if hemi == "both" else InMemoryMesh(
+                plot_mesh.parts[hemi].coordinates.copy(), plot_mesh.parts[hemi].faces,
+            ),
             stat_maps[hemi],
             vmin=vmin,
             vmax=vmax,
