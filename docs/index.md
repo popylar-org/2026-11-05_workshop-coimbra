@@ -3,13 +3,11 @@
 **When**: 5th and 6th of November 2026.
 <br>**Where**: FPCE - UC Edifício 2, University of Coimbra, Portugal.
 <br>**Costs**: 125 Euros (including lunch, drinks, and social dinner).
-<br>**Sign up**: [external link](https://ucstore.uc.pt/event/workshop-prf-2026-18/register).
+<br>**Sign up**: Registration closed.
 
 This is the website of the Popylar population receptive field (pRF) modelling workshop on November 5th and 6th 2026 at the University of Coimbra in Coimbra, Portugal. In this two-day workshop, we will present different applications of pRF modelling and how to implement them using the new prfmodel Python package. The workshop will contain a few lectures, but its main focus will lie on hands-on programming tutorials. We will use example datasets from different experiments (e.g., visual, tonotopic, numerosity) and neuroimaging domains (e.g., fMRI, ECoG).
 
-If you are interested and want to attend, please sign up via this [link](https://ucstore.uc.pt/event/workshop-prf-2026-18/register) at the University of Coimbra homepage.
-
-**Please note that there will only be a limited number of spots so that we can assist all participants during the hands-on sessions.**
+**The workshop registration has closed. All workshop materials will be published on this website soon.**
 
 We hope you will join us!
 
