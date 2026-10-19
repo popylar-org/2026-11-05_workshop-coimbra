@@ -27,6 +27,8 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "**.ipynb_checkpoints",
+    # The MyST .md files are the sources; local .ipynb copies would be found as duplicate documents.
+    "**.ipynb",
 ]
 
 # -- MyST / MyST-NB ----------------------------------------------------------

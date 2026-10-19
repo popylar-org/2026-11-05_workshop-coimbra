@@ -9,4 +9,5 @@ or download the notebook to run it locally.
 :maxdepth: 1
 
 01-prf-visual-fmri
+02-prf-visual-fmri-cv
 ```
