@@ -1,0 +1,1192 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Practical 2: Cross-validation &#8212; Popylar Population Receptive Field Modeling Workshop</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bab1f737" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'workshop/02-prf-visual-fmri-cv';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Practical 3: Model comparison and selection" href="03-prf-visual-fmri-comparison.html" />
+    <link rel="prev" title="Practical 1: The canonical Gaussian 2D population receptive field model" href="01-prf-visual-fmri.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Popylar Population Receptive Field Modeling Workshop</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Overview
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../schedule.html">Schedule</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Workshop materials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-prf-visual-fmri.html">Practical 1: The canonical Gaussian 2D population receptive field model</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Practical 2: Cross-validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-prf-visual-fmri-comparison.html">Practical 3: Model comparison and selection</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="article-header-buttons">
+
+
+
+<div class="dropdown polyversion-switcher">
+  <button class="btn polyversion-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          aria-expanded="false" aria-label="Version: add-schedule" title="Switch version">
+    <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+    <span class="polyversion-name">add-schedule</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end polyversion-menu">
+  <li><h6 class="dropdown-header">Branches</h6></li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">main</span><span class="polyversion-badge">latest</span>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../add-first-practical/">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-first-practical</span>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item active"
+       href="../../add-schedule/" aria-current="true">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-schedule</span><i class="fa-solid fa-check polyversion-check" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../add-second-practical/">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-second-practical</span>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../add-third-practical/">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-third-practical</span>
+    </a>
+  </li>
+  </ul>
+</div>
+<script>
+  document.querySelectorAll(".polyversion-item").forEach((item) => {
+    item.addEventListener("click", async (event) => {
+      // Open the current page in the selected version, or its home page if the page does not exist there.
+      event.preventDefault();
+      const versionRoot = new URL(item.getAttribute("href"), window.location.href);
+      const page = new URL("workshop/02-prf-visual-fmri-cv.html", versionRoot);
+      try {
+        const response = await fetch(page, { method: "HEAD" });
+        window.location.href = response.ok ? page : versionRoot;
+      } catch {
+        window.location.href = versionRoot;
+      }
+    });
+  });
+</script>
+<a href="https://github.com/popylar-org/2026-11-05_workshop-coimbra" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Practical 2: Cross-validation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-dataset">Loading the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-vertices-in-visual-cortex">Selecting vertices in visual cortex</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model">Fitting the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit-in-sample">Evaluating the model fit in-sample</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#same-stimulus-new-session">Same stimulus, new session</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-stimulus-same-session">New stimulus, same session</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-and-interpreting-the-final-model">Fitting and interpreting the final model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="practical-2-cross-validation">
+<h1>Practical 2: Cross-validation<a class="headerlink" href="#practical-2-cross-validation" title="Link to this heading">#</a></h1>
+<p class="colab-links"><a href="https://colab.research.google.com/github/popylar-org/2026-11-05_workshop-coimbra/blob/gh-pages/add-schedule/notebooks/workshop/02-prf-visual-fmri-cv.ipynb" target="_blank" rel="noopener"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> <a href="../notebooks/workshop/02-prf-visual-fmri-cv.ipynb" download>Download notebook</a></p><p>This is the notebook for the second practical of the workshop. This practical covers how to evaluate the out-of-sample model fit using cross-validation on empirical data from visual functional magnetic resonance imaging (fMRI) experiments. It uses the canonical Gaussian 2D population receptive field (pRF) model as an example and illustrates cross-validation across different runs and sessions from the same experiment.</p>
+<p><strong>We recommend first going through the <a class="reference internal" href="01-prf-visual-fmri.html"><span class="std std-doc">first practical</span></a> because this practical builds on package-specific basics that are covered there.</strong></p>
+<p><strong>We also recommend going through this notebook before starting with the notebooks of the other practicals which build on this one.</strong></p>
+<p>In computational modelling, cross-validation is typically used to evaluate and compare the ability of different models to generalize their predictions to new observations. That is, from a set of candidate models, we want to select the model which can generalize best to unseen data. Here, we focus only on the cross-validation part and leave the model comparison and selection part to the <a class="reference internal" href="03-prf-visual-fmri-comparison.html"><span class="std std-doc">next practical</span></a>.</p>
+<p>As all computational and machine learning models, pRF models can overfit the data that they are “trained” on (i.e., the data they are fit to in order to estimate their parameters). Overfitting means that the pRF model fits noise in the training data that is not present or different in unseen (i.e., test) data. It leads to a degradation in prediction performance from the training to test data. The more free parameters a model has, the more flexibly it can fit to noise in the training data and the more likely it is to overfit. While some degree of overfitting is unavoidable, we want to at least know when a pRF model overfits and whether we can trust that it is modelling a robust pattern in the data and not just noise. When comparing different models, we also want to be sure that a model leads to better predictions because it captures the underlying pattern in the data better and not just because it fits better to noise in the data (e.g., because it has more parameters).</p>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#installation-and-setup">Installation and Setup</a></p></li>
+<li><p><a class="reference internal" href="#loading-the-dataset">Loading the dataset</a></p></li>
+<li><p><a class="reference internal" href="#selecting-vertices-in-visual-cortex">Selecting vertices in visual cortex</a></p></li>
+<li><p><a class="reference internal" href="#fitting-the-model">Fitting the model</a></p></li>
+<li><p><a class="reference internal" href="#evaluating-the-model-fit-in-sample">Evaluating the model fit in-sample</a></p></li>
+<li><p><a class="reference internal" href="#same-stimulus-new-session">Same stimulus, new session</a></p></li>
+<li><p><a class="reference internal" href="#new-stimulus-same-session">New stimulus, same session</a></p></li>
+<li><p><a class="reference internal" href="#fitting-and-interpreting-the-final-model">Fitting and interpreting the final model</a></p></li>
+<li><p><a class="reference internal" href="#summary">Summary</a></p></li>
+<li><p><a class="reference internal" href="#references">References</a></p></li>
+</ul>
+</section>
+<section id="installation-and-setup">
+<h2>Installation and Setup<a class="headerlink" href="#installation-and-setup" title="Link to this heading">#</a></h2>
+<p>First, we need to install prfmodel from GitHub. We install the package with the TensorFlow backend (for more information on the different backends, see the <a class="reference external" href="https://popylar-org.github.io/prfmodel/development/backends.html">Backends</a> section in the package documentation).</p>
+<p><strong>Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow] @ git+https://github.com/popylar-org/prfmodel.git"</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We set the backend to TensorFlow and a default for printing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Set keras backend to 'tensorflow' (this is normally the default)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"KERAS_BACKEND"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"tensorflow"</span>
+<span class="c1"># Print parameter DataFrames with three decimals</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="loading-the-dataset">
+<h2>Loading the dataset<a class="headerlink" href="#loading-the-dataset" title="Link to this heading">#</a></h2>
+<p>In this example, we use the Center for Human Neuroscience (CHN) dataset (Chang et al., 2024, 2025) that includes BOLD responses recorded with a 3 Tesla MRI scanner while subjects were exposed to two different bar stimuli. We only use the standard (fixed) bar stimulus here.</p>
+<p>We load the dataset which is included in the prfmodel package. The <code class="docutils literal notranslate"><span class="pre">load_dataset</span></code> function has a <code class="docutils literal notranslate"><span class="pre">split</span></code> argument that we can use to load a specific run of the experiment. This allows us to use different runs for fitting (i.e., training) and evaluating the out-of-sample fit (i.e., testing) the model. The dataset contains three runs from a single subject:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Split</p></th>
+<th class="head"><p>Session</p></th>
+<th class="head"><p>Stimulus</p></th>
+<th class="head"><p>Role in this practical</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ses-01_run-01</span></code></p></td>
+<td><p>1</p></td>
+<td><p>Sequence of bar positions A</p></td>
+<td><p>Training</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ses-02_run-01</span></code></p></td>
+<td><p>2</p></td>
+<td><p>Sequence of bar positions A (identical to training)</p></td>
+<td><p>Test: same stimulus, new session</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ses-01_run-02</span></code></p></td>
+<td><p>1</p></td>
+<td><p>Sequence of bar positions B (different from training)</p></td>
+<td><p>Test: new stimulus, same session</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The two test runs allow us to ask two different questions about how well the model generalizes: Can it predict a new measurement of the <em>same</em> experiment, recorded in a different session? And can it predict the response to a <em>new</em> stimulus that it was not fitted to?</p>
+<p>We start with loading the training data which is the first run of the first session. We select the standard bar stimulus with the <code class="docutils literal notranslate"><span class="pre">task</span></code> argument. By default, <code class="docutils literal notranslate"><span class="pre">load_dataset</span></code> only loads the left hemisphere. On first use, every run downloads about 360 MB, so loading can take a moment.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.examples</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="c1"># Downloads on first use and caches in a user data directory (see prfmodel.examples.get_data_dir)</span>
+<span class="n">dataset_train</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"3t-chn-visual"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"ses-01_run-01"</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">"fixedbar"</span><span class="p">)</span>
+
+<span class="c1"># Select the stimulus used for training</span>
+<span class="n">stimulus_train</span> <span class="o">=</span> <span class="n">dataset_train</span><span class="o">.</span><span class="n">stimulus</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 1</p>
+<p>Using what you learned in the first practical, inspect the stimulus design matrix and grid. How many bar passes are in the design matrix and in which directions do they run? What is the size of the stimulus grid? (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.animate_2d_prf_stimulus</span></code> to create a video of the stimulus).</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Before fitting a pRF model to the data, we inspect the BOLD response timecourses. Note that this dataset contains more timecourses than the <code class="docutils literal notranslate"><span class="pre">7t-aot-visual</span></code> dataset from the first practical and each timecourse corresponds to a vertex on the surface (not to a voxel in the volume). This means that we don’t need to project timecourse statistics and model parameters onto the surface for visualization.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_train</span> <span class="o">=</span> <span class="n">dataset_train</span><span class="o">.</span><span class="n">response</span>
+<span class="n">response_train</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 2</p>
+<p>Inspect the BOLD timecourses. What is the unit of the BOLD response? Can you see the response to the bar sweeps when visualizing them?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 3</p>
+<p>Using the helper function below, plot the standard deviation (SD) of each vertex on an inflated surface. Which areas of the brain have the largest variability in BOLD response? Can you find V1 on the surface?</p>
+</div>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Helper functions for plotting on the surface { display-mode: "form" }</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_surf_stat_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.surface</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">PolyMesh</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">separate_hemispheres</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">PolyMesh</span><span class="p">,</span> <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolyMesh</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Shift the hemispheres of a surface mesh apart along the left-right axis so that they do not overlap."""</span>
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="p">{</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="n">mesh</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span>
+    <span class="n">left_coords</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">right_coords</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">left_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">left_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">gap</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">right_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">right_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">gap</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">PolyMesh</span><span class="p">(</span>
+        <span class="n">left</span><span class="o">=</span><span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">left_coords</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">faces</span><span class="p">),</span>
+        <span class="n">right</span><span class="o">=</span><span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">right_coords</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">faces</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">downsample_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">cell_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Merge all vertices that fall into the same cube of a grid with spacing `cell_size` into a single vertex.</span>
+
+<span class="sd">    Returns the downsampled mesh and, for every original vertex, the index of the vertex it was merged into.</span>
+<span class="sd">    """</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">/</span> <span class="n">cell_size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">merged_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">merged_index</span> <span class="o">=</span> <span class="n">merged_index</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="c1"># Each merged vertex lies at the mean position of the vertices that were merged into it</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">dim_coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim_coords</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">T</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">merged_index</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">faces</span><span class="p">]</span>
+    <span class="c1"># Remove faces whose corners were merged into fewer than three vertices and duplicate faces</span>
+    <span class="n">is_triangle</span> <span class="o">=</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">faces</span><span class="p">[</span><span class="n">is_triangle</span><span class="p">]</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">first_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">first_index</span><span class="p">)]),</span> <span class="n">merged_index</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">merged_index</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cyclic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Average the values of the vertices that were merged into the same vertex, ignoring NaN values."""</span>
+    <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
+        <span class="c1"># Average angles as unit vectors so that angles close to -pi and pi do not cancel out</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span>
+            <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">stat_map</span><span class="p">),</span> <span class="n">merged_index</span><span class="p">),</span>
+            <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">stat_map</span><span class="p">),</span> <span class="n">merged_index</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span>
+    <span class="n">num_merged</span> <span class="o">=</span> <span class="n">merged_index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">stat_map</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="n">num_merged</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="n">num_merged</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">num_merged</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">counts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+
+<span class="c1"># The surface is the same for all splits of the dataset, so we take it from the training data</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">separate_hemispheres</span><span class="p">(</span><span class="n">dataset_train</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">hemispheres</span> <span class="o">=</span> <span class="p">[</span><span class="n">hemi</span> <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">)</span> <span class="k">if</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">]</span>  <span class="c1"># Rows of the response are in this order</span>
+<span class="n">num_vertices</span> <span class="o">=</span> <span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span><span class="o">.</span><span class="n">n_vertices</span> <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="n">hemispheres</span><span class="p">}</span>
+
+<span class="c1"># Downsample each hemisphere for plotting</span>
+<span class="n">downsampled</span> <span class="o">=</span> <span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">downsample_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span> <span class="n">cell_size</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="n">hemispheres</span><span class="p">}</span>
+<span class="n">plot_mesh</span> <span class="o">=</span> <span class="n">PolyMesh</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">plot_part</span> <span class="k">for</span> <span class="n">hemi</span><span class="p">,</span> <span class="p">(</span><span class="n">plot_part</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">downsampled</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+<span class="n">merged_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">merged_index</span> <span class="k">for</span> <span class="n">hemi</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">merged_index</span><span class="p">)</span> <span class="ow">in</span> <span class="n">downsampled</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="c1"># Views as (hemisphere, elevation, azimuth); medial and lateral views are rotated slightly towards the back of the brain</span>
+<span class="c1"># and the posterior view looks slightly upward from below to show more of the occipital cortex</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hemispheres</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">SURF_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"Left medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">330</span><span class="p">),</span>
+        <span class="s2">"Posterior"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"both"</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span>
+        <span class="s2">"Right medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"right"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">210</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">hemi</span> <span class="o">=</span> <span class="n">hemispheres</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">SURF_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">hemi</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> medial"</span><span class="p">:</span> <span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">330</span> <span class="k">if</span> <span class="n">hemi</span> <span class="o">==</span> <span class="s2">"left"</span> <span class="k">else</span> <span class="mi">210</span><span class="p">),</span>
+        <span class="s2">"Posterior"</span><span class="p">:</span> <span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">hemi</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> lateral"</span><span class="p">:</span> <span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">210</span> <span class="k">if</span> <span class="n">hemi</span> <span class="o">==</span> <span class="s2">"left"</span> <span class="k">else</span> <span class="mi">330</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_surf_stat_map_helper</span><span class="p">(</span>
+        <span class="n">stat_map</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"inferno"</span><span class="p">,</span>
+        <span class="n">cyclic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Helper function to plot a stat map with one value per vertex on the inflated surface.</span>
+
+<span class="sd">    The stat map must have one value per row of the response (i.e., per vertex). Vertices with NaN values are not</span>
+<span class="sd">    colored. Set `cyclic=True` for angles in radians (e.g., polar angle) to use the color range [-pi, pi] with the</span>
+<span class="sd">    cyclic colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`). The angles of merged vertices are then</span>
+<span class="sd">    averaged as unit vectors.</span>
+<span class="sd">    """</span>
+    <span class="n">stat_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">stat_map</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stat_map</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">num_vertices</span><span class="o">.</span><span class="n">values</span><span class="p">()),):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Expected one value for each of the </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">num_vertices</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="si">}</span><span class="s2"> vertices, got shape </span><span class="si">{</span><span class="n">stat_map</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
+        <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s2">"hsv"</span>
+
+    <span class="c1"># Use the same color range for all views</span>
+    <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmin</span>
+    <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmax</span>
+
+    <span class="c1"># Downsampled stat maps for each hemisphere (left first)</span>
+    <span class="n">stat_maps</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="n">hemispheres</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">num_vertices</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span>
+        <span class="n">stat_maps</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span> <span class="o">=</span> <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">],</span> <span class="n">merged_indices</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span> <span class="n">cyclic</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">stop</span>
+    <span class="n">stat_maps</span><span class="p">[</span><span class="s2">"both"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">stat_maps</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span> <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="n">hemispheres</span><span class="p">])</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">SURF_VIEWS</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"projection"</span><span class="p">:</span> <span class="s2">"3d"</span><span class="p">},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">view_name</span><span class="p">,</span> <span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">SURF_VIEWS</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">plot_surf_stat_map</span><span class="p">(</span>
+            <span class="c1"># nilearn centers the coordinates of a single hemisphere in place, which would undo separate_hemispheres</span>
+            <span class="n">plot_mesh</span> <span class="k">if</span> <span class="n">hemi</span> <span class="o">==</span> <span class="s2">"both"</span> <span class="k">else</span> <span class="n">InMemoryMesh</span><span class="p">(</span>
+                <span class="n">plot_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">plot_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">stat_maps</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="n">symmetric_cbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">hemi</span><span class="o">=</span><span class="n">hemi</span><span class="p">,</span>
+            <span class="n">view</span><span class="o">=</span><span class="p">(</span><span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="p">),</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">view_name</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+        <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">),</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span>
+        <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="selecting-vertices-in-visual-cortex">
+<h2>Selecting vertices in visual cortex<a class="headerlink" href="#selecting-vertices-in-visual-cortex" title="Link to this heading">#</a></h2>
+<p>The response contains a timecourse for every vertex of the left hemisphere, but the pRF model only makes sense for vertices that respond to visual stimulation. Fitting the model to all vertices would also take a long time. The dataset includes a region of interest (ROI) label for each vertex, which tells us whether the vertex belongs to one of the visual areas V1, V2, or V3 (or to none of them).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">roi_index</span> <span class="o">=</span> <span class="n">dataset_train</span><span class="o">.</span><span class="n">roi_index</span>  <span class="c1"># One ROI label per vertex</span>
+
+<span class="n">dataset_train</span><span class="o">.</span><span class="n">roi_mapping</span>  <span class="c1"># Which ROI each label refers to</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Only color vertices that belong to one of the ROIs; at the borders between ROIs, merged vertices get in-between colors</span>
+<span class="n">plot_surf_stat_map_helper</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">roi_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">roi_index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">"viridis"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"ROIs (1 = V1, 2 = V2, 3 = V3)"</span><span class="p">,</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 4</p>
+<p>Compare the ROIs to the map of the response SD that you plotted above. Do the vertices with the largest variability lie inside the ROIs?</p>
+</div>
+<p>We select the vertices that belong to one of the ROIs. We also make sure that their responses vary over time: A vertex with a constant response contains no information about the stimulus.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Vertices in V1, V2, or V3 with a response that varies over time</span>
+<span class="n">response_is_valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">roi_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">response_train</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+
+<span class="n">response_train_valid</span> <span class="o">=</span> <span class="n">response_train</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fill_valid_vertices</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fill values for the valid vertices into an array with one value per vertex, using NaN for all other vertices."""</span>
+    <span class="n">values_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">response_is_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">values_full</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+    <span class="k">return</span> <span class="n">values_full</span>
+
+
+<span class="n">response_train_valid</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 5</p>
+<p>How many vertices of the whole hemisphere have a constant response (hint: <code class="docutils literal notranslate"><span class="pre">response_train.std(axis=1)</span> <span class="pre">==</span> <span class="pre">0.0</span></code>) and where do they lie on the surface? Are any of them inside the ROIs?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="fitting-the-model">
+<h2>Fitting the model<a class="headerlink" href="#fitting-the-model" title="Link to this heading">#</a></h2>
+<p>We create a canonical Gaussian 2D pRF model with a custom impulse response submodel to fit to the training data. The repetition time (TR) for this dataset is 1.2 seconds.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.impulse</span><span class="w"> </span><span class="kn">import</span> <span class="n">DerivativeTwoGammaImpulse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gaussian2DPRFModel</span>
+
+<span class="c1"># Define repetition time (TR)</span>
+<span class="n">tr</span> <span class="o">=</span> <span class="mf">1.2</span>
+
+<span class="c1"># Create custom impulse model</span>
+<span class="n">impulse_model</span> <span class="o">=</span> <span class="n">DerivativeTwoGammaImpulse</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="n">tr</span><span class="p">)</span>
+
+<span class="c1"># Define pRF model with custom impulse response submodel</span>
+<span class="n">prf_model</span> <span class="o">=</span> <span class="n">Gaussian2DPRFModel</span><span class="p">(</span>
+    <span class="n">impulse_model</span><span class="o">=</span><span class="n">impulse_model</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 6 (optional)</p>
+<p>Why do we need to create a custom impulse response model with the TR of the dataset? Read the relevant <a class="reference external" href="https://popylar-org.github.io/prfmodel/important_details.html">Important Details</a> section.</p>
+</div>
+<p>To keep things simple, we only use grid search and least-squares in this example to fit the pRF model to the training data. We start by defining ranges of the grid search.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_values_2d_prf</span>
+
+<span class="n">grid_param_ranges</span> <span class="o">=</span> <span class="n">grid_values_2d_prf</span><span class="p">(</span>
+    <span class="n">stimulus_train</span><span class="p">,</span>  <span class="c1"># We use the stimulus from the training data</span>
+    <span class="n">num_mu</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span>
+    <span class="n">mu_extent</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># Span twice the visual field covered by the stimulus</span>
+    <span class="n">num_sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">sigma_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span>  <span class="c1"># Log-spaced by default</span>
+<span class="p">)</span> <span class="o">|</span> <span class="p">{</span>  <span class="c1"># Add constant parameters</span>
+    <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span>
+    <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+    <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">grid_param_ranges</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, we create the <code class="docutils literal notranslate"><span class="pre">GridFitter</span></code> and run the grid search on the timecourses of the selected vertices.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridFitter</span>
+
+<span class="c1"># Create grid fitter object</span>
+<span class="n">grid_fitter</span> <span class="o">=</span> <span class="n">GridFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">prf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus_train</span><span class="p">,</span>
+    <span class="n">compile_step</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Setting 'compile_step=True' speeds up the fitting</span>
+<span class="p">)</span>
+
+<span class="c1"># Run grid search</span>
+<span class="n">grid_history</span><span class="p">,</span> <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_train_valid</span><span class="p">,</span>  <span class="c1"># Only the selected vertices</span>
+    <span class="n">parameter_values</span><span class="o">=</span><span class="n">grid_param_ranges</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 7</p>
+<p>Inspect the results from the grid search. Are there any vertices for which the center of the pRF lies exactly on or outside the stimulus grid (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_2d_prf_centers</span></code>)? Are there any vertices for which the pRF size (<code class="docutils literal notranslate"><span class="pre">sigma</span></code>) lies on the floor or ceiling of the sigma range (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_grid_parameter_distribution</span></code>)? How should the parameters of these vertices be handled or interpreted?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>After the grid search, we fit the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameters of the model with least-squares.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeastSquaresFitter</span>
+
+<span class="c1"># Create least-squares fitter</span>
+<span class="n">ls_fitter</span> <span class="o">=</span> <span class="n">LeastSquaresFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">prf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus_train</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Run least squares fit</span>
+<span class="n">ls_history</span><span class="p">,</span> <span class="n">ls_params</span> <span class="o">=</span> <span class="n">ls_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_train_valid</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">grid_params</span><span class="p">,</span>
+    <span class="n">slope_name</span><span class="o">=</span><span class="s2">"amplitude"</span><span class="p">,</span>  <span class="c1"># Names of parameters to be optimized with least squares</span>
+    <span class="n">intercept_name</span><span class="o">=</span><span class="s2">"baseline"</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluating-the-model-fit-in-sample">
+<h2>Evaluating the model fit in-sample<a class="headerlink" href="#evaluating-the-model-fit-in-sample" title="Link to this heading">#</a></h2>
+<p>Before we look at the out-of-sample fit of the pRF model, we look at its fit on the training data. For that, we make predictions with the training stimulus and the training parameters.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched</span>
+
+<span class="n">predict_batched</span> <span class="o">=</span> <span class="n">batched</span><span class="p">(</span><span class="n">prf_model</span><span class="p">)</span>
+
+<span class="c1"># Make predictions with the estimated parameters</span>
+<span class="n">pred_response_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">predict_batched</span><span class="p">(</span><span class="n">stimulus_train</span><span class="p">,</span> <span class="n">ls_params</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We compare the training data predictions against the observed BOLD timecourses using R-squared.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_r_squared</span>
+
+<span class="n">r_squared_train</span> <span class="o">=</span> <span class="n">calculate_r_squared</span><span class="p">(</span><span class="n">response_train_valid</span><span class="p">,</span> <span class="n">pred_response_train</span><span class="p">)</span>  <span class="c1"># One score per selected vertex</span>
+<span class="n">r_squared_train</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 8</p>
+<p>Visualize the distribution of the training R-squared values (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_hist</span></code>). What fraction of the selected vertices has an R-squared above 0.3? Plot the R-squared on the inflated surface (hint: use <code class="docutils literal notranslate"><span class="pre">fill_valid_vertices</span></code>). Where do the well-fitting vertices lie?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="same-stimulus-new-session">
+<h2>Same stimulus, new session<a class="headerlink" href="#same-stimulus-new-session" title="Link to this heading">#</a></h2>
+<p>To assess the out-of-sample model fit, we first evaluate its predictions on the first run of the second session. The subject saw exactly the same stimulus as in the training run. What differs is the noise in the measurement and everything that changes between sessions, for example, the position of the head in the scanner, the alignment of the data to the anatomy, and the state of the subject. This tells us whether the model captures a pattern in the responses that we can reproduce in a new measurement, and not just the noise of the training run.</p>
+<p>We load the dataset for this run using the <code class="docutils literal notranslate"><span class="pre">split</span></code> argument.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_test_ses</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"3t-chn-visual"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"ses-02_run-01"</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">"fixedbar"</span><span class="p">)</span>
+
+<span class="n">stimulus_test_ses</span> <span class="o">=</span> <span class="n">dataset_test_ses</span><span class="o">.</span><span class="n">stimulus</span>
+
+<span class="n">response_test_ses</span> <span class="o">=</span> <span class="n">dataset_test_ses</span><span class="o">.</span><span class="n">response</span>
+
+<span class="c1"># Select the same vertices as for the training data</span>
+<span class="n">response_test_ses_valid</span> <span class="o">=</span> <span class="n">response_test_ses</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 9</p>
+<p>Check that the stimulus of this test dataset is identical to the training stimulus (hint: use <code class="docutils literal notranslate"><span class="pre">np.array_equal</span></code> on the design matrices). What does this imply for the model predictions for training and test data? Where can differences in prediction performance between training and test data then come from?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 10</p>
+<p>Visualize the BOLD response from this test dataset. Do you see any fundamental differences compared to the training data?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We make model predictions using the stimulus of the <em>test</em> data and the parameters of the <em>training</em> data. We can reuse the batched model object because nothing in it is specific to the training or test data. We compare the test predictions against the observed test timecourses.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pred_response_test_ses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">predict_batched</span><span class="p">(</span><span class="n">stimulus_test_ses</span><span class="p">,</span> <span class="n">ls_params</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">))</span>
+
+<span class="n">r_squared_test_ses</span> <span class="o">=</span> <span class="n">calculate_r_squared</span><span class="p">(</span><span class="n">response_test_ses_valid</span><span class="p">,</span> <span class="n">pred_response_test_ses</span><span class="p">)</span>
+<span class="n">r_squared_test_ses</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 11</p>
+<p>Compare the training against the test R-squared (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_comparison</span></code>). Also compare the predicted vs. observed timecourses for the best fitting vertices (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code>). Can you explain the differences in prediction performance between training and test data? Can you explain why some vertices have negative out-of-sample R-squared scores?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>For full leave-one-out cross-validation, we would repeat the out-of-sample prediction but swap the training and the test data: The split <code class="docutils literal notranslate"><span class="pre">ses-02_run-01</span></code> would become the training and <code class="docutils literal notranslate"><span class="pre">ses-01_run-01</span></code> the test data. We would then average the out-of-sample R-squared scores across both directions (also called <em>folds</em>) for each vertex. In this way, our generalization assessment does not depend on the order of the two runs which we assume to be independent.</p>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 12 (optional)</p>
+<p>Compute the out-of-sample R-squared in reverse order (using <code class="docutils literal notranslate"><span class="pre">ses-02_run-01</span></code> as training and <code class="docutils literal notranslate"><span class="pre">ses-01_run-01</span></code> as test data). How does out-of-sample R-squared differ between the two folds?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="new-stimulus-same-session">
+<h2>New stimulus, same session<a class="headerlink" href="#new-stimulus-same-session" title="Link to this heading">#</a></h2>
+<p>Next, we evaluate the model predictions on the second run of the first session. This run was recorded in the same session as the training run, but the bar moves through the visual field in a different sequence. This is a different test because the model must predict the response to a stimulus that it was not fitted to. A pRF model that captures how a vertex responds to stimulation in different parts of the visual field should be able to do that. In contrast, a model that only fits the timecourse of the training run (including its noise) would fail.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_test_run</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"3t-chn-visual"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"ses-01_run-02"</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">"fixedbar"</span><span class="p">)</span>
+
+<span class="n">stimulus_test_run</span> <span class="o">=</span> <span class="n">dataset_test_run</span><span class="o">.</span><span class="n">stimulus</span>
+
+<span class="n">response_test_run</span> <span class="o">=</span> <span class="n">dataset_test_run</span><span class="o">.</span><span class="n">response</span>
+
+<span class="c1"># Select the same vertices as for the training data</span>
+<span class="n">response_test_run_valid</span> <span class="o">=</span> <span class="n">response_test_run</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 13</p>
+<p>Compare the stimulus of this test dataset against the training stimulus (hint: create a video of both stimuli). How does the sequence of bar positions differ? Compute and evaluate the out-of-sample prediction performance of the pRF model for this dataset.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 14</p>
+<p>Compare the out-of-sample prediction performance for this test dataset to the previous test dataset. For which test dataset is it better? Think about what differs between the training data and each of the test datasets (noise, session, stimulus) and how this can explain the difference.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="fitting-and-interpreting-the-final-model">
+<h2>Fitting and interpreting the final model<a class="headerlink" href="#fitting-and-interpreting-the-final-model" title="Link to this heading">#</a></h2>
+<p>Cross-validation is primarily used for comparing the out-of-sample performance between different candidate models and selecting the model that best generalizes to new observations. Model comparison and selection will be part of the <a class="reference internal" href="03-prf-visual-fmri-comparison.html"><span class="std std-doc">next practical</span></a>.</p>
+<p>Once we have selected a model, our goal changes: We no longer want to <em>evaluate</em> the model but to <em>estimate</em> its parameters as precisely as possible so that we can interpret them. For that, we want to use as much data with the least amount of noise that we can get, including the data that we held out for testing before. This means that there is no held-out data left to evaluate the final fit, and that its in-sample R-squared is optimistic for the same reasons as above. We accept this because cross-validation has already told us how well this model generalizes to new data.</p>
+<p>For the CHN dataset, we can for example average the BOLD responses of the two runs that show the identical stimulus (the first runs of both sessions) and fit the pRF model on the averaged responses.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Average the first runs of both sessions, which show the identical stimulus</span>
+<span class="n">response_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span>
+    <span class="n">response_train_valid</span><span class="p">,</span>
+    <span class="n">response_test_ses_valid</span><span class="p">,</span>
+<span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">response_avg</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 15</p>
+<p>Compare the averaged responses against the responses from only the first session. Do you observe differences in the noise level?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 16</p>
+<p>Why is averaging the responses across sessions a valid choice for this dataset?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 17</p>
+<p>Why can we average the first run of the first session with the first run of the second session, but not with the second run of the first session?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 18</p>
+<p>Fit the Gaussian 2D pRF model to the averaged responses (<code class="docutils literal notranslate"><span class="pre">response_avg</span></code>) using grid search and least-squares. Evaluate the model predictions on the averaged responses. How does the in-sample R-squared compare to the in-sample R-squared of the model fitted to only the first run of the first session?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 19</p>
+<p>Subset the model parameter estimates using an R-squared threshold. Plot the parameter subset on the inflated surface (hint: set the estimates of vertices below the threshold to <code class="docutils literal notranslate"><span class="pre">np.nan</span></code> and use <code class="docutils literal notranslate"><span class="pre">fill_valid_vertices</span></code> to get one value for every vertex on the surface). Do the results align with your findings in the first practical?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>For thresholding vertices for which we can interpret the parameters, we face a similar problem as for model selection: We want to select those vertices for which the pRF model robustly estimates the parameters without overfitting to noise in the data. Thus, we should not rely on R-squared based on the training data to select vertices for interpretation. Instead, we can for example use out-of-sample R-squared from cross-validation.</p>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 20</p>
+<p>Use a threshold based on test R-squared on the <code class="docutils literal notranslate"><span class="pre">ses-01_run-02</span></code> split to select vertices to plot on the inflated surface. Do you see any differences from the results of the previous exercise?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The in-sample (training) R-squared is an optimistic estimate of how well a pRF model describes the data because the model is partly fitted to noise in the training data.</p></li>
+<li><p>Cross-validation evaluates the model on data that it was not fitted to. What the test data has in common with the training data determines which kind of generalization we test: A new session with the same stimulus tests whether the model captures a pattern that we can reproduce in a new measurement; a new stimulus tests whether the model captures how a vertex responds to stimulation in different parts of the visual field.</p></li>
+<li><p>The out-of-sample R-squared also depends on the noise in the test data. It can be negative when the model predicts the test data worse than the mean of the test data.</p></li>
+<li><p>We use cross-validation to compare models and to select vertices for which we can trust the parameter estimates. To interpret the parameters, we fit the selected model to all comparable data.</p></li>
+</ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Chang, K., Fine, I., &amp; Boynton, G. M. (2024). CHN Retinotopic Mapping Dataset. <em>OpenNeuro</em>. https://doi.org/10.18112/openneuro.ds004698.v1.0.1</p>
+<p>Chang, K., Fine, I., &amp; Boynton, G. M. (2025). Improving the reliability and accuracy of population receptive field measures using a logarithmically warped stimulus. <em>Journal of Vision</em>, <em>25</em>(1), 5. https://doi.org/10.1167/jov.25.1.5</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="01-prf-visual-fmri.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Practical 1: The canonical Gaussian 2D population receptive field model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="03-prf-visual-fmri-comparison.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Practical 3: Model comparison and selection</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-dataset">Loading the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-vertices-in-visual-cortex">Selecting vertices in visual cortex</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model">Fitting the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit-in-sample">Evaluating the model fit in-sample</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#same-stimulus-new-session">Same stimulus, new session</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-stimulus-same-session">New stimulus, same session</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-and-interpreting-the-final-model">Fitting and interpreting the final model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Popylar Team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Spinoza Centre for Neuroimaging and Netherlands eScience Center.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
