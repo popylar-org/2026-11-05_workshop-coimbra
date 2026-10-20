@@ -48,6 +48,8 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'workshop/03-prf-visual-fmri-comparison';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -369,7 +371,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="practical-3-model-comparison-and-selection">
+  <section class="tex2jax_ignore mathjax_ignore" id="practical-3-model-comparison-and-selection">
 <h1>Practical 3: Model comparison and selection<a class="headerlink" href="#practical-3-model-comparison-and-selection" title="Link to this heading">#</a></h1>
 <p class="colab-links"><a href="https://colab.research.google.com/github/popylar-org/2026-11-05_workshop-coimbra/blob/gh-pages/add-third-practical/notebooks/workshop/03-prf-visual-fmri-comparison.ipynb" target="_blank" rel="noopener"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> <a href="../notebooks/workshop/03-prf-visual-fmri-comparison.ipynb" download>Download notebook</a></p><p>This is the notebook for the third practical of the workshop. This practical covers how to compare and select between different population receptive field (pRF) models on empirical data from visual functional magnetic resonance imaging (fMRI) experiments.</p>
 <p><strong>We recommend first going through the <a class="reference internal" href="01-prf-visual-fmri.html"><span class="std std-doc">first practical</span></a> and <a class="reference internal" href="02-prf-visual-fmri-cv.html"><span class="std std-doc">second practical</span></a> because this practical builds on package-specific basics and general concepts that are covered there.</strong></p>
@@ -761,7 +763,7 @@
 </div>
 </div>
 <p>To see how the additional parameters of the CSS, DoG, and DN models change their predictions, we use interactive figures like in the first practical. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters. The figure updates when you release a slider.</p>
-<p>Each figure shows a pRF in the center of the visual field with a size of 1 degree. The left panel shows the predicted neuron population response $r$ (before the convolution with the impulse response) while a vertical bar like the one in the experiment is at different horizontal positions in the visual field. The right panel shows the predicted BOLD response to the first half of the run. The dashed gray lines show the predictions of the Gaussian model with the same center and size. Because the additional parameters also change the scale of the predictions, we scale all predictions to a maximum of 1 so that we can compare their shapes.</p>
+<p>Each figure shows a pRF in the center of the visual field with a size of 1 degree. The left panel shows the predicted neuron population response <span class="math notranslate nohighlight">\(r\)</span> (before the convolution with the impulse response) while a vertical bar like the one in the experiment is at different horizontal positions in the visual field. The right panel shows the predicted BOLD response to the first half of the run. The dashed gray lines show the predictions of the Gaussian model with the same center and size. Because the additional parameters also change the scale of the predictions, we scale all predictions to a maximum of 1 so that we can compare their shapes.</p>
 <p>The next hidden cell defines helper functions for the interactive figures. Like in the first practical, some of them are imported from the module <code class="docutils literal notranslate"><span class="pre">plotting_helpers.py</span></code>.</p>
 <div class="cell tag_hide-input docutils container">
 <details class="admonition hide above-input">
@@ -832,19 +834,22 @@
 <h2>Fitting the models to the first half<a class="headerlink" href="#fitting-the-models-to-the-first-half" title="Link to this heading">#</a></h2>
 <section id="gaussian-model">
 <h3>Gaussian model<a class="headerlink" href="#gaussian-model" title="Link to this heading">#</a></h3>
-<p>All four models build on the Gaussian model, so we first recall how it makes a prediction. Its tuning profile is the isotropic 2D Gaussian density centered at $(\mu_x, \mu_y)$ with standard deviation $\sigma$:</p>
-<p>$$
+<p>All four models build on the Gaussian model, so we first recall how it makes a prediction. Its tuning profile is the isotropic 2D Gaussian density centered at <span class="math notranslate nohighlight">\((\mu_x, \mu_y)\)</span> with standard deviation <span class="math notranslate nohighlight">\(\sigma\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[
 G(x, y; \mu_x, \mu_y, \sigma) = \frac{1}{2 \pi \sigma^2} \exp\left(-\frac{(x - \mu_x)^2 + (y - \mu_y)^2}{2 \sigma^2}\right)
-$$</p>
-<p>The tuning profile is encoded with the stimulus design $S$ by summing the overlap over all points $(x, y)$ of the stimulus grid at every time frame $t$:</p>
-<p>$$
-P(t; \mu_x, \mu_y, \sigma) = \sum_{x, y} S(t, x, y) , G(x, y; \mu_x, \mu_y, \sigma)
-$$</p>
-<p>For the Gaussian model, this encoded response is the predicted neuron population response $r(t) = P(t; \mu_x, \mu_y, \sigma)$. It is convolved with the impulse response $h$ and scaled with the parameters <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> ($\alpha$) and <code class="docutils literal notranslate"><span class="pre">baseline</span></code> ($\beta$) to give the predicted BOLD response:</p>
-<p>$$
-\hat{y}(t) = \alpha , (h * r)(t) + \beta
-$$</p>
-<p>The other models only differ in how they compute $r(t)$ from one or two encoded Gaussians. All Gaussians of a model share the same center $(\mu_x, \mu_y)$.</p>
+\]</div>
+<p>The tuning profile is encoded with the stimulus design <span class="math notranslate nohighlight">\(S\)</span> by summing the overlap over all points <span class="math notranslate nohighlight">\((x, y)\)</span> of the stimulus grid at every time frame <span class="math notranslate nohighlight">\(t\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[
+P(t; \mu_x, \mu_y, \sigma) = \sum_{x, y} S(t, x, y) \, G(x, y; \mu_x, \mu_y, \sigma)
+\]</div>
+<p>For the Gaussian model, this encoded response is the predicted neuron population response <span class="math notranslate nohighlight">\(r(t) = P(t; \mu_x, \mu_y, \sigma)\)</span>. It is convolved with the impulse response <span class="math notranslate nohighlight">\(h\)</span> and scaled with the parameters <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> (<span class="math notranslate nohighlight">\(\alpha\)</span>) and <code class="docutils literal notranslate"><span class="pre">baseline</span></code> (<span class="math notranslate nohighlight">\(\beta\)</span>) to give the predicted BOLD response:</p>
+<div class="math notranslate nohighlight">
+\[
+\hat{y}(t) = \alpha \, (h * r)(t) + \beta
+\]</div>
+<p>The other models only differ in how they compute <span class="math notranslate nohighlight">\(r(t)\)</span> from one or two encoded Gaussians. All Gaussians of a model share the same center <span class="math notranslate nohighlight">\((\mu_x, \mu_y)\)</span>.</p>
 <p>We fit the Gaussian model in the same way as in the first practical: grid search, least-squares, and SGD. We only use the stimulus and the responses of the first half.</p>
 <p>Unlike in the first practical, the grid only contains pRF centers within the visual field covered by the stimulus. The grid search compares predictions and responses with a correlation, which does not depend on the scale of the prediction. For a small pRF with a center far outside the stimulus, the prediction only comes from the outer tail of the Gaussian and is tiny. Its correlation with the response can still be high, but the prediction is so small that least-squares cannot estimate its amplitude, and the fit fails. Starting the pRF centers within the stimulus avoids this, and SGD can still move them outside.</p>
 <div class="cell docutils container">
@@ -919,10 +924,11 @@ $$</p>
 <section id="css-model">
 <h3>CSS model<a class="headerlink" href="#css-model" title="Link to this heading">#</a></h3>
 <p>The CSS model raises the stimulus-encoded pRF response to the power of the compression exponent <code class="docutils literal notranslate"><span class="pre">n</span></code> before it is convolved with the impulse response:</p>
-<p>$$
-r(t) = g , P(t; \mu_x, \mu_y, \sigma)^n
-$$</p>
-<p>With <code class="docutils literal notranslate"><span class="pre">n</span></code> below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a <code class="docutils literal notranslate"><span class="pre">gain</span></code> parameter $g$ that multiplies the compressed response. It has the same effect as <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, so we fix it to its starting value of 1. The predicted BOLD response $\hat{y}(t)$ is computed in the same way as for the Gaussian model.</p>
+<div class="math notranslate nohighlight">
+\[
+r(t) = g \, P(t; \mu_x, \mu_y, \sigma)^n
+\]</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">n</span></code> below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a <code class="docutils literal notranslate"><span class="pre">gain</span></code> parameter <span class="math notranslate nohighlight">\(g\)</span> that multiplies the compressed response. It has the same effect as <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, so we fix it to its starting value of 1. The predicted BOLD response <span class="math notranslate nohighlight">\(\hat{y}(t)\)</span> is computed in the same way as for the Gaussian model.</p>
 <p>Move the <code class="docutils literal notranslate"><span class="pre">n</span></code> slider in the figure below to see how the exponent changes the response to the bar and the predicted BOLD response. With <code class="docutils literal notranslate"><span class="pre">n</span></code> equal to 1, the CSS model makes the same predictions as the Gaussian model.</p>
 <div class="cell tag_hide-input docutils container">
 <details class="admonition hide above-input">
@@ -987,10 +993,11 @@ $$</p>
 <section id="dog-model">
 <h3>DoG model<a class="headerlink" href="#dog-model" title="Link to this heading">#</a></h3>
 <p>The DoG model subtracts the response of a larger surround Gaussian from the response of a center Gaussian:</p>
-<p>$$
-r(t) = a_c , P(t; \mu_x, \mu_y, \sigma_c) - a_s , P(t; \mu_x, \mu_y, \sigma_s)
-$$</p>
-<p>The parameters $a_c$, $a_s$, $\sigma_c$, and $\sigma_s$ are called <code class="docutils literal notranslate"><span class="pre">amplitude_center</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma_center</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma_surround</span></code>. A positive <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> means that stimulation of the surround suppresses the response. Because the two amplitudes already scale the response, the DoG model has no separate <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameter, and the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.</p>
+<div class="math notranslate nohighlight">
+\[
+r(t) = a_c \, P(t; \mu_x, \mu_y, \sigma_c) - a_s \, P(t; \mu_x, \mu_y, \sigma_s)
+\]</div>
+<p>The parameters <span class="math notranslate nohighlight">\(a_c\)</span>, <span class="math notranslate nohighlight">\(a_s\)</span>, <span class="math notranslate nohighlight">\(\sigma_c\)</span>, and <span class="math notranslate nohighlight">\(\sigma_s\)</span> are called <code class="docutils literal notranslate"><span class="pre">amplitude_center</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma_center</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma_surround</span></code>. A positive <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> means that stimulation of the surround suppresses the response. Because the two amplitudes already scale the response, the DoG model has no separate <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameter, and the predicted BOLD response is <span class="math notranslate nohighlight">\(\hat{y}(t) = (h * r)(t) + \beta\)</span>.</p>
 <p>In the figure below, the center Gaussian has <code class="docutils literal notranslate"><span class="pre">amplitude_center</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_center</span></code> equal to 1. Move the sliders to see how the size and the strength of the surround change the response to the bar and the predicted BOLD response.</p>
 <div class="cell tag_hide-input docutils container">
 <details class="admonition hide above-input">
@@ -1077,14 +1084,15 @@ $$</p>
 </section>
 <section id="dn-model">
 <h3>DN model<a class="headerlink" href="#dn-model" title="Link to this heading">#</a></h3>
-<p>The DN model combines an activation Gaussian and a larger normalization Gaussian. The encoded response of the activation Gaussian $A(t) = P(t; \mu_x, \mu_y, \sigma_A)$ is divided by the encoded response of the normalization Gaussian $N(t) = P(t; \mu_x, \mu_y, \sigma_N)$:</p>
-<p>$$
+<p>The DN model combines an activation Gaussian and a larger normalization Gaussian. The encoded response of the activation Gaussian <span class="math notranslate nohighlight">\(A(t) = P(t; \mu_x, \mu_y, \sigma_A)\)</span> is divided by the encoded response of the normalization Gaussian <span class="math notranslate nohighlight">\(N(t) = P(t; \mu_x, \mu_y, \sigma_N)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[
 r(t) = \frac{a A(t) + b}{c N(t) + d} - \frac{b}{d}
-$$</p>
-<p>The standard deviations $\sigma_A$ and $\sigma_N$ are called <code class="docutils literal notranslate"><span class="pre">sigma_activation</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_normalization</span></code>.</p>
-<p>The parameters $a$, $b$, $c$, and $d$ are called <code class="docutils literal notranslate"><span class="pre">amplitude_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_normalization</span></code>, and <code class="docutils literal notranslate"><span class="pre">baseline_normalization</span></code>. Multiplying all four parameters by the same factor does not change the predicted response, meaning that different combinations of the four parameters can lead to the same predicted response and model fit. The consequence is that the DN model with four free parameters is <em>non-identifiable</em> which makes estimating the parameters difficult. To make parameter estimation easier and the model identifiable, we only estimate three of the four parameters and fix $c$ to 1.</p>
-<p>The subtraction of $b/d$ makes sure that the response is zero when there is no stimulus. Like for the DoG model, $a$ already scales the response, so the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.</p>
-<p>In the figure below, $a$, $c$, and <code class="docutils literal notranslate"><span class="pre">sigma_activation</span></code> are equal to 1. Move the sliders to see how the size of the normalization Gaussian and the two baselines change the response to the bar and the predicted BOLD response. Because the baselines can be very small or very large, their sliders change them on a logarithmic scale.</p>
+\]</div>
+<p>The standard deviations <span class="math notranslate nohighlight">\(\sigma_A\)</span> and <span class="math notranslate nohighlight">\(\sigma_N\)</span> are called <code class="docutils literal notranslate"><span class="pre">sigma_activation</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_normalization</span></code>.</p>
+<p>The parameters <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(b\)</span>, <span class="math notranslate nohighlight">\(c\)</span>, and <span class="math notranslate nohighlight">\(d\)</span> are called <code class="docutils literal notranslate"><span class="pre">amplitude_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_normalization</span></code>, and <code class="docutils literal notranslate"><span class="pre">baseline_normalization</span></code>. Multiplying all four parameters by the same factor does not change the predicted response, meaning that different combinations of the four parameters can lead to the same predicted response and model fit. The consequence is that the DN model with four free parameters is <em>non-identifiable</em> which makes estimating the parameters difficult. To make parameter estimation easier and the model identifiable, we only estimate three of the four parameters and fix <span class="math notranslate nohighlight">\(c\)</span> to 1.</p>
+<p>The subtraction of <span class="math notranslate nohighlight">\(b/d\)</span> makes sure that the response is zero when there is no stimulus. Like for the DoG model, <span class="math notranslate nohighlight">\(a\)</span> already scales the response, so the predicted BOLD response is <span class="math notranslate nohighlight">\(\hat{y}(t) = (h * r)(t) + \beta\)</span>.</p>
+<p>In the figure below, <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(c\)</span>, and <code class="docutils literal notranslate"><span class="pre">sigma_activation</span></code> are equal to 1. Move the sliders to see how the size of the normalization Gaussian and the two baselines change the response to the bar and the predicted BOLD response. Because the baselines can be very small or very large, their sliders change them on a logarithmic scale.</p>
 <div class="cell tag_hide-input docutils container">
 <details class="admonition hide above-input">
 <summary aria-label="Toggle hidden content">
@@ -1133,7 +1141,7 @@ $$</p>
 </div>
 </div>
 </div>
-<p>Good starting values for the DN model are hard to find. The helper function <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.init_div_norm_from_dog_css</span></code> approximates them from the DoG estimates (suppression) and the CSS estimates (compression). It expects a CSS exponent below 1, so we limit the exponent to 0.9 for the few voxels where the CSS model estimated no compression. It also warns if the DoG surround of a voxel ended up smaller than its center. This can happen for a few voxels and is not a problem because SGD can still adjust the sizes of both Gaussians. The response is linear in $a$ and $b$, so we estimate them with least-squares. Like for the DoG model, least-squares returns negative values for some voxels, which we replace with very small positive values because we optimize $a$ and $b$ in log space.</p>
+<p>Good starting values for the DN model are hard to find. The helper function <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.init_div_norm_from_dog_css</span></code> approximates them from the DoG estimates (suppression) and the CSS estimates (compression). It expects a CSS exponent below 1, so we limit the exponent to 0.9 for the few voxels where the CSS model estimated no compression. It also warns if the DoG surround of a voxel ended up smaller than its center. This can happen for a few voxels and is not a problem because SGD can still adjust the sizes of both Gaussians. The response is linear in <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>, so we estimate them with least-squares. Like for the DoG model, least-squares returns negative values for some voxels, which we replace with very small positive values because we optimize <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span> in log space.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">DivNormGaussian2DPRFModel</span><span class="p">,</span> <span class="n">init_div_norm_from_dog_css</span>
