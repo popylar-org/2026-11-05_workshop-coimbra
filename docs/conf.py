@@ -33,7 +33,7 @@ exclude_patterns = [
 
 # -- MyST / MyST-NB ----------------------------------------------------------
 
-myst_enable_extensions = ["colon_fence", "deflist", "html_image"]
+myst_enable_extensions = ["colon_fence", "deflist", "dollarmath", "html_image"]
 # Generate anchors for headings so that the notebook table of contents can link to sections.
 myst_heading_anchors = 3
 # Code is not executed at build time; participants run the notebooks on Colab.
