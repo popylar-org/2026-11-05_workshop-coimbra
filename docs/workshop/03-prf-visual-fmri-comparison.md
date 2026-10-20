@@ -19,11 +19,11 @@ This is the notebook for the third practical of the workshop. This practical cov
 
 The typical goal in computational modelling is to build a model that explains and predicts a target pattern in empirical data. That is, the model should not only predict the pattern in one set of observations but generalize to all observations that stem from the same data-generating process. The [second practical](02-prf-visual-fmri-cv.md) introduced cross-validation to assess how well a pRF model can generalize its predictions from training data to new observations. Cross-validation is used to *compare* models that vary in complexity, for example, in the number of free parameters, and select the model that shows the best generalization. More complex models can fit the training data more precisely, meaning that they are in theory better able to capture the target pattern. That is, they are less likely to *underfit* the training data. However, this means that they are also more prone to fitting aspects of the data that are not part of the data-generating process for the target pattern. This is called *overfitting* the training data.
 
-Cross-validation is a means to assess whether a pRF model is over- or underfitting. When underfitting, it will show relatively low prediction performance on the training *and* test data compared to other models (or a noise ceiling). This is also called *bias*. Conversely, when overfitting, the model will show high prediction performance on the training but relatively low prediction performance on the test data. Moreover, the prediction performance on the test data will be more variable on different test datasets the more a model overfits the training data. This test *variance* occurs because the model test prediction performance depends on variable characteristics of the data that do not belong to the data-generating process of the target pattern. The tension between bias (underfitting) and variance (overfitting) is called *bias-variance trade-off*. Given fixed training and test data, the complexity of a model typically navigates this trade-off and the goal is to find the model complexity that sits on the optimal point between under- and overfitting.
+Cross-validation is a means to assess whether a pRF model is over- or underfitting. When underfitting, it will show relatively low prediction performance on the training *and* test data compared to other models (or a noise ceiling). This is also called *bias*. Conversely, when overfitting, the model will show high prediction performance on the training but relatively low prediction performance on the test data. Moreover, the prediction performance will be more variable on different test datasets the more a model overfits the training data. This test *variance* occurs because the model test prediction performance depends on variable characteristics of the data that do not belong to the data-generating process of the target pattern. The tension between bias (underfitting) and variance (overfitting) is called *bias-variance trade-off*. Given fixed training and test data, the complexity of a model typically navigates this trade-off and the goal is to find the model complexity that sits on the optimal point between under- and overfitting.
 
 Different pRF models make different assumptions about how a neuron population responds to visual stimulation. The canonical Gaussian 2D pRF model from the first practical assumes that the response grows linearly with the part of the pRF that is covered by the stimulus. Other models add, for example, a suppressive surround around the pRF center or a compression of the response when a larger part of the pRF is stimulated. Each model is a hypothesis about the response, and comparing the models on empirical data tells us which hypothesis describes the data best.
 
-In this practical, we compare four models: The canonical Gaussian 2D pRF model, the Compressive Spatial Summation (CSS) model, the Difference of Gaussians (DoG) model, and the Divisive Normalization (DivNorm) model. The latter three models can mimic the Gaussian model and have more free parameters, so in principle they always fit the training data at least as well as the Gaussian model. Whether they also predict new data better is what we test with cross-validation. We also estimate the *noise ceiling* of each voxel, which tells us how well any model could possibly predict the data given the noise in it. Finally, the best model can differ between brain regions, so we select a model for each voxel separately.
+In this practical, we compare four models: The canonical Gaussian 2D pRF model, the Compressive Spatial Summation (CSS) model, the Difference of Gaussians (DoG) model, and the Divisive Normalization (DN) model. The latter three models can mimic the Gaussian model and have more free parameters, so in principle they always fit the training data at least as well as the Gaussian model. Whether they also predict new data better is what we test with cross-validation. We also estimate the *noise ceiling* of each voxel, which tells us how well any model could possibly predict the data given the noise in it. Finally, the best model can differ between brain regions, so we select a model for each voxel separately.
 
 +++
 
@@ -38,7 +38,7 @@ In this practical, we compare four models: The canonical Gaussian 2D pRF model, 
   - [Gaussian model](#gaussian-model)
   - [CSS model](#css-model)
   - [DoG model](#dog-model)
-  - [DivNorm model](#divnorm-model)
+  - [DN model](#dn-model)
 - [Comparing the in-sample fit](#comparing-the-in-sample-fit)
 - [Comparing the out-of-sample fit](#comparing-the-out-of-sample-fit)
 - [Selecting a model per voxel](#selecting-a-model-per-voxel)
@@ -465,9 +465,9 @@ We compare four pRF models that make different assumptions about how the neuron 
 | Gaussian (Dumoulin & Wandell, 2008) | `Gaussian2DPRFModel` | The response grows linearly with the stimulated part of the pRF | – | 5 |
 | CSS (Kay et al., 2013) | `Gaussian2DCSSPRFModel` | The response grows less than linearly (compressive) with the stimulated part of the pRF | `n` (compression exponent) | 6 |
 | DoG (Zuiderbaan et al., 2012) | `DoG2DPRFModel` | Stimulation around the pRF center suppresses the response (suppressive surround) | `sigma_surround`, `amplitude_surround` | 7 |
-| DivNorm (Aqil et al., 2021) | `DivNormGaussian2DPRFModel` | The response to the pRF center is divided by the response to a larger normalization pool, which produces both suppression and compression | `sigma_normalization`, `baseline_activation`, `baseline_normalization` | 8 |
+| DN (Aqil et al., 2021) | `DivNormGaussian2DPRFModel` | The response to the pRF center is divided by the response to a larger normalization pool, which produces both suppression and compression | `sigma_normalization`, `baseline_activation`, `baseline_normalization` | 8 |
 
-The free parameters are the parameters that we estimate for each voxel (we fix `weight_deriv` for all models). The models are ordered by their number of free parameters. They can (approximately) mimic each other: The CSS model with `n` equal to 1 and the DoG model without a surround (`amplitude_surround` equal to 0) are equivalent to the Gaussian model, and the DivNorm model behaves like the DoG model when normalization is weak and produces compression like the CSS model when it is strong (Aqil et al., 2021).
+The free parameters are the parameters that we estimate for each voxel (we fix `weight_deriv` for all models). The models are ordered by their number of free parameters. They can (approximately) mimic each other: The CSS model with `n` equal to 1 and the DoG model without a surround (`amplitude_surround` equal to 0) are equivalent to the Gaussian model, and the DN model behaves like the DoG model when normalization is weak and produces compression like the CSS model when it is strong (Aqil et al., 2021).
 
 Fitting models with many parameters is difficult because the loss function has many local minima. We therefore fit the models in sequence and use the estimates of simpler models as starting values for more complex ones. prfmodel provides helper functions for this, for example, `prfmodel.models.prf.init_css_from_gaussian`. After initializing a model, we estimate its amplitude and baseline parameters with least-squares and then fine-tune all free parameters with stochastic gradient descent (SGD).
 
@@ -491,9 +491,141 @@ tr = 0.9
 impulse_model = DerivativeTwoGammaImpulse(resolution=tr)
 ```
 
+To see how the additional parameters of the CSS, DoG, and DN models change their predictions, we use interactive figures like in the first practical. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters. The figure updates when you release a slider.
+
+Each figure shows a pRF in the center of the visual field with a size of 1 degree. The left panel shows the predicted neuron population response $r$ (before the convolution with the impulse response) while a vertical bar like the one in the experiment is at different horizontal positions in the visual field. The right panel shows the predicted BOLD response to the first half of the run. The dashed gray lines show the predictions of the Gaussian model with the same center and size. Because the additional parameters also change the scale of the predictions, we scale all predictions to a maximum of 1 so that we can compare their shapes.
+
+The next hidden cell defines helper functions for the interactive figures.
+
+```{code-cell} ipython3
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Helper functions for the interactive figures { display-mode: "form" }
+import ipywidgets as widgets
+from IPython.display import display
+from prfmodel.models.prf import Gaussian2DPRFModel
+
+BLUE = "#2a78d6"
+GRAY = "#8c8c8c"
+
+# All figures show a pRF in the center of the visual field
+CENTER_PARAMS = {"mu_x": 0.0, "mu_y": 0.0, "weight_deriv": -0.5, "baseline": 0.0}
+GAUSSIAN_PARAMS = {"sigma": 1.0, "amplitude": 1.0}
+
+# Stimulus with one vertical bar per frame; the bar moves from left to right over frames
+bar_width = 1.7  # Width of the bar in the experiment (degrees visual angle)
+bar_positions = np.linspace(-4.0, 4.0, 81)
+bar_stimulus = PRFStimulus(
+    design=(np.abs(stimulus.grid[..., 1] - bar_positions[:, None, None]) <= bar_width / 2).astype("float32"),
+    grid=stimulus.grid,
+    dimension_labels=["y", "x"],
+)
+
+time_frames_first = np.arange(stimulus_first.design.shape[0])
+
+
+def make_slider(
+    name: str, value: float, min_value: float, max_value: float, step: float, log: bool = False,
+) -> widgets.FloatSlider | widgets.FloatLogSlider:
+    """Create a slider for a parameter; with `log=True`, the slider moves in steps of `step` in log10 space."""
+    if log:
+        return widgets.FloatLogSlider(
+            value=value,
+            min=np.log10(min_value),
+            max=np.log10(max_value),
+            step=step,
+            description=name,
+            continuous_update=False,  # Only update the figure when the slider is released
+        )
+    return widgets.FloatSlider(
+        value=value, min=min_value, max=max_value, step=step, description=name, continuous_update=False,
+    )
+
+
+def show_interactive(plot_fn, sliders: dict[str, widgets.ValueWidget]) -> None:
+    """Show sliders above a figure that `plot_fn` redraws whenever a slider changes."""
+    controls = widgets.GridBox(
+        list(sliders.values()),
+        layout=widgets.Layout(grid_template_columns="repeat(3, max-content)", grid_gap="4px 24px"),
+    )
+    display(widgets.VBox([controls, widgets.interactive_output(plot_fn, sliders)]))
+
+
+def to_frame(**params: float) -> pd.DataFrame:
+    """Turn parameter values into a parameter DataFrame with a single row."""
+    return pd.DataFrame({name: [value] for name, value in params.items()})
+
+
+def scale_to_max(values: np.ndarray) -> np.ndarray:
+    """Scale values so that their largest absolute value is 1."""
+    values = np.asarray(values)
+    max_value = np.abs(values).max()
+    return values / max_value if max_value > 0 else values
+
+
+def style_axes(ax: plt.Axes, xlabel: str, ylabel: str) -> None:
+    """Label the axes and make the frame and grid recede behind the data."""
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.grid(color="#e6e6e6", linewidth=0.8)
+    ax.set_axisbelow(True)
+
+
+def plot_model_comparison(model_class: type, model_name: str, **params: float) -> None:
+    """Plot the bar response and the predicted BOLD response of a model next to those of the Gaussian model."""
+    fig, (ax_bar, ax_response) = plt.subplots(
+        1, 2, figsize=(12, 3.8), gridspec_kw={"width_ratios": [1, 3]}, layout="constrained",
+    )
+
+    for current_class, current_name, current_params, style in [
+        (Gaussian2DPRFModel, "Gaussian", GAUSSIAN_PARAMS, {"color": GRAY, "linestyle": "--", "linewidth": 1.5}),
+        (model_class, model_name, params, {"color": BLUE, "linewidth": 2}),
+    ]:
+        param_frame = to_frame(**CENTER_PARAMS, **current_params)
+        # Without an impulse response, every frame of the bar stimulus gives the response to the bar at one position
+        bar_response = current_class(impulse_model=None)(bar_stimulus, param_frame)[0]
+        bold_response = current_class(impulse_model=impulse_model)(stimulus_first, param_frame)[0]
+        ax_bar.plot(bar_positions, scale_to_max(bar_response), label=current_name, **style)
+        ax_response.plot(time_frames_first, scale_to_max(bold_response), label=current_name, **style)
+
+    ax_bar.set_title("Response to the bar", loc="left")
+    style_axes(ax_bar, "Bar position (degrees visual angle)", "Scaled response")
+
+    ax_response.legend(frameon=False, loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, borderaxespad=0.2)
+    ax_response.set_title("Predicted BOLD response", loc="left")
+    style_axes(ax_response, "Time frame", "Scaled BOLD response")
+
+    plt.show()
+```
+
 ## Fitting the models to the first half
 
 ### Gaussian model
+
+All four models build on the Gaussian model, so we first recall how it makes a prediction. Its tuning profile is the isotropic 2D Gaussian density centered at $(\mu_x, \mu_y)$ with standard deviation $\sigma$:
+
+$$
+G(x, y; \mu_x, \mu_y, \sigma) = \frac{1}{2 \pi \sigma^2} \exp\left(-\frac{(x - \mu_x)^2 + (y - \mu_y)^2}{2 \sigma^2}\right)
+$$
+
+The tuning profile is encoded with the stimulus design $S$ by summing the overlap over all points $(x, y)$ of the stimulus grid at every time frame $t$:
+
+$$
+P(t; \mu_x, \mu_y, \sigma) = \sum_{x, y} S(t, x, y) \, G(x, y; \mu_x, \mu_y, \sigma)
+$$
+
+For the Gaussian model, this encoded response is the predicted neuron population response $r(t) = P(t; \mu_x, \mu_y, \sigma)$. It is convolved with the impulse response $h$ and scaled with the parameters `amplitude` ($\alpha$) and `baseline` ($\beta$) to give the predicted BOLD response:
+
+$$
+\hat{y}(t) = \alpha \, (h * r)(t) + \beta
+$$
+
+The other models only differ in how they compute $r(t)$ from one or two encoded Gaussians. All Gaussians of a model share the same center $(\mu_x, \mu_y)$.
 
 We fit the Gaussian model in the same way as in the first practical: grid search, least-squares, and SGD. We only use the stimulus and the responses of the first half.
 
@@ -563,7 +695,33 @@ gaussian_params
 
 ### CSS model
 
-The CSS model raises the stimulus-encoded pRF response to the power of the compression exponent `n` before it is convolved with the impulse response. With `n` below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a `gain` parameter that multiplies the compressed response. It has the same effect as `amplitude`, so we fix it to its starting value of 1.
+The CSS model raises the stimulus-encoded pRF response to the power of the compression exponent `n` before it is convolved with the impulse response:
+
+$$
+r(t) = g \, P(t; \mu_x, \mu_y, \sigma)^n
+$$
+
+With `n` below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a `gain` parameter $g$ that multiplies the compressed response. It has the same effect as `amplitude`, so we fix it to its starting value of 1. The predicted BOLD response $\hat{y}(t)$ is computed in the same way as for the Gaussian model.
+
+Move the `n` slider in the figure below to see how the exponent changes the response to the bar and the predicted BOLD response. With `n` equal to 1, the CSS model makes the same predictions as the Gaussian model.
+
+```{code-cell} ipython3
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Interactive figure: CSS model { display-mode: "form" }
+from prfmodel.models.prf import Gaussian2DCSSPRFModel
+
+
+def plot_css(n: float) -> None:
+    plot_model_comparison(Gaussian2DCSSPRFModel, "CSS", sigma=1.0, gain=1.0, n=n, amplitude=1.0)
+
+
+show_interactive(plot_css, {"n": make_slider("n", 0.5, 0.05, 1.5, 0.05)})
+```
 
 We start from the Gaussian estimates and an exponent of 0.5. Because the exponent changes the scale of the prediction, we re-estimate `amplitude` and `baseline` with least-squares. In SGD, we optimize `sigma` and `n` in log space to keep them positive.
 
@@ -603,7 +761,46 @@ css_params
 
 ### DoG model
 
-The DoG model subtracts the response of a larger surround Gaussian from the response of a center Gaussian. Both Gaussians share the same pRF center. A positive `amplitude_surround` means that stimulation of the surround suppresses the response.
+The DoG model subtracts the response of a larger surround Gaussian from the response of a center Gaussian:
+
+$$
+r(t) = a_c \, P(t; \mu_x, \mu_y, \sigma_c) - a_s \, P(t; \mu_x, \mu_y, \sigma_s)
+$$
+
+The parameters $a_c$, $a_s$, $\sigma_c$, and $\sigma_s$ are called `amplitude_center`, `amplitude_surround`, `sigma_center`, and `sigma_surround`. A positive `amplitude_surround` means that stimulation of the surround suppresses the response. Because the two amplitudes already scale the response, the DoG model has no separate `amplitude` parameter, and the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.
+
+In the figure below, the center Gaussian has `amplitude_center` and `sigma_center` equal to 1. Move the sliders to see how the size and the strength of the surround change the response to the bar and the predicted BOLD response.
+
+```{code-cell} ipython3
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Interactive figure: DoG model { display-mode: "form" }
+from prfmodel.models.prf import DoG2DPRFModel
+
+
+def plot_dog(sigma_surround: float, amplitude_surround: float) -> None:
+    plot_model_comparison(
+        DoG2DPRFModel,
+        "DoG",
+        sigma_center=1.0,
+        sigma_surround=sigma_surround,
+        amplitude_center=1.0,
+        amplitude_surround=amplitude_surround,
+    )
+
+
+show_interactive(
+    plot_dog,
+    {
+        "sigma_surround": make_slider("sigma_surround", 2.0, 1.0, 6.0, 0.1),
+        "amplitude_surround": make_slider("amplitude_surround", 0.5, 0.0, 1.0, 0.05),
+    },
+)
+```
 
 We start from the Gaussian estimates with a surround that is three times as large as the center and very weak (`amplitude_surround` equal to 0.001). Both amplitudes enter the prediction linearly, so we can estimate them together with the baseline with least-squares. For some voxels, least-squares returns a negative `amplitude_surround`, that is, a surround that increases the response. In SGD, we optimize `amplitude_surround` in log space to keep the surround suppressive, so we only use the least-squares estimates for voxels with a suppressive surround. The other voxels keep the starting values from the Gaussian estimates with the very weak surround.
 
@@ -651,17 +848,63 @@ dog_history, dog_params = dog_sgd_fitter.fit(
 dog_params
 ```
 
-### DivNorm model
+### DN model
 
-The DivNorm model combines an activation Gaussian and a larger normalization Gaussian. The response of the activation Gaussian $A$ is divided by the response of the normalization Gaussian $N$:
+The DN model combines an activation Gaussian and a larger normalization Gaussian. The encoded response of the activation Gaussian $A(t) = P(t; \mu_x, \mu_y, \sigma_A)$ is divided by the encoded response of the normalization Gaussian $N(t) = P(t; \mu_x, \mu_y, \sigma_N)$:
 
 $$
-r = \frac{a A + b}{c N + d} - \frac{b}{d}
+r(t) = \frac{a A(t) + b}{c N(t) + d} - \frac{b}{d}
 $$
 
-The parameters $a$, $b$, $c$, and $d$ are called `amplitude_activation`, `baseline_activation`, `amplitude_normalization`, and `baseline_normalization`. Multiplying all four parameters by the same factor does not change the response, so we fix $c$ to 1. The subtraction of $b/d$ makes sure that the response is zero when there is no stimulus.
+The standard deviations $\sigma_A$ and $\sigma_N$ are called `sigma_activation` and `sigma_normalization`.
 
-Good starting values for the DivNorm model are hard to find. The helper function `prfmodel.models.prf.init_div_norm_from_dog_css` approximates them from the DoG estimates (suppression) and the CSS estimates (compression). It expects a CSS exponent below 1, so we limit the exponent to 0.9 for the few voxels where the CSS model estimated no compression. It also warns if the DoG surround of a voxel ended up smaller than its center. This can happen for a few voxels and is not a problem because SGD can still adjust the sizes of both Gaussians. The response is linear in $a$ and $b$, so we estimate them with least-squares. Like for the DoG model, least-squares returns negative values for some voxels, which we replace with very small positive values because we optimize $a$ and $b$ in log space.
+The parameters $a$, $b$, $c$, and $d$ are called `amplitude_activation`, `baseline_activation`, `amplitude_normalization`, and `baseline_normalization`. Multiplying all four parameters by the same factor does not change the predicted response, meaning that different combinations of the four parameters can lead to the same predicted response and model fit. The consequence is that the DN model with four free parameters is *non-identifiable* which makes estimating the parameters difficult. To make parameter estimation easier and the model identifiable, we only estimate three of the four parameters and fix $c$ to 1.
+
+The subtraction of $b/d$ makes sure that the response is zero when there is no stimulus. Like for the DoG model, $a$ already scales the response, so the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.
+
+In the figure below, $a$, $c$, and `sigma_activation` are equal to 1. Move the sliders to see how the size of the normalization Gaussian and the two baselines change the response to the bar and the predicted BOLD response. Because the baselines can be very small or very large, their sliders change them on a logarithmic scale.
+
+```{code-cell} ipython3
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Interactive figure: DN model { display-mode: "form" }
+from prfmodel.models.prf import DivNormGaussian2DPRFModel
+
+
+def plot_dn(sigma_normalization: float, baseline_activation: float, baseline_normalization: float) -> None:
+    plot_model_comparison(
+        DivNormGaussian2DPRFModel,
+        "DN",
+        sigma_activation=1.0,
+        sigma_normalization=sigma_normalization,
+        amplitude_activation=1.0,
+        amplitude_normalization=1.0,
+        baseline_activation=baseline_activation,
+        baseline_normalization=baseline_normalization,
+    )
+
+
+show_interactive(
+    plot_dn,
+    {
+        "sigma_normalization": make_slider("sigma_normalization", 2.0, 1.0, 6.0, 0.1),
+        "baseline_activation": make_slider("baseline_activation", 1.0, 0.01, 100.0, 0.1, log=True),
+        "baseline_normalization": make_slider("baseline_normalization", 1.0, 0.01, 100.0, 0.1, log=True),
+    },
+)
+```
+
+> **Exercise 6:** Check that the DN model is non-identifiable: Create a `DivNormGaussian2DPRFModel` and parameters for a single pRF (e.g., with the values from the interactive figure above) and predict the response to the first half of the run. Then multiply `amplitude_activation`, `baseline_activation`, `amplitude_normalization`, and `baseline_normalization` by the same constant (e.g., 2 or 10) and predict the response again. How does the prediction change? What happens when you only multiply some of the four parameters by the constant?
+
+```{code-cell} ipython3
+# Your code goes here
+```
+
+Good starting values for the DN model are hard to find. The helper function `prfmodel.models.prf.init_div_norm_from_dog_css` approximates them from the DoG estimates (suppression) and the CSS estimates (compression). It expects a CSS exponent below 1, so we limit the exponent to 0.9 for the few voxels where the CSS model estimated no compression. It also warns if the DoG surround of a voxel ended up smaller than its center. This can happen for a few voxels and is not a problem because SGD can still adjust the sizes of both Gaussians. The response is linear in $a$ and $b$, so we estimate them with least-squares. Like for the DoG model, least-squares returns negative values for some voxels, which we replace with very small positive values because we optimize $a$ and $b$ in log space.
 
 ```{code-cell} ipython3
 from prfmodel.models.prf import DivNormGaussian2DPRFModel, init_div_norm_from_dog_css
@@ -714,7 +957,7 @@ dn_history, dn_params = dn_sgd_fitter.fit(
 dn_params
 ```
 
-> **Exercise 6:** Print the parameter names of each model (e.g., `css_model.parameter_names`) and compare them with the table above. Then, look at the distributions of the CSS exponent `n` and the ratio between the DoG surround and center sizes (`sigma_surround / sigma_center`). What do they tell you about compression and suppression in the selected voxels?
+> **Exercise 7:** Print the parameter names of each model (e.g., `css_model.parameter_names`) and compare them with the table above. Then, look at the distributions of the CSS exponent `n` and the ratio between the DoG surround and center sizes (`sigma_surround / sigma_center`). What do they tell you about compression and suppression in the selected voxels?
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -727,7 +970,7 @@ We first compare how well the models fit the training data. We collect the model
 ```{code-cell} ipython3
 from prfmodel.utils import batched, calculate_r_squared
 
-model_names = ["Gaussian", "CSS", "DoG", "DivNorm"]  # From the simplest to the most complex model
+model_names = ["Gaussian", "CSS", "DoG", "DN"]  # From the simplest to the most complex model
 
 models = dict(zip(model_names, [gaussian_model, css_model, dog_model, dn_model]))
 model_params = dict(zip(model_names, [gaussian_params, css_params, dog_params, dn_params]))
@@ -765,7 +1008,7 @@ for ax, name in zip(axes, model_names[1:]):
     )
 ```
 
-> **Exercise 7:** Which model fits the training data best? Why do the CSS, DoG, and DivNorm models almost never fit worse than the Gaussian model? What would it mean if a more complex model fit a voxel clearly worse than the Gaussian model? Does the in-sample fit tell us which model is the best description of the data?
+> **Exercise 8:** Which model fits the training data best? Why do the CSS, DoG, and DN models almost never fit worse than the Gaussian model? What would it mean if a more complex model fit a voxel clearly worse than the Gaussian model? Does the in-sample fit tell us which model is the best description of the data?
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -801,7 +1044,7 @@ for ax, name in zip(axes, model_names[1:]):
     )
 ```
 
-> **Exercise 8:** Compare the out-of-sample R-squared of the models. Is the ranking of the models the same as for the in-sample fit? Which model generalizes best on average? How large is the advantage of the more complex models compared to the in-sample fit?
+> **Exercise 9:** Compare the out-of-sample R-squared of the models. Is the ranking of the models the same as for the in-sample fit? Which model generalizes best on average? How large is the advantage of the more complex models compared to the in-sample fit?
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -823,13 +1066,13 @@ for ax, name in zip(axes, model_names):
     )
 ```
 
-> **Exercise 9:** How close do the models get to the noise ceiling? Are there voxels for which a model predicts the test data better than the noise ceiling? Considering how we estimated the noise ceiling, how is this possible? There are also voxels with a high noise ceiling that none of the models predicts well. Plot the responses of some of these voxels: What do they have in common, and why can't our models describe them?
+> **Exercise 10:** How close do the models get to the noise ceiling? Are there voxels for which a model predicts the test data better than the noise ceiling? Considering how we estimated the noise ceiling, how is this possible? There are also voxels with a high noise ceiling that none of the models predicts well. Plot the responses of some of these voxels: What do they have in common, and why can't our models describe them?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 10:** Find the voxels for which the out-of-sample R-squared of the CSS, DoG, or DivNorm model is much higher than for the Gaussian model. Plot the observed test timecourses together with the predictions of all four models for some of these voxels (hint: use `prfmodel.plotting.plot_observed_predicted` with a dictionary of predictions). Which features of the response does the Gaussian model miss?
+> **Exercise 11:** Find the voxels for which the out-of-sample R-squared of the CSS, DoG, or DN model is much higher than for the Gaussian model. Plot the observed test timecourses together with the predictions of all four models for some of these voxels (hint: use `prfmodel.plotting.plot_observed_predicted` with a dictionary of predictions). Which features of the response does the Gaussian model miss?
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -882,25 +1125,25 @@ for name in model_names:
     )
 ```
 
-> **Exercise 11:** Where on the surface is each model selected? Compare the maps with the map of the noise ceiling. Do you see systematic differences between regions?
+> **Exercise 12:** Where on the surface is each model selected? Compare the maps with the map of the noise ceiling. Do you see systematic differences between regions?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 12:** Select the models with a minimum gain of 0 and of 0.05. How do the fractions of selected models change and why?
+> **Exercise 13:** Select the models with a minimum gain of 0 and of 0.05. How do the fractions of selected models change and why?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 13:** Compute how much the out-of-sample R-squared of each model improves over the Gaussian model for each voxel. Plot the improvement against the eccentricity and the size (`sigma`) of the pRF estimated with the Gaussian model (hint: use `prfmodel.utils.calculate_eccentricity`; averaging the improvement within bins of eccentricity or size makes the pattern easier to see). You can also plot the improvement on the surface with a diverging colormap (e.g., `cmap="RdBu_r"` with a symmetric color range). For which pRFs do the more complex models make the largest difference? Keep in mind that the stimulus only covers the visual field up to 4 degrees from the center horizontally and vertically: How well can the models describe pRFs with centers outside of this region?
+> **Exercise 14:** Compute how much the out-of-sample R-squared of each model improves over the Gaussian model for each voxel. Plot the improvement against the eccentricity and the size (`sigma`) of the pRF estimated with the Gaussian model (hint: use `prfmodel.utils.calculate_eccentricity`; averaging the improvement within bins of eccentricity or size makes the pattern easier to see). You can also plot the improvement on the surface with a diverging colormap (e.g., `cmap="RdBu_r"` with a symmetric color range). For which pRFs do the more complex models make the largest difference? Keep in mind that the stimulus only covers the visual field up to 4 degrees from the center horizontally and vertically: How well can the models describe pRFs with centers outside of this region?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 14 (optional):** Repeat the fitting with the halves swapped: Fit all four models to the second half and evaluate them on the first half. Select the models for this fold with `select_models`. For which fraction of the voxels is the same model selected in both folds? What does this tell you about how reliable the selection for individual voxels is? Also average the out-of-sample R-squared of each model across both folds and compare the models again.
+> **Exercise 15 (optional):** Repeat the fitting with the halves swapped: Fit all four models to the second half and evaluate them on the first half. Select the models for this fold with `select_models`. For which fraction of the voxels is the same model selected in both folds? What does this tell you about how reliable the selection for individual voxels is? Also average the out-of-sample R-squared of each model across both folds and compare the models again.
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -914,13 +1157,13 @@ When we interpret the parameters of the selected models, we need to keep in mind
 
 +++
 
-> **Exercise 15:** Fit all four models to the full run (`stimulus` and `response_valid[is_selected]`) using the same steps as above. For each voxel, take the pRF center of its selected model (hint: use `np.select` with one condition per model) and plot the polar angle and eccentricity on the surface (hint: use `prfmodel.utils.calculate_polar_angle` and `prfmodel.utils.calculate_eccentricity`, and project `mu_x` and `mu_y` onto the surface separately like in the first practical). Do the maps differ from the maps you get from the Gaussian model alone?
+> **Exercise 16:** Fit all four models to the full run (`stimulus` and `response_valid[is_selected]`) using the same steps as above. For each voxel, take the pRF center of its selected model (hint: use `np.select` with one condition per model) and plot the polar angle and eccentricity on the surface (hint: use `prfmodel.utils.calculate_polar_angle` and `prfmodel.utils.calculate_eccentricity`, and project `mu_x` and `mu_y` onto the surface separately like in the first practical). Do the maps differ from the maps you get from the Gaussian model alone?
 
 ```{code-cell} ipython3
 # Your code goes here
 ```
 
-> **Exercise 16:** Interpret the additional parameters of the more complex models, but only for the voxels for which the respective model is selected. For example, plot the CSS exponent `n` and the ratio between the DoG surround and center sizes against the eccentricity of the pRF. How do compression and suppression change with eccentricity?
+> **Exercise 17:** Interpret the additional parameters of the more complex models, but only for the voxels for which the respective model is selected. For example, plot the CSS exponent `n` and the ratio between the DoG surround and center sizes against the eccentricity of the pRF. How do compression and suppression change with eccentricity?
 
 ```{code-cell} ipython3
 # Your code goes here
