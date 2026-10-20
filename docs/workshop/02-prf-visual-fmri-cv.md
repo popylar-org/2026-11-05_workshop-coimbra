@@ -19,7 +19,7 @@ This is the notebook for the second practical of the workshop. This practical co
 
 **We also recommend going through this notebook before starting with the notebooks of the other practicals which build on this one.**
 
-In computational modelling, cross-validation is typically used to evaluate and compare the ability of different models to generalize their predictions to new observations. That is, from a set of candidate models, we want to select the model which can generalize best to unseen data. Here, we focus only on the cross-validation part and leave the model comparison and selection part to the [next practical]().
+In computational modelling, cross-validation is typically used to evaluate and compare the ability of different models to generalize their predictions to new observations. That is, from a set of candidate models, we want to select the model which can generalize best to unseen data. Here, we focus only on the cross-validation part and leave the model comparison and selection part to the [next practical](03-prf-visual-fmri-comparison.md).
 
 As all computational and machine learning models, pRF models can overfit the data that they are "trained" on (i.e., the data they are fit to in order to estimate their parameters). Overfitting means that the pRF model fits noise in the training data that is not present or different in unseen (i.e., test) data. It leads to a degradation in prediction performance from the training to test data. The more free parameters a model has, the more flexibly it can fit to noise in the training data and the more likely it is to overfit. While some degree of overfitting is unavoidable, we want to at least know when a pRF model overfits and whether we can trust that it is modelling a robust pattern in the data and not just noise. When comparing different models, we also want to be sure that a model leads to better predictions because it captures the underlying pattern in the data better and not just because it fits better to noise in the data (e.g., because it has more parameters).
 
@@ -533,7 +533,7 @@ response_test_run_valid = response_test_run[response_is_valid]
 
 ## Fitting and interpreting the final model
 
-Cross-validation is primarily used for comparing the out-of-sample performance between different candidate models and selecting the model that best generalizes to new observations. Model comparison and selection will be part of the [next practical]().
+Cross-validation is primarily used for comparing the out-of-sample performance between different candidate models and selecting the model that best generalizes to new observations. Model comparison and selection will be part of the [next practical](03-prf-visual-fmri-comparison.md).
 
 Once we have selected a model, our goal changes: We no longer want to *evaluate* the model but to *estimate* its parameters as precisely as possible so that we can interpret them. For that, we want to use as much data with the least amount of noise that we can get, including the data that we held out for testing before. This means that there is no held-out data left to evaluate the final fit, and that its in-sample R-squared is optimistic for the same reasons as above. We accept this because cross-validation has already told us how well this model generalizes to new data.
 

@@ -10,4 +10,5 @@ or download the notebook to run it locally.
 
 01-prf-visual-fmri
 02-prf-visual-fmri-cv
+03-prf-visual-fmri-comparison
 ```
