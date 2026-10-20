@@ -13,8 +13,16 @@ Colab can only open notebooks hosted on GitHub, so the badge points to the
 ``colab_branch`` of ``colab_repo``, where the deployed HTML output lives. If
 the output is deployed to a subdirectory of that branch (e.g. one per version),
 set ``colab_path_prefix`` to that subdirectory.
+
+Python modules that notebooks import (``colab_modules``, paths relative to the
+source directory) are copied next to the generated notebooks. In every
+notebook in the same directory as a module, a code cell that downloads it from
+the ``colab_branch`` is inserted before the first cell that imports it, so that
+the import also works on Colab.
 """
 
+import re
+import shutil
 from pathlib import Path
 
 import jupytext
@@ -91,12 +99,42 @@ def _highlight_exercises(app: Sphinx, doctree: nodes.document) -> None:
         quote.replace_self(admonition)
 
 
+def _insert_module_downloads(config, docname: str, notebook: nbformat.NotebookNode) -> None:
+    """Insert a cell that downloads a module before the first cell of the notebook that imports it."""
+    for module in config.colab_modules:
+        if Path(module).parent != Path(docname).parent:
+            continue
+        name = Path(module).stem
+        imports = re.compile(rf"^\s*(from\s+{name}\s+import|import\s+{name}\b)", re.MULTILINE)
+        index = next(
+            (i for i, cell in enumerate(notebook.cells) if cell.cell_type == "code" and imports.search(cell.source)),
+            None,
+        )
+        if index is None:
+            continue
+        deployed_path = "/".join(filter(None, [config.colab_path_prefix, config.colab_notebook_dir, module]))
+        url = f"https://raw.githubusercontent.com/{config.colab_repo}/{config.colab_branch}/{deployed_path}"
+        source = "\n".join([
+            f"# Download the module {Path(module).name} with helper functions next to this notebook",
+            "import urllib.request",
+            "",
+            f'urllib.request.urlretrieve("{url}", "{Path(module).name}")',
+        ])
+        notebook.cells.insert(index, nbformat.v4.new_code_cell(source))
+
+
 def _write_notebooks(app: Sphinx, exception: Exception | None) -> None:
     if exception is not None or app.builder.format != "html":
         return
     config = app.config
+    for module in config.colab_modules:
+        out = Path(app.outdir) / config.colab_notebook_dir / module
+        out.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(Path(app.srcdir) / module, out)
+        logger.info("colab_notebooks: copied %s", out.relative_to(app.outdir))
     for docname in sorted(app.env.colab_notebooks):
         notebook = jupytext.read(Path(app.env.doc2path(docname)))
+        _insert_module_downloads(config, docname, notebook)
         if config.colab_setup_cell:
             notebook.cells.insert(0, nbformat.v4.new_code_cell(config.colab_setup_cell))
         out = Path(app.outdir) / config.colab_notebook_dir / f"{docname}.ipynb"
@@ -125,6 +163,7 @@ def setup(app: Sphinx) -> dict:
     app.add_config_value("colab_notebook_dir", "notebooks", "html")
     app.add_config_value("colab_path_prefix", "", "html")
     app.add_config_value("colab_setup_cell", "", "html")
+    app.add_config_value("colab_modules", [], "html")
 
     app.connect("builder-inited", lambda app: _init_env(app, app.env))
     app.connect("env-purge-doc", _purge_doc)

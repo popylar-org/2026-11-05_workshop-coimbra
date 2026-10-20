@@ -106,182 +106,13 @@ def fill_valid_voxels(values: np.ndarray) -> np.ndarray:
 response_valid.shape
 ```
 
-We reuse the helper functions from the first practical to project values for each voxel onto the surface (`project_to_surface`) and to plot them on the inflated surface (`plot_surf_stat_map_helper`).
+We reuse the helper functions from the first practical to project values for each voxel onto the surface (`project_to_surface`) and to plot them on the inflated surface (`plot_surf_stat_map_helper`). We create them with the functions from the module `plotting_helpers.py`, which lies next to this notebook.
 
 ```{code-cell} ipython3
----
-cellView: form
-jupyter:
-  source_hidden: true
-tags: [hide-input]
----
-# @title Helper functions for plotting on the surface { display-mode: "form" }
-import warnings
+from plotting_helpers import make_surface_plot, make_surface_projection
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from nilearn.image import new_img_like
-from nilearn.plotting import plot_surf_stat_map
-from nilearn.surface import InMemoryMesh, PolyMesh, vol_to_surf
-
-# The pial and white matter surfaces are always downloaded together with the dataset
-pial_mesh = PolyMesh(left=dataset.files["pia_lh"], right=dataset.files["pia_rh"])
-wm_mesh = PolyMesh(left=dataset.files["wm_lh"], right=dataset.files["wm_rh"])
-
-is_in_mask = np.asarray(dataset.mask.dataobj).astype(bool)
-
-
-def project_to_surface(voxel_values: np.ndarray) -> np.ndarray:
-    """Project one value per voxel in the mask onto the vertices of both hemispheres (left first)."""
-    voxel_values = np.asarray(voxel_values)
-    is_valid = np.isfinite(voxel_values)
-    # Stack the values (zero for invalid voxels) and the weights (one for valid voxels) into a 4D volume
-    volume_data = np.zeros((*dataset.mask.shape, 2))
-    volume_data[is_in_mask, 0] = np.where(is_valid, voxel_values, 0.0)
-    volume_data[is_in_mask, 1] = is_valid
-    volume = new_img_like(dataset.mask, volume_data)
-    with warnings.catch_warnings():
-        # Vertices without any samples inside the mask are NaN; nilearn warns about them
-        warnings.filterwarnings("ignore", message="Mean of empty slice", category=RuntimeWarning)
-        surf_values, surf_weights = np.concatenate([
-            vol_to_surf(
-                volume,
-                pial_mesh.parts[hemi],
-                inner_mesh=wm_mesh.parts[hemi],
-                mask_img=dataset.mask,  # Ignore samples outside the gray matter mask
-            )
-            for hemi in ("left", "right")
-        ]).T
-    # Weighted average of valid voxels; NaN for vertices without valid voxels
-    return np.divide(surf_values, surf_weights, out=np.full_like(surf_values, np.nan), where=surf_weights > 0)
-
-
-def separate_hemispheres(mesh: PolyMesh, gap: float = 10.0) -> PolyMesh:
-    """Shift the hemispheres of a surface mesh apart along the left-right axis so that they do not overlap."""
-    left, right = mesh.parts["left"], mesh.parts["right"]
-    left_coords = left.coordinates.copy()
-    right_coords = right.coordinates.copy()
-    left_coords[:, 0] -= left_coords[:, 0].max() + gap / 2
-    right_coords[:, 0] -= right_coords[:, 0].min() - gap / 2
-    return PolyMesh(
-        left=InMemoryMesh(left_coords, left.faces),
-        right=InMemoryMesh(right_coords, right.faces),
-    )
-
-
-def downsample_mesh(mesh: InMemoryMesh, cell_size: float) -> tuple[InMemoryMesh, np.ndarray]:
-    """Merge all vertices that fall into the same cube of a grid with spacing `cell_size` into a single vertex.
-
-    Returns the downsampled mesh and, for every original vertex, the index of the vertex it was merged into.
-    """
-    cells = np.floor(mesh.coordinates / cell_size).astype(int)
-    _, merged_index = np.unique(cells, axis=0, return_inverse=True)
-    merged_index = merged_index.ravel()
-    # Each merged vertex lies at the mean position of the vertices that were merged into it
-    coords = np.stack(
-        [np.bincount(merged_index, weights=dim_coords) for dim_coords in mesh.coordinates.T], axis=1,
-    ) / np.bincount(merged_index)[:, np.newaxis]
-    faces = merged_index[mesh.faces]
-    # Remove faces whose corners were merged into fewer than three vertices and duplicate faces
-    is_triangle = (faces[:, 0] != faces[:, 1]) & (faces[:, 1] != faces[:, 2]) & (faces[:, 0] != faces[:, 2])
-    faces = faces[is_triangle]
-    _, first_index = np.unique(np.sort(faces, axis=1), axis=0, return_index=True)
-    return InMemoryMesh(coords, faces[np.sort(first_index)]), merged_index
-
-
-def downsample_stat_map(stat_map: np.ndarray, merged_index: np.ndarray, cyclic: bool = False) -> np.ndarray:
-    """Average the values of the vertices that were merged into the same vertex, ignoring NaN values."""
-    if cyclic:
-        # Average angles as unit vectors so that angles close to -pi and pi do not cancel out
-        return np.arctan2(
-            downsample_stat_map(np.sin(stat_map), merged_index),
-            downsample_stat_map(np.cos(stat_map), merged_index),
-        )
-    is_valid = np.isfinite(stat_map)
-    num_merged = merged_index.max() + 1
-    sums = np.bincount(merged_index[is_valid], weights=stat_map[is_valid], minlength=num_merged)
-    counts = np.bincount(merged_index[is_valid], minlength=num_merged)
-    return np.divide(sums, counts, out=np.full(num_merged, np.nan), where=counts > 0)
-
-
-mesh = separate_hemispheres(dataset.mesh)
-num_vertices_left = mesh.parts["left"].n_vertices
-
-# Downsample each hemisphere for plotting
-downsampled = {hemi: downsample_mesh(mesh.parts[hemi], cell_size=2.0) for hemi in ("left", "right")}
-plot_mesh = PolyMesh(left=downsampled["left"][0], right=downsampled["right"][0])
-merged_indices = {hemi: merged_index for hemi, (_, merged_index) in downsampled.items()}
-
-# Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain and the
-# posterior view looks slightly upward from below to show more of the occipital cortex
-SURF_VIEWS = {
-    "Left medial": ("left", -10, 330),
-    "Posterior": ("both", -20, 270),
-    "Right medial": ("right", -10, 210),
-}
-
-
-def plot_surf_stat_map_helper(
-        stat_map: np.ndarray,
-        vmin: float | None = None,
-        vmax: float | None = None,
-        title: str | None = None,
-        cmap: str = "inferno",
-        cyclic: bool = False,
-    ) -> tuple[plt.Figure, np.ndarray]:
-    """Helper function to plot a surface with a stat map from medial and posterior views.
-
-    Set `cyclic=True` for angles in radians (e.g., polar angle) to use the color range [-pi, pi] with the cyclic
-    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`). The angles of merged vertices are then averaged
-    as unit vectors.
-    """
-    if cyclic:
-        vmin, vmax, cmap = -np.pi, np.pi, "hsv"
-
-    # Use the same color range for all views
-    vmin = np.nanmin(stat_map) if vmin is None else vmin
-    vmax = np.nanmax(stat_map) if vmax is None else vmax
-
-    # Downsampled stat maps for each hemisphere (left first)
-    stat_maps = {
-        "left": downsample_stat_map(stat_map[:num_vertices_left], merged_indices["left"], cyclic),
-        "right": downsample_stat_map(stat_map[num_vertices_left:], merged_indices["right"], cyclic),
-    }
-    stat_maps["both"] = np.concatenate([stat_maps["left"], stat_maps["right"]])
-
-    fig, axes = plt.subplots(
-        1, len(SURF_VIEWS), subplot_kw={"projection": "3d"}, figsize=(12, 4.5), layout="constrained",
-    )
-
-    for ax, (view_name, (hemi, elev, azim)) in zip(axes, SURF_VIEWS.items()):
-        plot_surf_stat_map(
-            # nilearn centers the coordinates of a single hemisphere in place, which would undo separate_hemispheres
-            plot_mesh if hemi == "both" else InMemoryMesh(
-                plot_mesh.parts[hemi].coordinates.copy(), plot_mesh.parts[hemi].faces,
-            ),
-            stat_maps[hemi],
-            vmin=vmin,
-            vmax=vmax,
-            symmetric_cbar=False,
-            hemi=hemi,
-            view=(elev, azim),
-            cmap=cmap,
-            colorbar=False,
-            axes=ax,
-            figure=fig,
-        )
-        ax.set_title(view_name)
-
-    fig.colorbar(
-        mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax), cmap=cmap),
-        ax=axes,
-        shrink=0.6,
-    )
-
-    if title is not None:
-        fig.suptitle(title)
-
-    return fig, axes
+project_to_surface = make_surface_projection(dataset)
+plot_surf_stat_map_helper = make_surface_plot(dataset.mesh)
 ```
 
 ## Splitting the run into two halves
@@ -495,7 +326,7 @@ To see how the additional parameters of the CSS, DoG, and DN models change their
 
 Each figure shows a pRF in the center of the visual field with a size of 1 degree. The left panel shows the predicted neuron population response $r$ (before the convolution with the impulse response) while a vertical bar like the one in the experiment is at different horizontal positions in the visual field. The right panel shows the predicted BOLD response to the first half of the run. The dashed gray lines show the predictions of the Gaussian model with the same center and size. Because the additional parameters also change the scale of the predictions, we scale all predictions to a maximum of 1 so that we can compare their shapes.
 
-The next hidden cell defines helper functions for the interactive figures.
+The next hidden cell defines helper functions for the interactive figures. Like in the first practical, some of them are imported from the module `plotting_helpers.py`.
 
 ```{code-cell} ipython3
 ---
@@ -505,12 +336,8 @@ jupyter:
 tags: [hide-input]
 ---
 # @title Helper functions for the interactive figures { display-mode: "form" }
-import ipywidgets as widgets
-from IPython.display import display
+from plotting_helpers import BLUE, GRAY, add_legend, make_slider, show_interactive, style_axes, to_frame
 from prfmodel.models.prf import Gaussian2DPRFModel
-
-BLUE = "#2a78d6"
-GRAY = "#8c8c8c"
 
 # All figures show a pRF in the center of the visual field
 CENTER_PARAMS = {"mu_x": 0.0, "mu_y": 0.0, "weight_deriv": -0.5, "baseline": 0.0}
@@ -528,52 +355,11 @@ bar_stimulus = PRFStimulus(
 time_frames_first = np.arange(stimulus_first.design.shape[0])
 
 
-def make_slider(
-    name: str, value: float, min_value: float, max_value: float, step: float, log: bool = False,
-) -> widgets.FloatSlider | widgets.FloatLogSlider:
-    """Create a slider for a parameter; with `log=True`, the slider moves in steps of `step` in log10 space."""
-    if log:
-        return widgets.FloatLogSlider(
-            value=value,
-            min=np.log10(min_value),
-            max=np.log10(max_value),
-            step=step,
-            description=name,
-            continuous_update=False,  # Only update the figure when the slider is released
-        )
-    return widgets.FloatSlider(
-        value=value, min=min_value, max=max_value, step=step, description=name, continuous_update=False,
-    )
-
-
-def show_interactive(plot_fn, sliders: dict[str, widgets.ValueWidget]) -> None:
-    """Show sliders above a figure that `plot_fn` redraws whenever a slider changes."""
-    controls = widgets.GridBox(
-        list(sliders.values()),
-        layout=widgets.Layout(grid_template_columns="repeat(3, max-content)", grid_gap="4px 24px"),
-    )
-    display(widgets.VBox([controls, widgets.interactive_output(plot_fn, sliders)]))
-
-
-def to_frame(**params: float) -> pd.DataFrame:
-    """Turn parameter values into a parameter DataFrame with a single row."""
-    return pd.DataFrame({name: [value] for name, value in params.items()})
-
-
 def scale_to_max(values: np.ndarray) -> np.ndarray:
     """Scale values so that their largest absolute value is 1."""
     values = np.asarray(values)
     max_value = np.abs(values).max()
     return values / max_value if max_value > 0 else values
-
-
-def style_axes(ax: plt.Axes, xlabel: str, ylabel: str) -> None:
-    """Label the axes and make the frame and grid recede behind the data."""
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.grid(color="#e6e6e6", linewidth=0.8)
-    ax.set_axisbelow(True)
 
 
 def plot_model_comparison(model_class: type, model_name: str, **params: float) -> None:
@@ -596,7 +382,7 @@ def plot_model_comparison(model_class: type, model_name: str, **params: float) -
     ax_bar.set_title("Response to the bar", loc="left")
     style_axes(ax_bar, "Bar position (degrees visual angle)", "Scaled response")
 
-    ax_response.legend(frameon=False, loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, borderaxespad=0.2)
+    add_legend(ax_response)
     ax_response.set_title("Predicted BOLD response", loc="left")
     style_axes(ax_response, "Time frame", "Scaled BOLD response")
 
@@ -898,7 +684,7 @@ show_interactive(
 )
 ```
 
-> **Exercise 6:** Check that the DN model is non-identifiable: Create a `DivNormGaussian2DPRFModel` and parameters for a single pRF (e.g., with the values from the interactive figure above) and predict the response to the first half of the run. Then multiply `amplitude_activation`, `baseline_activation`, `amplitude_normalization`, and `baseline_normalization` by the same constant (e.g., 2 or 10) and predict the response again. How does the prediction change? What happens when you only multiply some of the four parameters by the constant?
+> **Exercise 6:** Check that the DN model is non-identifiable: Create a `DivNormGaussian2DPRFModel` and parameters for a single voxel (e.g., with the values from the interactive figure above) and predict the response to the first half of the run. Then multiply `amplitude_activation`, `baseline_activation`, `amplitude_normalization`, and `baseline_normalization` by the same constant (e.g., 2 or 10) and predict the response again. How does the prediction change? What happens when you only multiply some of the four parameters by the constant?
 
 ```{code-cell} ipython3
 # Your code goes here

@@ -64,8 +64,9 @@ html_theme_options = {
 colab_repo = "popylar-org/2026-11-05_workshop-coimbra"
 colab_branch = "gh-pages"
 colab_notebook_dir = "notebooks"
-# Prepended as the first code cell of every generated notebook.
-colab_setup_cell = "%pip install git+https://github.com/popylar-org/prfmodel.git"
+# Modules that the notebooks import; copied next to the notebooks and downloaded by a cell that is inserted before
+# the first import of the module in every notebook in the same directory.
+colab_modules = ["workshop/plotting_helpers.py"]
 
 # -- Versions (see poly.py) --------------------------------------------------
 

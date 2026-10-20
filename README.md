@@ -41,3 +41,8 @@ add a jupytext header with a `kernelspec` and put code in `{code-cell}` blocks
 `.ipynb` files under `notebooks/` and get an "Open in Colab" badge. Code is not executed
 during the build. Prefer plain Markdown in notebook pages, since MyST directives such as
 admonitions are not rendered on Colab.
+
+Plotting helper functions that several notebooks share live in `docs/workshop/plotting_helpers.py`.
+The notebooks import it from their own directory. For Colab, modules listed in `colab_modules`
+in `docs/conf.py` are copied next to the generated notebooks, and a cell inserted before the first
+import of a module downloads it from the `gh-pages` branch.
