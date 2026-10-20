@@ -20,7 +20,7 @@ The schedule is still provisional and the exact order of the sessions might be s
 | 16:30 | Recap and discussion     |                |
 | 17:00 | Drinks                   |                |
 
-## Day 2 : Friday, 6 November 2026
+## Day 2: Friday, 6 November 2026
 
 | Time  | Session                              | Speaker      |
 |-------|--------------------------------------|--------------|

@@ -349,7 +349,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gaussian-model">Gaussian model</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#css-model">CSS model</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dog-model">DoG model</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#divnorm-model">DivNorm model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dn-model">DN model</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-the-in-sample-fit">Comparing the in-sample fit</a></li>
@@ -374,9 +374,9 @@
 <p class="colab-links"><a href="https://colab.research.google.com/github/popylar-org/2026-11-05_workshop-coimbra/blob/gh-pages/add-third-practical/notebooks/workshop/03-prf-visual-fmri-comparison.ipynb" target="_blank" rel="noopener"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> <a href="../notebooks/workshop/03-prf-visual-fmri-comparison.ipynb" download>Download notebook</a></p><p>This is the notebook for the third practical of the workshop. This practical covers how to compare and select between different population receptive field (pRF) models on empirical data from visual functional magnetic resonance imaging (fMRI) experiments.</p>
 <p><strong>We recommend first going through the <a class="reference internal" href="01-prf-visual-fmri.html"><span class="std std-doc">first practical</span></a> and <a class="reference internal" href="02-prf-visual-fmri-cv.html"><span class="std std-doc">second practical</span></a> because this practical builds on package-specific basics and general concepts that are covered there.</strong></p>
 <p>The typical goal in computational modelling is to build a model that explains and predicts a target pattern in empirical data. That is, the model should not only predict the pattern in one set of observations but generalize to all observations that stem from the same data-generating process. The <a class="reference internal" href="02-prf-visual-fmri-cv.html"><span class="std std-doc">second practical</span></a> introduced cross-validation to assess how well a pRF model can generalize its predictions from training data to new observations. Cross-validation is used to <em>compare</em> models that vary in complexity, for example, in the number of free parameters, and select the model that shows the best generalization. More complex models can fit the training data more precisely, meaning that they are in theory better able to capture the target pattern. That is, they are less likely to <em>underfit</em> the training data. However, this means that they are also more prone to fitting aspects of the data that are not part of the data-generating process for the target pattern. This is called <em>overfitting</em> the training data.</p>
-<p>Cross-validation is a means to assess whether a pRF model is over- or underfitting. When underfitting, it will show relatively low prediction performance on the training <em>and</em> test data compared to other models (or a noise ceiling). This is also called <em>bias</em>. Conversely, when overfitting, the model will show high prediction performance on the training but relatively low prediction performance on the test data. Moreover, the prediction performance on the test data will be more variable on different test datasets the more a model overfits the training data. This test <em>variance</em> occurs because the model test prediction performance depends on variable characteristics of the data that do not belong to the data-generating process of the target pattern. The tension between bias (underfitting) and variance (overfitting) is called <em>bias-variance trade-off</em>. Given fixed training and test data, the complexity of a model typically navigates this trade-off and the goal is to find the model complexity that sits on the optimal point between under- and overfitting.</p>
+<p>Cross-validation is a means to assess whether a pRF model is over- or underfitting. When underfitting, it will show relatively low prediction performance on the training <em>and</em> test data compared to other models (or a noise ceiling). This is also called <em>bias</em>. Conversely, when overfitting, the model will show high prediction performance on the training but relatively low prediction performance on the test data. Moreover, the prediction performance will be more variable on different test datasets the more a model overfits the training data. This test <em>variance</em> occurs because the model test prediction performance depends on variable characteristics of the data that do not belong to the data-generating process of the target pattern. The tension between bias (underfitting) and variance (overfitting) is called <em>bias-variance trade-off</em>. Given fixed training and test data, the complexity of a model typically navigates this trade-off and the goal is to find the model complexity that sits on the optimal point between under- and overfitting.</p>
 <p>Different pRF models make different assumptions about how a neuron population responds to visual stimulation. The canonical Gaussian 2D pRF model from the first practical assumes that the response grows linearly with the part of the pRF that is covered by the stimulus. Other models add, for example, a suppressive surround around the pRF center or a compression of the response when a larger part of the pRF is stimulated. Each model is a hypothesis about the response, and comparing the models on empirical data tells us which hypothesis describes the data best.</p>
-<p>In this practical, we compare four models: The canonical Gaussian 2D pRF model, the Compressive Spatial Summation (CSS) model, the Difference of Gaussians (DoG) model, and the Divisive Normalization (DivNorm) model. The latter three models can mimic the Gaussian model and have more free parameters, so in principle they always fit the training data at least as well as the Gaussian model. Whether they also predict new data better is what we test with cross-validation. We also estimate the <em>noise ceiling</em> of each voxel, which tells us how well any model could possibly predict the data given the noise in it. Finally, the best model can differ between brain regions, so we select a model for each voxel separately.</p>
+<p>In this practical, we compare four models: The canonical Gaussian 2D pRF model, the Compressive Spatial Summation (CSS) model, the Difference of Gaussians (DoG) model, and the Divisive Normalization (DN) model. The latter three models can mimic the Gaussian model and have more free parameters, so in principle they always fit the training data at least as well as the Gaussian model. Whether they also predict new data better is what we test with cross-validation. We also estimate the <em>noise ceiling</em> of each voxel, which tells us how well any model could possibly predict the data given the noise in it. Finally, the best model can differ between brain regions, so we select a model for each voxel separately.</p>
 <section id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -390,7 +390,7 @@
 <li><p><a class="reference internal" href="#gaussian-model">Gaussian model</a></p></li>
 <li><p><a class="reference internal" href="#css-model">CSS model</a></p></li>
 <li><p><a class="reference internal" href="#dog-model">DoG model</a></p></li>
-<li><p><a class="reference internal" href="#divnorm-model">DivNorm model</a></p></li>
+<li><p><a class="reference internal" href="#dn-model">DN model</a></p></li>
 </ul>
 </li>
 <li><p><a class="reference internal" href="#comparing-the-in-sample-fit">Comparing the in-sample fit</a></p></li>
@@ -467,185 +467,16 @@
 </div>
 </div>
 </div>
-<p>We reuse the helper functions from the first practical to project values for each voxel onto the surface (<code class="docutils literal notranslate"><span class="pre">project_to_surface</span></code>) and to plot them on the inflated surface (<code class="docutils literal notranslate"><span class="pre">plot_surf_stat_map_helper</span></code>).</p>
-<div class="cell tag_hide-input docutils container">
-<details class="admonition hide above-input">
-<summary aria-label="Toggle hidden content">
-<p class="collapsed admonition-title">Show code cell source</p>
-<p class="expanded admonition-title">Hide code cell source</p>
-</summary>
+<p>We reuse the helper functions from the first practical to project values for each voxel onto the surface (<code class="docutils literal notranslate"><span class="pre">project_to_surface</span></code>) and to plot them on the inflated surface (<code class="docutils literal notranslate"><span class="pre">plot_surf_stat_map_helper</span></code>). We create them with the functions from the module <code class="docutils literal notranslate"><span class="pre">plotting_helpers.py</span></code>, which lies next to this notebook.</p>
+<div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Helper functions for plotting on the surface { display-mode: "form" }</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plotting_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_surface_plot</span><span class="p">,</span> <span class="n">make_surface_projection</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">new_img_like</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_surf_stat_map</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">nilearn.surface</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">PolyMesh</span><span class="p">,</span> <span class="n">vol_to_surf</span>
-
-<span class="c1"># The pial and white matter surfaces are always downloaded together with the dataset</span>
-<span class="n">pial_mesh</span> <span class="o">=</span> <span class="n">PolyMesh</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"pia_lh"</span><span class="p">],</span> <span class="n">right</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"pia_rh"</span><span class="p">])</span>
-<span class="n">wm_mesh</span> <span class="o">=</span> <span class="n">PolyMesh</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"wm_lh"</span><span class="p">],</span> <span class="n">right</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"wm_rh"</span><span class="p">])</span>
-
-<span class="n">is_in_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">project_to_surface</span><span class="p">(</span><span class="n">voxel_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Project one value per voxel in the mask onto the vertices of both hemispheres (left first)."""</span>
-    <span class="n">voxel_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">voxel_values</span><span class="p">)</span>
-    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">voxel_values</span><span class="p">)</span>
-    <span class="c1"># Stack the values (zero for invalid voxels) and the weights (one for valid voxels) into a 4D volume</span>
-    <span class="n">volume_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="n">volume_data</span><span class="p">[</span><span class="n">is_in_mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_valid</span><span class="p">,</span> <span class="n">voxel_values</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">volume_data</span><span class="p">[</span><span class="n">is_in_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_valid</span>
-    <span class="n">volume</span> <span class="o">=</span> <span class="n">new_img_like</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">volume_data</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
-        <span class="c1"># Vertices without any samples inside the mask are NaN; nilearn warns about them</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">"Mean of empty slice"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
-        <span class="n">surf_values</span><span class="p">,</span> <span class="n">surf_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
-            <span class="n">vol_to_surf</span><span class="p">(</span>
-                <span class="n">volume</span><span class="p">,</span>
-                <span class="n">pial_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
-                <span class="n">inner_mesh</span><span class="o">=</span><span class="n">wm_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
-                <span class="n">mask_img</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span>  <span class="c1"># Ignore samples outside the gray matter mask</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">)</span>
-        <span class="p">])</span><span class="o">.</span><span class="n">T</span>
-    <span class="c1"># Weighted average of valid voxels; NaN for vertices without valid voxels</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">surf_values</span><span class="p">,</span> <span class="n">surf_weights</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">surf_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">surf_weights</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">separate_hemispheres</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">PolyMesh</span><span class="p">,</span> <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolyMesh</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Shift the hemispheres of a surface mesh apart along the left-right axis so that they do not overlap."""</span>
-    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span>
-    <span class="n">left_coords</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">right_coords</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">left_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">left_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">gap</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">right_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">right_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">gap</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="k">return</span> <span class="n">PolyMesh</span><span class="p">(</span>
-        <span class="n">left</span><span class="o">=</span><span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">left_coords</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">faces</span><span class="p">),</span>
-        <span class="n">right</span><span class="o">=</span><span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">right_coords</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">faces</span><span class="p">),</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">downsample_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">cell_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InMemoryMesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Merge all vertices that fall into the same cube of a grid with spacing `cell_size` into a single vertex.</span>
-
-<span class="sd">    Returns the downsampled mesh and, for every original vertex, the index of the vertex it was merged into.</span>
-<span class="sd">    """</span>
-    <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">/</span> <span class="n">cell_size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">merged_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">merged_index</span> <span class="o">=</span> <span class="n">merged_index</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-    <span class="c1"># Each merged vertex lies at the mean position of the vertices that were merged into it</span>
-    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">dim_coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim_coords</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">T</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-    <span class="n">faces</span> <span class="o">=</span> <span class="n">merged_index</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">faces</span><span class="p">]</span>
-    <span class="c1"># Remove faces whose corners were merged into fewer than three vertices and duplicate faces</span>
-    <span class="n">is_triangle</span> <span class="o">=</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">faces</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">faces</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
-    <span class="n">faces</span> <span class="o">=</span> <span class="n">faces</span><span class="p">[</span><span class="n">is_triangle</span><span class="p">]</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">first_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">InMemoryMesh</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">first_index</span><span class="p">)]),</span> <span class="n">merged_index</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">merged_index</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cyclic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Average the values of the vertices that were merged into the same vertex, ignoring NaN values."""</span>
-    <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
-        <span class="c1"># Average angles as unit vectors so that angles close to -pi and pi do not cancel out</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span>
-            <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">stat_map</span><span class="p">),</span> <span class="n">merged_index</span><span class="p">),</span>
-            <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">stat_map</span><span class="p">),</span> <span class="n">merged_index</span><span class="p">),</span>
-        <span class="p">)</span>
-    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span>
-    <span class="n">num_merged</span> <span class="o">=</span> <span class="n">merged_index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">stat_map</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="n">num_merged</span><span class="p">)</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">merged_index</span><span class="p">[</span><span class="n">is_valid</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="n">num_merged</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">num_merged</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">counts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-
-
-<span class="n">mesh</span> <span class="o">=</span> <span class="n">separate_hemispheres</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
-<span class="n">num_vertices_left</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span><span class="o">.</span><span class="n">n_vertices</span>
-
-<span class="c1"># Downsample each hemisphere for plotting</span>
-<span class="n">downsampled</span> <span class="o">=</span> <span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">downsample_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span> <span class="n">cell_size</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">hemi</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">)}</span>
-<span class="n">plot_mesh</span> <span class="o">=</span> <span class="n">PolyMesh</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">downsampled</span><span class="p">[</span><span class="s2">"left"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">right</span><span class="o">=</span><span class="n">downsampled</span><span class="p">[</span><span class="s2">"right"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">merged_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">hemi</span><span class="p">:</span> <span class="n">merged_index</span> <span class="k">for</span> <span class="n">hemi</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">merged_index</span><span class="p">)</span> <span class="ow">in</span> <span class="n">downsampled</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-
-<span class="c1"># Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain and the</span>
-<span class="c1"># posterior view looks slightly upward from below to show more of the occipital cortex</span>
-<span class="n">SURF_VIEWS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"Left medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">330</span><span class="p">),</span>
-    <span class="s2">"Posterior"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"both"</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span>
-    <span class="s2">"Right medial"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"right"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">210</span><span class="p">),</span>
-<span class="p">}</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_surf_stat_map_helper</span><span class="p">(</span>
-        <span class="n">stat_map</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"inferno"</span><span class="p">,</span>
-        <span class="n">cyclic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Helper function to plot a surface with a stat map from medial and posterior views.</span>
-
-<span class="sd">    Set `cyclic=True` for angles in radians (e.g., polar angle) to use the color range [-pi, pi] with the cyclic</span>
-<span class="sd">    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`). The angles of merged vertices are then averaged</span>
-<span class="sd">    as unit vectors.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
-        <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s2">"hsv"</span>
-
-    <span class="c1"># Use the same color range for all views</span>
-    <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmin</span>
-    <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">stat_map</span><span class="p">)</span> <span class="k">if</span> <span class="n">vmax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vmax</span>
-
-    <span class="c1"># Downsampled stat maps for each hemisphere (left first)</span>
-    <span class="n">stat_maps</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"left"</span><span class="p">:</span> <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">[:</span><span class="n">num_vertices_left</span><span class="p">],</span> <span class="n">merged_indices</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">cyclic</span><span class="p">),</span>
-        <span class="s2">"right"</span><span class="p">:</span> <span class="n">downsample_stat_map</span><span class="p">(</span><span class="n">stat_map</span><span class="p">[</span><span class="n">num_vertices_left</span><span class="p">:],</span> <span class="n">merged_indices</span><span class="p">[</span><span class="s2">"right"</span><span class="p">],</span> <span class="n">cyclic</span><span class="p">),</span>
-    <span class="p">}</span>
-    <span class="n">stat_maps</span><span class="p">[</span><span class="s2">"both"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">stat_maps</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">stat_maps</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]])</span>
-
-    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
-        <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">SURF_VIEWS</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"projection"</span><span class="p">:</span> <span class="s2">"3d"</span><span class="p">},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">view_name</span><span class="p">,</span> <span class="p">(</span><span class="n">hemi</span><span class="p">,</span> <span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">SURF_VIEWS</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-        <span class="n">plot_surf_stat_map</span><span class="p">(</span>
-            <span class="c1"># nilearn centers the coordinates of a single hemisphere in place, which would undo separate_hemispheres</span>
-            <span class="n">plot_mesh</span> <span class="k">if</span> <span class="n">hemi</span> <span class="o">==</span> <span class="s2">"both"</span> <span class="k">else</span> <span class="n">InMemoryMesh</span><span class="p">(</span>
-                <span class="n">plot_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">plot_mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">hemi</span><span class="p">]</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">stat_maps</span><span class="p">[</span><span class="n">hemi</span><span class="p">],</span>
-            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-            <span class="n">symmetric_cbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">hemi</span><span class="o">=</span><span class="n">hemi</span><span class="p">,</span>
-            <span class="n">view</span><span class="o">=</span><span class="p">(</span><span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="p">),</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
-            <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-            <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">view_name</span><span class="p">)</span>
-
-    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
-        <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">),</span>
-        <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span>
-        <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span>
+<span class="n">project_to_surface</span> <span class="o">=</span> <span class="n">make_surface_projection</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">plot_surf_stat_map_helper</span> <span class="o">=</span> <span class="n">make_surface_plot</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-</details>
 </div>
 </section>
 <section id="splitting-the-run-into-two-halves">
@@ -896,7 +727,7 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">sigma_surround</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code></p></td>
 <td><p>7</p></td>
 </tr>
-<tr class="row-odd"><td><p>DivNorm (Aqil et al., 2021)</p></td>
+<tr class="row-odd"><td><p>DN (Aqil et al., 2021)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">DivNormGaussian2DPRFModel</span></code></p></td>
 <td><p>The response to the pRF center is divided by the response to a larger normalization pool, which produces both suppression and compression</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">sigma_normalization</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline_normalization</span></code></p></td>
@@ -905,7 +736,7 @@
 </tbody>
 </table>
 </div>
-<p>The free parameters are the parameters that we estimate for each voxel (we fix <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> for all models). The models are ordered by their number of free parameters. They can (approximately) mimic each other: The CSS model with <code class="docutils literal notranslate"><span class="pre">n</span></code> equal to 1 and the DoG model without a surround (<code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> equal to 0) are equivalent to the Gaussian model, and the DivNorm model behaves like the DoG model when normalization is weak and produces compression like the CSS model when it is strong (Aqil et al., 2021).</p>
+<p>The free parameters are the parameters that we estimate for each voxel (we fix <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> for all models). The models are ordered by their number of free parameters. They can (approximately) mimic each other: The CSS model with <code class="docutils literal notranslate"><span class="pre">n</span></code> equal to 1 and the DoG model without a surround (<code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> equal to 0) are equivalent to the Gaussian model, and the DN model behaves like the DoG model when normalization is weak and produces compression like the CSS model when it is strong (Aqil et al., 2021).</p>
 <p>Fitting models with many parameters is difficult because the loss function has many local minima. We therefore fit the models in sequence and use the estimates of simpler models as starting values for more complex ones. prfmodel provides helper functions for this, for example, <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.init_css_from_gaussian</span></code>. After initializing a model, we estimate its amplitude and baseline parameters with least-squares and then fine-tune all free parameters with stochastic gradient descent (SGD).</p>
 <p>For a fair comparison, we use the same SGD settings for all models, including the Gaussian model. Otherwise, a model could fit better only because it was optimized for longer. We use a larger learning rate than the default of the <code class="docutils literal notranslate"><span class="pre">Adam</span></code> optimizer (0.001) so that 500 steps are enough to reach a stable fit.</p>
 <div class="cell docutils container">
@@ -929,11 +760,91 @@
 </div>
 </div>
 </div>
+<p>To see how the additional parameters of the CSS, DoG, and DN models change their predictions, we use interactive figures like in the first practical. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters. The figure updates when you release a slider.</p>
+<p>Each figure shows a pRF in the center of the visual field with a size of 1 degree. The left panel shows the predicted neuron population response $r$ (before the convolution with the impulse response) while a vertical bar like the one in the experiment is at different horizontal positions in the visual field. The right panel shows the predicted BOLD response to the first half of the run. The dashed gray lines show the predictions of the Gaussian model with the same center and size. Because the additional parameters also change the scale of the predictions, we scale all predictions to a maximum of 1 so that we can compare their shapes.</p>
+<p>The next hidden cell defines helper functions for the interactive figures. Like in the first practical, some of them are imported from the module <code class="docutils literal notranslate"><span class="pre">plotting_helpers.py</span></code>.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Helper functions for the interactive figures { display-mode: "form" }</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plotting_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BLUE</span><span class="p">,</span> <span class="n">GRAY</span><span class="p">,</span> <span class="n">add_legend</span><span class="p">,</span> <span class="n">make_slider</span><span class="p">,</span> <span class="n">show_interactive</span><span class="p">,</span> <span class="n">style_axes</span><span class="p">,</span> <span class="n">to_frame</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gaussian2DPRFModel</span>
+
+<span class="c1"># All figures show a pRF in the center of the visual field</span>
+<span class="n">CENTER_PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"mu_x"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">"mu_y"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">"baseline"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+<span class="n">GAUSSIAN_PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"sigma"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"amplitude"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+
+<span class="c1"># Stimulus with one vertical bar per frame; the bar moves from left to right over frames</span>
+<span class="n">bar_width</span> <span class="o">=</span> <span class="mf">1.7</span>  <span class="c1"># Width of the bar in the experiment (degrees visual angle)</span>
+<span class="n">bar_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mi">81</span><span class="p">)</span>
+<span class="n">bar_stimulus</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bar_positions</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">bar_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">),</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+    <span class="n">dimension_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">time_frames_first</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">stimulus_first</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scale_to_max</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Scale values so that their largest absolute value is 1."""</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">max_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">values</span> <span class="o">/</span> <span class="n">max_value</span> <span class="k">if</span> <span class="n">max_value</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">values</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_model_comparison</span><span class="p">(</span><span class="n">model_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Plot the bar response and the predicted BOLD response of a model next to those of the Gaussian model."""</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_bar</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">current_class</span><span class="p">,</span> <span class="n">current_name</span><span class="p">,</span> <span class="n">current_params</span><span class="p">,</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">Gaussian2DPRFModel</span><span class="p">,</span> <span class="s2">"Gaussian"</span><span class="p">,</span> <span class="n">GAUSSIAN_PARAMS</span><span class="p">,</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="n">GRAY</span><span class="p">,</span> <span class="s2">"linestyle"</span><span class="p">:</span> <span class="s2">"--"</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}),</span>
+        <span class="p">(</span><span class="n">model_class</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="n">BLUE</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}),</span>
+    <span class="p">]:</span>
+        <span class="n">param_frame</span> <span class="o">=</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">CENTER_PARAMS</span><span class="p">,</span> <span class="o">**</span><span class="n">current_params</span><span class="p">)</span>
+        <span class="c1"># Without an impulse response, every frame of the bar stimulus gives the response to the bar at one position</span>
+        <span class="n">bar_response</span> <span class="o">=</span> <span class="n">current_class</span><span class="p">(</span><span class="n">impulse_model</span><span class="o">=</span><span class="kc">None</span><span class="p">)(</span><span class="n">bar_stimulus</span><span class="p">,</span> <span class="n">param_frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">bold_response</span> <span class="o">=</span> <span class="n">current_class</span><span class="p">(</span><span class="n">impulse_model</span><span class="o">=</span><span class="n">impulse_model</span><span class="p">)(</span><span class="n">stimulus_first</span><span class="p">,</span> <span class="n">param_frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ax_bar</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bar_positions</span><span class="p">,</span> <span class="n">scale_to_max</span><span class="p">(</span><span class="n">bar_response</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">current_name</span><span class="p">,</span> <span class="o">**</span><span class="n">style</span><span class="p">)</span>
+        <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames_first</span><span class="p">,</span> <span class="n">scale_to_max</span><span class="p">(</span><span class="n">bold_response</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">current_name</span><span class="p">,</span> <span class="o">**</span><span class="n">style</span><span class="p">)</span>
+
+    <span class="n">ax_bar</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Response to the bar"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_bar</span><span class="p">,</span> <span class="s2">"Bar position (degrees visual angle)"</span><span class="p">,</span> <span class="s2">"Scaled response"</span><span class="p">)</span>
+
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax_response</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted BOLD response"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Scaled BOLD response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
 </section>
 <section id="fitting-the-models-to-the-first-half">
 <h2>Fitting the models to the first half<a class="headerlink" href="#fitting-the-models-to-the-first-half" title="Link to this heading">#</a></h2>
 <section id="gaussian-model">
 <h3>Gaussian model<a class="headerlink" href="#gaussian-model" title="Link to this heading">#</a></h3>
+<p>All four models build on the Gaussian model, so we first recall how it makes a prediction. Its tuning profile is the isotropic 2D Gaussian density centered at $(\mu_x, \mu_y)$ with standard deviation $\sigma$:</p>
+<p>$$
+G(x, y; \mu_x, \mu_y, \sigma) = \frac{1}{2 \pi \sigma^2} \exp\left(-\frac{(x - \mu_x)^2 + (y - \mu_y)^2}{2 \sigma^2}\right)
+$$</p>
+<p>The tuning profile is encoded with the stimulus design $S$ by summing the overlap over all points $(x, y)$ of the stimulus grid at every time frame $t$:</p>
+<p>$$
+P(t; \mu_x, \mu_y, \sigma) = \sum_{x, y} S(t, x, y) , G(x, y; \mu_x, \mu_y, \sigma)
+$$</p>
+<p>For the Gaussian model, this encoded response is the predicted neuron population response $r(t) = P(t; \mu_x, \mu_y, \sigma)$. It is convolved with the impulse response $h$ and scaled with the parameters <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> ($\alpha$) and <code class="docutils literal notranslate"><span class="pre">baseline</span></code> ($\beta$) to give the predicted BOLD response:</p>
+<p>$$
+\hat{y}(t) = \alpha , (h * r)(t) + \beta
+$$</p>
+<p>The other models only differ in how they compute $r(t)$ from one or two encoded Gaussians. All Gaussians of a model share the same center $(\mu_x, \mu_y)$.</p>
 <p>We fit the Gaussian model in the same way as in the first practical: grid search, least-squares, and SGD. We only use the stimulus and the responses of the first half.</p>
 <p>Unlike in the first practical, the grid only contains pRF centers within the visual field covered by the stimulus. The grid search compares predictions and responses with a correlation, which does not depend on the scale of the prediction. For a small pRF with a center far outside the stimulus, the prediction only comes from the outer tail of the Gaussian and is tiny. Its correlation with the response can still be high, but the prediction is so small that least-squares cannot estimate its amplitude, and the fit fails. Starting the pRF centers within the stimulus avoids this, and SGD can still move them outside.</p>
 <div class="cell docutils container">
@@ -1007,7 +918,33 @@
 </section>
 <section id="css-model">
 <h3>CSS model<a class="headerlink" href="#css-model" title="Link to this heading">#</a></h3>
-<p>The CSS model raises the stimulus-encoded pRF response to the power of the compression exponent <code class="docutils literal notranslate"><span class="pre">n</span></code> before it is convolved with the impulse response. With <code class="docutils literal notranslate"><span class="pre">n</span></code> below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a <code class="docutils literal notranslate"><span class="pre">gain</span></code> parameter that multiplies the compressed response. It has the same effect as <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, so we fix it to its starting value of 1.</p>
+<p>The CSS model raises the stimulus-encoded pRF response to the power of the compression exponent <code class="docutils literal notranslate"><span class="pre">n</span></code> before it is convolved with the impulse response:</p>
+<p>$$
+r(t) = g , P(t; \mu_x, \mu_y, \sigma)^n
+$$</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">n</span></code> below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a <code class="docutils literal notranslate"><span class="pre">gain</span></code> parameter $g$ that multiplies the compressed response. It has the same effect as <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, so we fix it to its starting value of 1. The predicted BOLD response $\hat{y}(t)$ is computed in the same way as for the Gaussian model.</p>
+<p>Move the <code class="docutils literal notranslate"><span class="pre">n</span></code> slider in the figure below to see how the exponent changes the response to the bar and the predicted BOLD response. With <code class="docutils literal notranslate"><span class="pre">n</span></code> equal to 1, the CSS model makes the same predictions as the Gaussian model.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: CSS model { display-mode: "form" }</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gaussian2DCSSPRFModel</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_css</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">plot_model_comparison</span><span class="p">(</span><span class="n">Gaussian2DCSSPRFModel</span><span class="p">,</span> <span class="s2">"CSS"</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_css</span><span class="p">,</span> <span class="p">{</span><span class="s2">"n"</span><span class="p">:</span> <span class="n">make_slider</span><span class="p">(</span><span class="s2">"n"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)})</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
 <p>We start from the Gaussian estimates and an exponent of 0.5. Because the exponent changes the scale of the prediction, we re-estimate <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> and <code class="docutils literal notranslate"><span class="pre">baseline</span></code> with least-squares. In SGD, we optimize <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">n</span></code> in log space to keep them positive.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1049,7 +986,46 @@
 </section>
 <section id="dog-model">
 <h3>DoG model<a class="headerlink" href="#dog-model" title="Link to this heading">#</a></h3>
-<p>The DoG model subtracts the response of a larger surround Gaussian from the response of a center Gaussian. Both Gaussians share the same pRF center. A positive <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> means that stimulation of the surround suppresses the response.</p>
+<p>The DoG model subtracts the response of a larger surround Gaussian from the response of a center Gaussian:</p>
+<p>$$
+r(t) = a_c , P(t; \mu_x, \mu_y, \sigma_c) - a_s , P(t; \mu_x, \mu_y, \sigma_s)
+$$</p>
+<p>The parameters $a_c$, $a_s$, $\sigma_c$, and $\sigma_s$ are called <code class="docutils literal notranslate"><span class="pre">amplitude_center</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma_center</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma_surround</span></code>. A positive <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> means that stimulation of the surround suppresses the response. Because the two amplitudes already scale the response, the DoG model has no separate <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameter, and the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.</p>
+<p>In the figure below, the center Gaussian has <code class="docutils literal notranslate"><span class="pre">amplitude_center</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_center</span></code> equal to 1. Move the sliders to see how the size and the strength of the surround change the response to the bar and the predicted BOLD response.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: DoG model { display-mode: "form" }</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoG2DPRFModel</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_dog</span><span class="p">(</span><span class="n">sigma_surround</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude_surround</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">plot_model_comparison</span><span class="p">(</span>
+        <span class="n">DoG2DPRFModel</span><span class="p">,</span>
+        <span class="s2">"DoG"</span><span class="p">,</span>
+        <span class="n">sigma_center</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">sigma_surround</span><span class="o">=</span><span class="n">sigma_surround</span><span class="p">,</span>
+        <span class="n">amplitude_center</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">amplitude_surround</span><span class="o">=</span><span class="n">amplitude_surround</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span>
+    <span class="n">plot_dog</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">"sigma_surround"</span><span class="p">:</span> <span class="n">make_slider</span><span class="p">(</span><span class="s2">"sigma_surround"</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+        <span class="s2">"amplitude_surround"</span><span class="p">:</span> <span class="n">make_slider</span><span class="p">(</span><span class="s2">"amplitude_surround"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
 <p>We start from the Gaussian estimates with a surround that is three times as large as the center and very weak (<code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> equal to 0.001). Both amplitudes enter the prediction linearly, so we can estimate them together with the baseline with least-squares. For some voxels, least-squares returns a negative <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code>, that is, a surround that increases the response. In SGD, we optimize <code class="docutils literal notranslate"><span class="pre">amplitude_surround</span></code> in log space to keep the surround suppressive, so we only use the least-squares estimates for voxels with a suppressive surround. The other voxels keep the starting values from the Gaussian estimates with the very weak surround.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1099,14 +1075,65 @@
 </div>
 </div>
 </section>
-<section id="divnorm-model">
-<h3>DivNorm model<a class="headerlink" href="#divnorm-model" title="Link to this heading">#</a></h3>
-<p>The DivNorm model combines an activation Gaussian and a larger normalization Gaussian. The response of the activation Gaussian $A$ is divided by the response of the normalization Gaussian $N$:</p>
+<section id="dn-model">
+<h3>DN model<a class="headerlink" href="#dn-model" title="Link to this heading">#</a></h3>
+<p>The DN model combines an activation Gaussian and a larger normalization Gaussian. The encoded response of the activation Gaussian $A(t) = P(t; \mu_x, \mu_y, \sigma_A)$ is divided by the encoded response of the normalization Gaussian $N(t) = P(t; \mu_x, \mu_y, \sigma_N)$:</p>
 <p>$$
-r = \frac{a A + b}{c N + d} - \frac{b}{d}
+r(t) = \frac{a A(t) + b}{c N(t) + d} - \frac{b}{d}
 $$</p>
-<p>The parameters $a$, $b$, $c$, and $d$ are called <code class="docutils literal notranslate"><span class="pre">amplitude_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_normalization</span></code>, and <code class="docutils literal notranslate"><span class="pre">baseline_normalization</span></code>. Multiplying all four parameters by the same factor does not change the response, so we fix $c$ to 1. The subtraction of $b/d$ makes sure that the response is zero when there is no stimulus.</p>
-<p>Good starting values for the DivNorm model are hard to find. The helper function <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.init_div_norm_from_dog_css</span></code> approximates them from the DoG estimates (suppression) and the CSS estimates (compression). It expects a CSS exponent below 1, so we limit the exponent to 0.9 for the few voxels where the CSS model estimated no compression. It also warns if the DoG surround of a voxel ended up smaller than its center. This can happen for a few voxels and is not a problem because SGD can still adjust the sizes of both Gaussians. The response is linear in $a$ and $b$, so we estimate them with least-squares. Like for the DoG model, least-squares returns negative values for some voxels, which we replace with very small positive values because we optimize $a$ and $b$ in log space.</p>
+<p>The standard deviations $\sigma_A$ and $\sigma_N$ are called <code class="docutils literal notranslate"><span class="pre">sigma_activation</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_normalization</span></code>.</p>
+<p>The parameters $a$, $b$, $c$, and $d$ are called <code class="docutils literal notranslate"><span class="pre">amplitude_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_normalization</span></code>, and <code class="docutils literal notranslate"><span class="pre">baseline_normalization</span></code>. Multiplying all four parameters by the same factor does not change the predicted response, meaning that different combinations of the four parameters can lead to the same predicted response and model fit. The consequence is that the DN model with four free parameters is <em>non-identifiable</em> which makes estimating the parameters difficult. To make parameter estimation easier and the model identifiable, we only estimate three of the four parameters and fix $c$ to 1.</p>
+<p>The subtraction of $b/d$ makes sure that the response is zero when there is no stimulus. Like for the DoG model, $a$ already scales the response, so the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.</p>
+<p>In the figure below, $a$, $c$, and <code class="docutils literal notranslate"><span class="pre">sigma_activation</span></code> are equal to 1. Move the sliders to see how the size of the normalization Gaussian and the two baselines change the response to the bar and the predicted BOLD response. Because the baselines can be very small or very large, their sliders change them on a logarithmic scale.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: DN model { display-mode: "form" }</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">DivNormGaussian2DPRFModel</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_dn</span><span class="p">(</span><span class="n">sigma_normalization</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">baseline_activation</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">baseline_normalization</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">plot_model_comparison</span><span class="p">(</span>
+        <span class="n">DivNormGaussian2DPRFModel</span><span class="p">,</span>
+        <span class="s2">"DN"</span><span class="p">,</span>
+        <span class="n">sigma_activation</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">sigma_normalization</span><span class="o">=</span><span class="n">sigma_normalization</span><span class="p">,</span>
+        <span class="n">amplitude_activation</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">amplitude_normalization</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">baseline_activation</span><span class="o">=</span><span class="n">baseline_activation</span><span class="p">,</span>
+        <span class="n">baseline_normalization</span><span class="o">=</span><span class="n">baseline_normalization</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span>
+    <span class="n">plot_dn</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">"sigma_normalization"</span><span class="p">:</span> <span class="n">make_slider</span><span class="p">(</span><span class="s2">"sigma_normalization"</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+        <span class="s2">"baseline_activation"</span><span class="p">:</span> <span class="n">make_slider</span><span class="p">(</span><span class="s2">"baseline_activation"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="s2">"baseline_normalization"</span><span class="p">:</span> <span class="n">make_slider</span><span class="p">(</span><span class="s2">"baseline_normalization"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 6</p>
+<p>Check that the DN model is non-identifiable: Create a <code class="docutils literal notranslate"><span class="pre">DivNormGaussian2DPRFModel</span></code> and parameters for a single voxel (e.g., with the values from the interactive figure above) and predict the response to the first half of the run. Then multiply <code class="docutils literal notranslate"><span class="pre">amplitude_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline_activation</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude_normalization</span></code>, and <code class="docutils literal notranslate"><span class="pre">baseline_normalization</span></code> by the same constant (e.g., 2 or 10) and predict the response again. How does the prediction change? What happens when you only multiply some of the four parameters by the constant?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Good starting values for the DN model are hard to find. The helper function <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.init_div_norm_from_dog_css</span></code> approximates them from the DoG estimates (suppression) and the CSS estimates (compression). It expects a CSS exponent below 1, so we limit the exponent to 0.9 for the few voxels where the CSS model estimated no compression. It also warns if the DoG surround of a voxel ended up smaller than its center. This can happen for a few voxels and is not a problem because SGD can still adjust the sizes of both Gaussians. The response is linear in $a$ and $b$, so we estimate them with least-squares. Like for the DoG model, least-squares returns negative values for some voxels, which we replace with very small positive values because we optimize $a$ and $b$ in log space.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.prf</span><span class="w"> </span><span class="kn">import</span> <span class="n">DivNormGaussian2DPRFModel</span><span class="p">,</span> <span class="n">init_div_norm_from_dog_css</span>
@@ -1162,7 +1189,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 6</p>
+<p class="admonition-title">Exercise 7</p>
 <p>Print the parameter names of each model (e.g., <code class="docutils literal notranslate"><span class="pre">css_model.parameter_names</span></code>) and compare them with the table above. Then, look at the distributions of the CSS exponent <code class="docutils literal notranslate"><span class="pre">n</span></code> and the ratio between the DoG surround and center sizes (<code class="docutils literal notranslate"><span class="pre">sigma_surround</span> <span class="pre">/</span> <span class="pre">sigma_center</span></code>). What do they tell you about compression and suppression in the selected voxels?</p>
 </div>
 <div class="cell docutils container">
@@ -1181,7 +1208,7 @@ $$</p>
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched</span><span class="p">,</span> <span class="n">calculate_r_squared</span>
 
-<span class="n">model_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Gaussian"</span><span class="p">,</span> <span class="s2">"CSS"</span><span class="p">,</span> <span class="s2">"DoG"</span><span class="p">,</span> <span class="s2">"DivNorm"</span><span class="p">]</span>  <span class="c1"># From the simplest to the most complex model</span>
+<span class="n">model_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Gaussian"</span><span class="p">,</span> <span class="s2">"CSS"</span><span class="p">,</span> <span class="s2">"DoG"</span><span class="p">,</span> <span class="s2">"DN"</span><span class="p">]</span>  <span class="c1"># From the simplest to the most complex model</span>
 
 <span class="n">models</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">model_names</span><span class="p">,</span> <span class="p">[</span><span class="n">gaussian_model</span><span class="p">,</span> <span class="n">css_model</span><span class="p">,</span> <span class="n">dog_model</span><span class="p">,</span> <span class="n">dn_model</span><span class="p">]))</span>
 <span class="n">model_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">model_names</span><span class="p">,</span> <span class="p">[</span><span class="n">gaussian_params</span><span class="p">,</span> <span class="n">css_params</span><span class="p">,</span> <span class="n">dog_params</span><span class="p">,</span> <span class="n">dn_params</span><span class="p">]))</span>
@@ -1224,8 +1251,8 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 7</p>
-<p>Which model fits the training data best? Why do the CSS, DoG, and DivNorm models almost never fit worse than the Gaussian model? What would it mean if a more complex model fit a voxel clearly worse than the Gaussian model? Does the in-sample fit tell us which model is the best description of the data?</p>
+<p class="admonition-title">Exercise 8</p>
+<p>Which model fits the training data best? Why do the CSS, DoG, and DN models almost never fit worse than the Gaussian model? What would it mean if a more complex model fit a voxel clearly worse than the Gaussian model? Does the in-sample fit tell us which model is the best description of the data?</p>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1271,7 +1298,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 8</p>
+<p class="admonition-title">Exercise 9</p>
 <p>Compare the out-of-sample R-squared of the models. Is the ranking of the models the same as for the in-sample fit? Which model generalizes best on average? How large is the advantage of the more complex models compared to the in-sample fit?</p>
 </div>
 <div class="cell docutils container">
@@ -1300,7 +1327,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 9</p>
+<p class="admonition-title">Exercise 10</p>
 <p>How close do the models get to the noise ceiling? Are there voxels for which a model predicts the test data better than the noise ceiling? Considering how we estimated the noise ceiling, how is this possible? There are also voxels with a high noise ceiling that none of the models predicts well. Plot the responses of some of these voxels: What do they have in common, and why can’t our models describe them?</p>
 </div>
 <div class="cell docutils container">
@@ -1311,8 +1338,8 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 10</p>
-<p>Find the voxels for which the out-of-sample R-squared of the CSS, DoG, or DivNorm model is much higher than for the Gaussian model. Plot the observed test timecourses together with the predictions of all four models for some of these voxels (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code> with a dictionary of predictions). Which features of the response does the Gaussian model miss?</p>
+<p class="admonition-title">Exercise 11</p>
+<p>Find the voxels for which the out-of-sample R-squared of the CSS, DoG, or DN model is much higher than for the Gaussian model. Plot the observed test timecourses together with the predictions of all four models for some of these voxels (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code> with a dictionary of predictions). Which features of the response does the Gaussian model miss?</p>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1368,7 +1395,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 11</p>
+<p class="admonition-title">Exercise 12</p>
 <p>Where on the surface is each model selected? Compare the maps with the map of the noise ceiling. Do you see systematic differences between regions?</p>
 </div>
 <div class="cell docutils container">
@@ -1379,7 +1406,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 12</p>
+<p class="admonition-title">Exercise 13</p>
 <p>Select the models with a minimum gain of 0 and of 0.05. How do the fractions of selected models change and why?</p>
 </div>
 <div class="cell docutils container">
@@ -1390,7 +1417,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 13</p>
+<p class="admonition-title">Exercise 14</p>
 <p>Compute how much the out-of-sample R-squared of each model improves over the Gaussian model for each voxel. Plot the improvement against the eccentricity and the size (<code class="docutils literal notranslate"><span class="pre">sigma</span></code>) of the pRF estimated with the Gaussian model (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_eccentricity</span></code>; averaging the improvement within bins of eccentricity or size makes the pattern easier to see). You can also plot the improvement on the surface with a diverging colormap (e.g., <code class="docutils literal notranslate"><span class="pre">cmap=&quot;RdBu_r&quot;</span></code> with a symmetric color range). For which pRFs do the more complex models make the largest difference? Keep in mind that the stimulus only covers the visual field up to 4 degrees from the center horizontally and vertically: How well can the models describe pRFs with centers outside of this region?</p>
 </div>
 <div class="cell docutils container">
@@ -1401,7 +1428,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 14 (optional)</p>
+<p class="admonition-title">Exercise 15 (optional)</p>
 <p>Repeat the fitting with the halves swapped: Fit all four models to the second half and evaluate them on the first half. Select the models for this fold with <code class="docutils literal notranslate"><span class="pre">select_models</span></code>. For which fraction of the voxels is the same model selected in both folds? What does this tell you about how reliable the selection for individual voxels is? Also average the out-of-sample R-squared of each model across both folds and compare the models again.</p>
 </div>
 <div class="cell docutils container">
@@ -1417,7 +1444,7 @@ $$</p>
 <p>Once we have selected a model for each voxel, we want to estimate its parameters as precisely as possible so that we can interpret them. Like in the second practical, we now use all data, that is, the full run with both halves. The in-sample R-squared of these fits is optimistic, but we accept this because cross-validation has already told us how well the models generalize.</p>
 <p>When we interpret the parameters of the selected models, we need to keep in mind that the parameters of different models do not always mean the same thing. All four models have a pRF center (<code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>), so we can compare the polar angle and eccentricity of the pRF across voxels with different selected models. In contrast, the size parameters differ between models: For example, the <code class="docutils literal notranslate"><span class="pre">sigma</span></code> of the CSS model describes the Gaussian before the compression, which makes the pRF appear larger than its <code class="docutils literal notranslate"><span class="pre">sigma</span></code> suggests (Kay et al., 2013). The size of the center Gaussian of the DoG model (<code class="docutils literal notranslate"><span class="pre">sigma_center</span></code>) is also not the same as the size of a Gaussian pRF without a surround. A map of pRF sizes that mixes the size parameters of different models would therefore mix different definitions of size.</p>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 15</p>
+<p class="admonition-title">Exercise 16</p>
 <p>Fit all four models to the full run (<code class="docutils literal notranslate"><span class="pre">stimulus</span></code> and <code class="docutils literal notranslate"><span class="pre">response_valid[is_selected]</span></code>) using the same steps as above. For each voxel, take the pRF center of its selected model (hint: use <code class="docutils literal notranslate"><span class="pre">np.select</span></code> with one condition per model) and plot the polar angle and eccentricity on the surface (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_polar_angle</span></code> and <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_eccentricity</span></code>, and project <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> onto the surface separately like in the first practical). Do the maps differ from the maps you get from the Gaussian model alone?</p>
 </div>
 <div class="cell docutils container">
@@ -1428,7 +1455,7 @@ $$</p>
 </div>
 </div>
 <div class="exercise admonition">
-<p class="admonition-title">Exercise 16</p>
+<p class="admonition-title">Exercise 17</p>
 <p>Interpret the additional parameters of the more complex models, but only for the voxels for which the respective model is selected. For example, plot the CSS exponent <code class="docutils literal notranslate"><span class="pre">n</span></code> and the ratio between the DoG surround and center sizes against the eccentricity of the pRF. How do compression and suppression change with eccentricity?</p>
 </div>
 <div class="cell docutils container">
@@ -1507,7 +1534,7 @@ $$</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gaussian-model">Gaussian model</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#css-model">CSS model</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dog-model">DoG model</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#divnorm-model">DivNorm model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dn-model">DN model</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-the-in-sample-fit">Comparing the in-sample fit</a></li>

@@ -151,7 +151,7 @@ We build up the model one submodel at a time and then combine all submodels into
 
 To explore how the parameters of each submodel affect its predictions, we use interactive figures. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters. The figure updates when you release a slider. You can expand a hidden cell if you are curious about its code.
 
-The first hidden cell defines helper functions for the interactive figures.
+The first hidden cell defines helper functions for the interactive figures. Some of them are shared by all practicals and are imported from the module `plotting_helpers.py`, which lies next to this notebook.
 
 ```{code-cell} ipython3
 ---
@@ -165,11 +165,8 @@ import ipywidgets as widgets
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from IPython.display import display
+from plotting_helpers import BLUE, GRAY, ORANGE, add_legend, make_slider, show_interactive, style_axes, to_frame
 
-BLUE = "#2a78d6"
-ORANGE = "#eb6834"
-GRAY = "#8c8c8c"
 TUNING_CMAP = mpl.colors.LinearSegmentedColormap.from_list(
     "tuning", ["#ffffff", "#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"],
 )
@@ -195,47 +192,7 @@ START_VALUES = {name: value for name, (value, *_) in PARAM_SLIDERS.items()}
 
 def make_sliders(*names: str, **custom_sliders: tuple[float, float, float, float]) -> dict[str, widgets.FloatSlider]:
     """Create a slider for each parameter; `custom_sliders` replace the values from `PARAM_SLIDERS` for a parameter."""
-    sliders = {}
-    for name in names:
-        value, min_value, max_value, step = custom_sliders.get(name, PARAM_SLIDERS[name])
-        sliders[name] = widgets.FloatSlider(
-            value=value,
-            min=min_value,
-            max=max_value,
-            step=step,
-            description=name,
-            continuous_update=False,  # Only update the figure when the slider is released
-        )
-    return sliders
-
-
-def show_interactive(plot_fn, sliders: dict[str, widgets.ValueWidget]) -> None:
-    """Show sliders above a figure that `plot_fn` redraws whenever a slider changes."""
-    controls = widgets.GridBox(
-        list(sliders.values()),
-        layout=widgets.Layout(grid_template_columns="repeat(3, max-content)", grid_gap="4px 24px"),
-    )
-    display(widgets.VBox([controls, widgets.interactive_output(plot_fn, sliders)]))
-
-
-def to_frame(**params: float) -> pd.DataFrame:
-    """Turn parameter values into a parameter DataFrame with a single row."""
-    return pd.DataFrame({name: [value] for name, value in params.items()})
-
-
-def style_axes(ax: plt.Axes, xlabel: str, ylabel: str, grid: bool = True) -> None:
-    """Label the axes and make the frame and grid recede behind the data."""
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.spines[["top", "right"]].set_visible(False)
-    if grid:
-        ax.grid(color="#e6e6e6", linewidth=0.8)
-        ax.set_axisbelow(True)
-
-
-def add_legend(ax: plt.Axes) -> None:
-    """Place the legend above the top right corner of the plot so that it does not cover the data."""
-    ax.legend(frameon=False, loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=3, borderaxespad=0.2)
+    return {name: make_slider(name, *custom_sliders.get(name, PARAM_SLIDERS[name])) for name in names}
 
 
 def draw_prf_location(ax: plt.Axes, mu_x: float, mu_y: float, sigma: float) -> None:
@@ -712,191 +669,22 @@ plot_response_heatmap(
 
 To visualize the response on the cortical surface, we need to project it from the volume onto the surface. The volume and the surfaces of the subject share the same coordinate system, so we can use `nilearn.surface.vol_to_surf` for the projection. The function samples the volume at several depths between the pial surface and the white matter surface, so we load these surfaces as well. To map a value per voxel back into the volume, we fill the values into the voxels inside the gray matter mask from the dataset.
 
-The projection linearly interpolates between neighboring voxels. To prevent voxels outside the mask or voxels with `NaN` values from affecting the result, we set them to zero and additionally project a volume that is one for all other (valid) voxels and zero otherwise. Dividing the first projection by the second gives a weighted average of only the valid voxels at each vertex. Vertices without any valid voxels are `NaN`.
+The projection linearly interpolates between neighboring voxels. To prevent voxels outside the mask or voxels with `NaN` values from affecting the result, we set them to zero and additionally project a volume that is one for all other (valid) voxels and zero otherwise. Dividing the first projection by the second gives a weighted average of only the valid voxels at each vertex. Vertices without any valid voxels are `NaN`. The function `make_surface_projection` from `plotting_helpers.py` implements these steps and creates the function `project_to_surface` for our dataset.
 
 ```{code-cell} ipython3
-import warnings
+from plotting_helpers import make_surface_projection
 
-import numpy as np
-from nilearn.image import new_img_like
-from nilearn.surface import PolyMesh, vol_to_surf
-
-# The pial and white matter surfaces are always downloaded together with the dataset
-pial_mesh = PolyMesh(left=dataset.files["pia_lh"], right=dataset.files["pia_rh"])
-wm_mesh = PolyMesh(left=dataset.files["wm_lh"], right=dataset.files["wm_rh"])
-
-is_in_mask = np.asarray(dataset.mask.dataobj).astype(bool)
-
-
-def project_to_surface(voxel_values: np.ndarray) -> np.ndarray:
-    """Project one value per voxel in the mask onto the vertices of both hemispheres (left first)."""
-    voxel_values = np.asarray(voxel_values)
-    is_valid = np.isfinite(voxel_values)
-    # Stack the values (zero for invalid voxels) and the weights (one for valid voxels) into a 4D volume
-    volume_data = np.zeros((*dataset.mask.shape, 2))
-    volume_data[is_in_mask, 0] = np.where(is_valid, voxel_values, 0.0)
-    volume_data[is_in_mask, 1] = is_valid
-    volume = new_img_like(dataset.mask, volume_data)
-    with warnings.catch_warnings():
-        # Vertices without any samples inside the mask are NaN; nilearn warns about them
-        warnings.filterwarnings("ignore", message="Mean of empty slice", category=RuntimeWarning)
-        surf_values, surf_weights = np.concatenate([
-            vol_to_surf(
-                volume,
-                pial_mesh.parts[hemi],
-                inner_mesh=wm_mesh.parts[hemi],
-                mask_img=dataset.mask,  # Ignore samples outside the gray matter mask
-            )
-            for hemi in ("left", "right")
-        ]).T
-    # Weighted average of valid voxels; NaN for vertices without valid voxels
-    return np.divide(surf_values, surf_weights, out=np.full_like(surf_values, np.nan), where=surf_weights > 0)
+project_to_surface = make_surface_projection(dataset)
 ```
 
-We also define a helper function to plot a per-voxel statistic on the inflated surface. The inflated surfaces of both hemispheres overlap in space, so we first move them apart. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior).
+We also create a helper function with `make_surface_plot` from `plotting_helpers.py` to plot a per-voxel statistic on the inflated surface. The inflated surfaces of both hemispheres overlap in space, so we first move them apart. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior).
 
 Each hemisphere of the surface has about 150,000 vertices, which makes plotting slow (especially on Colab). Because the figures are too small to show that much detail, the helper plots a downsampled surface: All vertices that fall into the same cube of a 2 mm grid are merged into a single vertex that gets the average value of the merged vertices. This reduces the surface to about 27,000 vertices per hemisphere.
 
 ```{code-cell} ipython3
----
-cellView: form
-jupyter:
-  source_hidden: true
-tags: [hide-input]
----
-# @title Helper functions for plotting on the surface { display-mode: "form" }
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from nilearn.plotting import plot_surf_stat_map
-from nilearn.surface import InMemoryMesh
+from plotting_helpers import make_surface_plot
 
-
-def separate_hemispheres(mesh: PolyMesh, gap: float = 10.0) -> PolyMesh:
-    """Shift the hemispheres of a surface mesh apart along the left-right axis so that they do not overlap."""
-    left, right = mesh.parts["left"], mesh.parts["right"]
-    left_coords = left.coordinates.copy()
-    right_coords = right.coordinates.copy()
-    left_coords[:, 0] -= left_coords[:, 0].max() + gap / 2
-    right_coords[:, 0] -= right_coords[:, 0].min() - gap / 2
-    return PolyMesh(
-        left=InMemoryMesh(left_coords, left.faces),
-        right=InMemoryMesh(right_coords, right.faces),
-    )
-
-
-def downsample_mesh(mesh: InMemoryMesh, cell_size: float) -> tuple[InMemoryMesh, np.ndarray]:
-    """Merge all vertices that fall into the same cube of a grid with spacing `cell_size` into a single vertex.
-
-    Returns the downsampled mesh and, for every original vertex, the index of the vertex it was merged into.
-    """
-    cells = np.floor(mesh.coordinates / cell_size).astype(int)
-    _, merged_index = np.unique(cells, axis=0, return_inverse=True)
-    merged_index = merged_index.ravel()
-    # Each merged vertex lies at the mean position of the vertices that were merged into it
-    coords = np.stack(
-        [np.bincount(merged_index, weights=dim_coords) for dim_coords in mesh.coordinates.T], axis=1,
-    ) / np.bincount(merged_index)[:, np.newaxis]
-    faces = merged_index[mesh.faces]
-    # Remove faces whose corners were merged into fewer than three vertices and duplicate faces
-    is_triangle = (faces[:, 0] != faces[:, 1]) & (faces[:, 1] != faces[:, 2]) & (faces[:, 0] != faces[:, 2])
-    faces = faces[is_triangle]
-    _, first_index = np.unique(np.sort(faces, axis=1), axis=0, return_index=True)
-    return InMemoryMesh(coords, faces[np.sort(first_index)]), merged_index
-
-
-def downsample_stat_map(stat_map: np.ndarray, merged_index: np.ndarray, cyclic: bool = False) -> np.ndarray:
-    """Average the values of the vertices that were merged into the same vertex, ignoring NaN values."""
-    if cyclic:
-        # Average angles as unit vectors so that angles close to -pi and pi do not cancel out
-        return np.arctan2(
-            downsample_stat_map(np.sin(stat_map), merged_index),
-            downsample_stat_map(np.cos(stat_map), merged_index),
-        )
-    is_valid = np.isfinite(stat_map)
-    num_merged = merged_index.max() + 1
-    sums = np.bincount(merged_index[is_valid], weights=stat_map[is_valid], minlength=num_merged)
-    counts = np.bincount(merged_index[is_valid], minlength=num_merged)
-    return np.divide(sums, counts, out=np.full(num_merged, np.nan), where=counts > 0)
-
-
-mesh = separate_hemispheres(dataset.mesh)
-num_vertices_left = mesh.parts["left"].n_vertices
-
-# Downsample each hemisphere for plotting
-downsampled = {hemi: downsample_mesh(mesh.parts[hemi], cell_size=2.0) for hemi in ("left", "right")}
-plot_mesh = PolyMesh(left=downsampled["left"][0], right=downsampled["right"][0])
-merged_indices = {hemi: merged_index for hemi, (_, merged_index) in downsampled.items()}
-
-# Views as (hemisphere, elevation, azimuth); medial views are rotated slightly towards the back of the brain and the
-# posterior view looks slightly upward from below to show more of the occipital cortex
-SURF_VIEWS = {
-    "Left medial": ("left", -10, 330),
-    "Posterior": ("both", -20, 270),
-    "Right medial": ("right", -10, 210),
-}
-
-
-def plot_surf_stat_map_helper(
-        stat_map: np.ndarray,
-        vmin: float | None = None,
-        vmax: float | None = None,
-        title: str | None = None,
-        cmap: str = "inferno",
-        cyclic: bool = False,
-    ) -> tuple[plt.Figure, np.ndarray]:
-    """Helper function to plot a surface with a stat map from medial and posterior views.
-
-    Set `cyclic=True` for angles in radians (e.g., polar angle) to use the color range [-pi, pi] with the cyclic
-    colormap "hsv" (like `prfmodel.plotting.plot_surface_stat_map`). The angles of merged vertices are then averaged
-    as unit vectors.
-    """
-    if cyclic:
-        vmin, vmax, cmap = -np.pi, np.pi, "hsv"
-
-    # Use the same color range for all views
-    vmin = np.nanmin(stat_map) if vmin is None else vmin
-    vmax = np.nanmax(stat_map) if vmax is None else vmax
-
-    # Downsampled stat maps for each hemisphere (left first)
-    stat_maps = {
-        "left": downsample_stat_map(stat_map[:num_vertices_left], merged_indices["left"], cyclic),
-        "right": downsample_stat_map(stat_map[num_vertices_left:], merged_indices["right"], cyclic),
-    }
-    stat_maps["both"] = np.concatenate([stat_maps["left"], stat_maps["right"]])
-
-    fig, axes = plt.subplots(
-        1, len(SURF_VIEWS), subplot_kw={"projection": "3d"}, figsize=(12, 4.5), layout="constrained",
-    )
-
-    for ax, (view_name, (hemi, elev, azim)) in zip(axes, SURF_VIEWS.items()):
-        plot_surf_stat_map(
-            # nilearn centers the coordinates of a single hemisphere in place, which would undo separate_hemispheres
-            plot_mesh if hemi == "both" else InMemoryMesh(
-                plot_mesh.parts[hemi].coordinates.copy(), plot_mesh.parts[hemi].faces,
-            ),
-            stat_maps[hemi],
-            vmin=vmin,
-            vmax=vmax,
-            symmetric_cbar=False,
-            hemi=hemi,
-            view=(elev, azim),
-            cmap=cmap,
-            colorbar=False,
-            axes=ax,
-            figure=fig,
-        )
-        ax.set_title(view_name)
-
-    fig.colorbar(
-        mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax), cmap=cmap),
-        ax=axes,
-        shrink=0.6,
-    )
-
-    if title is not None:
-        fig.suptitle(title)
-
-    return fig, axes
+plot_surf_stat_map_helper = make_surface_plot(dataset.mesh)
 ```
 
 We can use the helper to plot, for example, the standard deviation of each timecourse on the surface to get an overview of the variability in the BOLD timecourses across the surface.
