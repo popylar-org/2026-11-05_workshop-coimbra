@@ -1,0 +1,1432 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Practical 4: The canonical Gaussian connective field model &#8212; Popylar Population Receptive Field Modeling Workshop</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bab1f737" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'workshop/04-cf-visual-fmri';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Practical 3: Model comparison and selection" href="03-prf-visual-fmri-comparison.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Popylar Population Receptive Field Modeling Workshop</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Overview
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../schedule.html">Schedule</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Workshop materials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-prf-visual-fmri.html">Practical 1: The canonical Gaussian 2D population receptive field model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-prf-visual-fmri-cv.html">Practical 2: Cross-validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-prf-visual-fmri-comparison.html">Practical 3: Model comparison and selection</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Practical 4: The canonical Gaussian connective field model</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="article-header-buttons">
+
+
+
+<div class="dropdown polyversion-switcher">
+  <button class="btn polyversion-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          aria-expanded="false" aria-label="Version: add-connective-field" title="Switch version">
+    <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+    <span class="polyversion-name">add-connective-field</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end polyversion-menu">
+  <li><h6 class="dropdown-header">Branches</h6></li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">main</span><span class="polyversion-badge">latest</span>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item active"
+       href="../../add-connective-field/" aria-current="true">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-connective-field</span><i class="fa-solid fa-check polyversion-check" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../add-first-practical/">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-first-practical</span>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../add-second-practical/">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-second-practical</span>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../../add-third-practical/">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-third-practical</span>
+    </a>
+  </li>
+  </ul>
+</div>
+<script>
+  document.querySelectorAll(".polyversion-item").forEach((item) => {
+    item.addEventListener("click", async (event) => {
+      // Open the current page in the selected version, or its home page if the page does not exist there.
+      event.preventDefault();
+      const versionRoot = new URL(item.getAttribute("href"), window.location.href);
+      const page = new URL("workshop/04-cf-visual-fmri.html", versionRoot);
+      try {
+        const response = await fetch(page, { method: "HEAD" });
+        window.location.href = response.ok ? page : versionRoot;
+      } catch {
+        window.location.href = versionRoot;
+      }
+    });
+  });
+</script>
+<a href="https://github.com/popylar-org/2026-11-05_workshop-coimbra" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Practical 4: The canonical Gaussian connective field model</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-canonical-gaussian-cf-model">The canonical Gaussian CF model</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-source-region-response-and-distance-matrix">Input: Source region response and distance matrix</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-model-step-by-step">Building the model step by step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuning-profiles">Tuning profiles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stimulus-encoding">Stimulus encoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-models">Scaling models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-canonical-model">The full canonical model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model-to-data">Fitting the model to data</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-data">Inspecting the data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-valid-vertices">Selecting valid vertices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid-search">Grid search</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#least-squares">Least-squares</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit">Evaluating the model fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="practical-4-the-canonical-gaussian-connective-field-model">
+<h1>Practical 4: The canonical Gaussian connective field model<a class="headerlink" href="#practical-4-the-canonical-gaussian-connective-field-model" title="Link to this heading">#</a></h1>
+<p class="colab-links"><a href="https://colab.research.google.com/github/popylar-org/2026-11-05_workshop-coimbra/blob/gh-pages/add-connective-field/notebooks/workshop/04-cf-visual-fmri.ipynb" target="_blank" rel="noopener"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> <a href="../notebooks/workshop/04-cf-visual-fmri.ipynb" download>Download notebook</a></p><p>This is the notebook for the connective field practical of the workshop. This practical covers the canonical Gaussian connective field (CF) model, its different computational parts, and how to fit it to empirical data from a visual functional magnetic resonance imaging (fMRI) experiment.</p>
+<p><strong>We recommend going through the <a class="reference internal" href="01-prf-visual-fmri.html"><span class="std std-doc">first practical</span></a> on the canonical Gaussian population receptive field (pRF) model first to get familiar with the prfmodel package before starting with this practical.</strong></p>
+<p>The first part of this practical goes through the canonical Gaussian CF model step-by-step. The model input and output as well as every submodel is motivated and explained with interactive visualizations. This part only looks at model prediction but not at fitting the model to data. This is what the second part is about: Fitting the model to an empirical dataset obtained with a 7T fMRI scanner. This part covers data inspection and visualization on an inflated surface of the brain. It goes through two consecutive fitting stages (grid search, least-squares) and concludes with evaluating the model fit and interpreting its parameters.</p>
+<section id="installation-and-setup">
+<h2>Installation and Setup<a class="headerlink" href="#installation-and-setup" title="Link to this heading">#</a></h2>
+<p>First, we need to install prfmodel from GitHub. We install the package with the TensorFlow backend (for more information on the different backends, see the <a class="reference external" href="https://popylar-org.github.io/prfmodel/development/backends.html">Backends</a> section in the package documentation).</p>
+<p><strong>Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow] @ git+https://github.com/popylar-org/prfmodel.git"</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We set the backend to TensorFlow and a default for printing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Set keras backend to 'tensorflow' (this is normally the default)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"KERAS_BACKEND"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"tensorflow"</span>
+<span class="c1"># Print parameter DataFrames with three decimals</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-canonical-gaussian-cf-model">
+<h2>The canonical Gaussian CF model<a class="headerlink" href="#the-canonical-gaussian-cf-model" title="Link to this heading">#</a></h2>
+<p>A connective field (CF) model maps the recorded activity of one neuron population (source) to the recorded activity of another
+neuron population (target). Both neuron populations can be located in different brain areas (i.e., regions of interest; ROIs). In this example, we use the canonical CF model adapted from Haak et al. (2013) where the CF is defined in the ROI of the source population, for example, V1 in the visual cortex. It is centered on the location of the neuron population whose activity (and the activity of surrounding populations) predicts the activity in the target population best.</p>
+<p>In this example, we use V1 as the ROI in which the source populations are located. We map the recorded blood oxygenation level-dependent (BOLD) response from an fMRI experiment of the source populations to <em>all</em> other neuron populations in the brain (i.e., one population per vertex on the surface). The BOLD response is recorded while the subject is exposed to an experimental stimulus. In this case, this is a series of bar apertures that move across the visual field on a computer screen.</p>
+<section id="input-source-region-response-and-distance-matrix">
+<h3>Input: Source region response and distance matrix<a class="headerlink" href="#input-source-region-response-and-distance-matrix" title="Link to this heading">#</a></h3>
+<p>The canonical CF model requires two inputs: The recorded activity of all neuron populations in the source ROI and a matrix that contains the distance between the source populations on the surface. Whereas a pRF model is defined in the feature space of the experimental stimulus (e.g., visual space), a CF model is defined on the distance matrix of the source region neuron populations. In the canonical formulation by Haak et al. (2013), the center of a CF must always be located at the known position of a source neuron population on the surface. The distance matrix then indicates how far away other source populations are from the CF center. The distance is used to compute the strength of the CF for all other source populations. Thus, the distance matrix of a CF model has a similar function as the stimulus grid in a pRF model. Because the distance is measured in 2D space, canonical CF models always use a 2D Gaussian to model CFs.</p>
+<p>The recorded neural activity in the source ROI acts as the stimulus design matrix of the CF model, which multiplies the CF with the source region activity and sums the product over all source region populations.</p>
+<p>In this practical, we use the BOLD response of a single subject who watched a moving bar stimulus in a 7 Tesla MRI scanner. The response was recorded with a repetition time (TR) of 1.5 seconds and is given for every vertex of a standardized cortical surface from the Human Connectome Project (HCP; Van Essen et al., 2012). We load the dataset with the tag <code class="docutils literal notranslate"><span class="pre">7t-retbar-visual</span></code> for both hemispheres together with the standardized surface with the tag <code class="docutils literal notranslate"><span class="pre">hcp-999999-surface</span></code>. The surface comes with an atlas that assigns every vertex to a brain region, which we need to select the source ROI.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.examples</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="c1"># Downloads on first use and caches in a user data directory (see prfmodel.examples.get_data_dir)</span>
+<span class="n">surface</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"hcp-999999-surface"</span><span class="p">,</span> <span class="n">surface_type</span><span class="o">=</span><span class="s2">"inflated"</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"7t-retbar-visual"</span><span class="p">,</span> <span class="n">hemisphere</span><span class="o">=</span><span class="s2">"both"</span><span class="p">)</span>
+
+<span class="n">dataset</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One timecourse for every vertex (left hemisphere first)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The raw BOLD response has an arbitrary scale that differs between vertices. We convert it to percent signal change (PSC) relative to the mean of each timecourse, so that every timecourse fluctuates around zero.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">response_raw</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">response</span>
+<span class="n">response_psc</span> <span class="o">=</span> <span class="p">(</span><span class="n">response_raw</span> <span class="o">/</span> <span class="n">response_raw</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 1</p>
+<p>Visualize the experimental stimulus of the dataset. The dataset does not contain a ready-made stimulus object, only the raw stimulus design matrix (hint: load it with <code class="docutils literal notranslate"><span class="pre">scipy.io.loadmat(dataset.files[&quot;design&quot;])[&quot;stim&quot;]</span></code> and plot single time frames with <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.imshow</span></code>). What do the dimensions of the design matrix refer to? How many bar passes in which directions does the stimulus design contain?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We select V1 as the source ROI. The atlas is a multi-modal parcellation of the cortex (Glasser et al., 2016) in which V1 has the label 1. The response of the vertices in V1 is the source region response.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># V1 has the label 1 in the atlas</span>
+<span class="n">label_v1</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Concatenate the labels of both hemispheres (left first)</span>
+<span class="n">is_v1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">surface</span><span class="o">.</span><span class="n">atlas</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span> <span class="o">==</span> <span class="n">label_v1</span><span class="p">,</span> <span class="n">surface</span><span class="o">.</span><span class="n">atlas</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span> <span class="o">==</span> <span class="n">label_v1</span><span class="p">])</span>
+
+<span class="n">source_response</span> <span class="o">=</span> <span class="n">response_psc</span><span class="p">[</span><span class="n">is_v1</span><span class="p">]</span>
+
+<span class="n">source_response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One timecourse for every V1 vertex</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The distance matrix contains the distance between every pair of V1 vertices along the cortical surface. We compute it on the white matter surface of each hemisphere: The surface is a mesh of triangles, which we turn into a graph that connects neighboring vertices with edges as long as the distance between them. Dijkstra’s algorithm then finds the shortest path between every pair of V1 vertices along the edges of the graph.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">nibabel</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.csgraph</span><span class="w"> </span><span class="kn">import</span> <span class="n">dijkstra</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_distance_matrix</span><span class="p">(</span><span class="n">surface_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">source_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Calculate the shortest distance along a surface mesh between every pair of source vertices."""</span>
+    <span class="n">coords</span><span class="p">,</span> <span class="n">triangles</span> <span class="o">=</span> <span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">surface_path</span><span class="p">)</span><span class="o">.</span><span class="n">agg_data</span><span class="p">()</span>
+
+    <span class="c1"># Every triangle has three edges between its corners</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">triangles</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">))])</span>
+    <span class="n">edge_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">-</span> <span class="n">coords</span><span class="p">[</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">num_vertices</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">((</span><span class="n">edge_lengths</span><span class="p">,</span> <span class="p">(</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_vertices</span><span class="p">,</span> <span class="n">num_vertices</span><span class="p">))</span>
+
+    <span class="c1"># Only keep the edges between source vertices, so that the shortest paths stay inside the source region</span>
+    <span class="n">source_graph</span> <span class="o">=</span> <span class="n">graph</span><span class="p">[</span><span class="n">source_indices</span><span class="p">][:,</span> <span class="n">source_indices</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">dijkstra</span><span class="p">(</span><span class="n">source_graph</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We compute the distance matrix for each hemisphere separately. A CF cannot extend across hemispheres, so we set the distance between vertices in different hemispheres to infinity.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Indices of the V1 vertices in each hemisphere</span>
+<span class="n">v1_indices_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">atlas</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span> <span class="o">==</span> <span class="n">label_v1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">v1_indices_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">atlas</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span> <span class="o">==</span> <span class="n">label_v1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">distance_matrix_left</span> <span class="o">=</span> <span class="n">calculate_distance_matrix</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"wm_lh"</span><span class="p">],</span> <span class="n">v1_indices_left</span><span class="p">)</span>
+<span class="n">distance_matrix_right</span> <span class="o">=</span> <span class="n">calculate_distance_matrix</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s2">"wm_rh"</span><span class="p">],</span> <span class="n">v1_indices_right</span><span class="p">)</span>
+
+<span class="c1"># Vertices in different hemispheres are infinitely far apart</span>
+<span class="n">num_left</span><span class="p">,</span> <span class="n">num_right</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v1_indices_left</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">v1_indices_right</span><span class="p">)</span>
+<span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+    <span class="p">[</span><span class="n">distance_matrix_left</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">num_left</span><span class="p">,</span> <span class="n">num_right</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)],</span>
+    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">num_right</span><span class="p">,</span> <span class="n">num_left</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">distance_matrix_right</span><span class="p">],</span>
+<span class="p">])</span>
+
+<span class="n">distance_matrix</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One row and one column for every V1 vertex</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We combine the source region response and the distance matrix into a <code class="docutils literal notranslate"><span class="pre">CFStimulus</span></code> object, which is the input of the CF model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.stimuli</span><span class="w"> </span><span class="kn">import</span> <span class="n">CFStimulus</span>
+
+<span class="n">stimulus</span> <span class="o">=</span> <span class="n">CFStimulus</span><span class="p">(</span><span class="n">distance_matrix</span><span class="o">=</span><span class="n">distance_matrix</span><span class="p">,</span> <span class="n">source_response</span><span class="o">=</span><span class="n">source_response</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">stimulus</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="building-the-model-step-by-step">
+<h3>Building the model step by step<a class="headerlink" href="#building-the-model-step-by-step" title="Link to this heading">#</a></h3>
+<p>The canonical Gaussian CF model gets from input (i.e., source region response and distance matrix) to output (i.e., predicted BOLD response) in several steps. Each step is performed by a <em>submodel</em> that does a dedicated computation:</p>
+<ol class="arabic simple">
+<li><p>The <em>tuning profile</em> describes which part of the source ROI predicts activity in the target population.</p></li>
+<li><p>The <em>stimulus encoding</em> computes the overlap between the tuning profile and the recorded neural activity in the source ROI, which gives the predicted target neuron population activity.</p></li>
+<li><p>The <em>scaling</em> adjusts the baseline and amplitude of the predicted BOLD response.</p></li>
+</ol>
+<p>Importantly, the canonical CF model does not have an impulse model to account for the shape of the BOLD measurement. This is because the recorded response in the source region already has the same shape as the response in the target populations.</p>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 2</p>
+<p>Imagine the source response was recorded with a method that does not measure the BOLD response (e.g., electrocorticography). How would the CF model need to be adjusted to account for the difference in measurement?</p>
+</div>
+<p>We build up the model one submodel at a time and then combine all submodels into the full model. To explore how the parameters of each submodel affect its predictions, we use interactive figures.</p>
+<p>The first hidden cell defines helper functions for the interactive figures. Some of them are shared by all practicals and are imported from the module <code class="docutils literal notranslate"><span class="pre">plotting_helpers.py</span></code>, which lies next to this notebook.</p>
+<p>The figures show V1 as a flat map. Because the cortical surface is curved, we cannot draw V1 on a plane without distorting it. Instead, we arrange the V1 vertices of each hemisphere on a plane so that the distances between them match the distance matrix as closely as possible (with classical multidimensional scaling). On this map, distances are approximately the same as along the cortical surface, so a CF with size <code class="docutils literal notranslate"><span class="pre">sigma</span></code> covers about a circle with radius <code class="docutils literal notranslate"><span class="pre">sigma</span></code>. The horizontal axis of the map runs from the back (posterior) to the front (anterior) of V1 and the vertical axis from its lower (ventral) to its upper (dorsal) part.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Helper functions for the interactive figures { display-mode: "form" }</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ipywidgets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">widgets</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plotting_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BLUE</span><span class="p">,</span> <span class="n">GRAY</span><span class="p">,</span> <span class="n">ORANGE</span><span class="p">,</span> <span class="n">add_legend</span><span class="p">,</span> <span class="n">make_slider</span><span class="p">,</span> <span class="n">show_interactive</span><span class="p">,</span> <span class="n">style_axes</span><span class="p">,</span> <span class="n">to_frame</span>
+
+<span class="c1"># Vertices without tuning are light gray, so that the outline of V1 stays visible</span>
+<span class="n">TUNING_CMAP</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
+    <span class="s2">"tuning"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"#e6e6e6"</span><span class="p">,</span> <span class="s2">"#cde2fb"</span><span class="p">,</span> <span class="s2">"#86b6ef"</span><span class="p">,</span> <span class="s2">"#3987e5"</span><span class="p">,</span> <span class="s2">"#1c5cab"</span><span class="p">,</span> <span class="s2">"#0d366b"</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">SOURCE_CMAP</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">"source"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"#f2f2f2"</span><span class="p">,</span> <span class="s2">"#000000"</span><span class="p">])</span>
+
+<span class="n">time_frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">source_response</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># Starting value, minimum, maximum, and step size of the slider for each parameter</span>
+<span class="n">PARAM_SLIDERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"center_index"</span><span class="p">:</span> <span class="p">(</span><span class="mi">448</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="s2">"sigma"</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+    <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+    <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">START_VALUES</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">PARAM_SLIDERS</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_sliders</span><span class="p">(</span><span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ValueWidget</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Create a slider for each parameter; `center_index` indexes a V1 vertex, so its slider only takes whole numbers."""</span>
+    <span class="n">sliders</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">PARAM_SLIDERS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"center_index"</span><span class="p">:</span>
+            <span class="n">sliders</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">IntSlider</span><span class="p">(</span>
+                <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">continuous_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sliders</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_slider</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sliders</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">embed_in_plane</span><span class="p">(</span><span class="n">distances</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Place vertices on a plane so that the distances between them approximate `distances` (classical MDS).</span>
+
+<span class="sd">    The first axis of the plane runs along the longest extent of the vertices. Both axes are flipped to point in the</span>
+<span class="sd">    same direction as the anterior (y) and superior (z) axes of the vertex coordinates `coords` in the brain.</span>
+<span class="sd">    """</span>
+    <span class="n">num_vertices</span> <span class="o">=</span> <span class="n">distances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">centering</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_vertices</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">num_vertices</span>
+    <span class="n">gram</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">centering</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">@</span> <span class="n">centering</span>
+    <span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">gram</span><span class="p">)</span>  <span class="c1"># In ascending order of the eigenvalues</span>
+    <span class="n">plane_coords</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="p">[:,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">brain_axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">plane_coords</span><span class="p">[:,</span> <span class="n">axis</span><span class="p">],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="n">brain_axis</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">plane_coords</span><span class="p">[:,</span> <span class="n">axis</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">plane_coords</span>
+
+
+<span class="c1"># Map of V1 with one row of coordinates for every V1 vertex (left hemisphere first); the right hemisphere lies below</span>
+<span class="n">v1_maps</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Left V1"</span><span class="p">:</span> <span class="n">embed_in_plane</span><span class="p">(</span><span class="n">distance_matrix_left</span><span class="p">,</span> <span class="n">surface</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span><span class="o">.</span><span class="n">coordinates</span><span class="p">[</span><span class="n">v1_indices_left</span><span class="p">]),</span>
+    <span class="s2">"Right V1"</span><span class="p">:</span> <span class="n">embed_in_plane</span><span class="p">(</span><span class="n">distance_matrix_right</span><span class="p">,</span> <span class="n">surface</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span><span class="o">.</span><span class="n">coordinates</span><span class="p">[</span><span class="n">v1_indices_right</span><span class="p">]),</span>
+<span class="p">}</span>
+<span class="n">v1_maps</span><span class="p">[</span><span class="s2">"Right V1"</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v1_maps</span><span class="p">[</span><span class="s2">"Left V1"</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">v1_maps</span><span class="p">[</span><span class="s2">"Right V1"</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="mf">15.0</span>  <span class="c1"># 15 mm gap</span>
+<span class="n">v1_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">v1_maps</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_v1_map</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="o">**</span><span class="n">scatter_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mpl</span><span class="o">.</span><span class="n">collections</span><span class="o">.</span><span class="n">PathCollection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw every V1 vertex as a dot on the map of V1; `scatter_kwargs` set the colors of the dots."""</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">v1_map</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">v1_map</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">scatter_kwargs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">hemi_map</span> <span class="ow">in</span> <span class="n">v1_maps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">hemi_map</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">hemi_map</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#595959"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="c1"># The coordinates of the map have no meaning, only the distances between vertices; a scale bar shows them</span>
+    <span class="n">x_start</span><span class="p">,</span> <span class="n">y_bar</span> <span class="o">=</span> <span class="n">v1_map</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">v1_map</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mf">5.0</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x_start</span><span class="p">,</span> <span class="n">x_start</span> <span class="o">+</span> <span class="mf">10.0</span><span class="p">],</span> <span class="p">[</span><span class="n">y_bar</span><span class="p">,</span> <span class="n">y_bar</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#595959"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x_start</span> <span class="o">+</span> <span class="mf">12.0</span><span class="p">,</span> <span class="n">y_bar</span><span class="p">,</span> <span class="s2">"10 mm"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#595959"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">"center"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">"equal"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[:]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Posterior → anterior"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Ventral → dorsal"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">points</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_cf_location</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="n">center_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fill</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw the CF center and size (a circle with radius `sigma`) on the map of V1."""</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">v1_map</span><span class="p">[</span><span class="n">center_index</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+        <span class="n">mpl</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span>
+            <span class="n">center</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">BLUE</span> <span class="k">if</span> <span class="n">fill</span> <span class="k">else</span> <span class="s2">"none"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span> <span class="k">if</span> <span class="n">fill</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="n">center</span><span class="p">,</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="tuning-profiles">
+<h3>Tuning profiles<a class="headerlink" href="#tuning-profiles" title="Link to this heading">#</a></h3>
+<p>In prfmodel, the core of every CF model is called <em>tuning profile</em>, just like in pRF models. In the canonical Gaussian CF model, the tuning profile is an isotropic Gaussian density on the cortical surface of the source ROI. It is centered on a source vertex and decreases with the distance from this center vertex along the surface. It describes how strongly the activity of every source neuron population contributes to the activity of the target neuron population.</p>
+<p>To illustrate this, we create an instance of a Gaussian CF tuning profile and evaluate it on the distance matrix. The Gaussian CF tuning profile only has two parameters, namely, the index of the source vertex at the CF center (<code class="docutils literal notranslate"><span class="pre">center_index</span></code>; i.e., a row of the distance matrix), and the size defined as the standard deviation (<code class="docutils literal notranslate"><span class="pre">sigma</span></code>, in mm along the surface).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianCFTuning</span>
+
+<span class="n">cf_tuning</span> <span class="o">=</span> <span class="n">GaussianCFTuning</span><span class="p">()</span>
+
+<span class="n">tuning_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"center_index"</span><span class="p">:</span> <span class="p">[</span><span class="mi">448</span><span class="p">],</span>
+        <span class="s2">"sigma"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Predict the tuning profile</span>
+<span class="n">simulated_tuning_profile</span> <span class="o">=</span> <span class="n">cf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">tuning_params</span><span class="p">)</span>
+
+<span class="n">simulated_tuning_profile</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One value for every V1 vertex</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The predicted tuning profile assigns a value to every V1 vertex. The figure below shows it on the map of V1 (left) and against the distance of every vertex to the CF center (right). The darkest vertices lie at the CF center (<code class="docutils literal notranslate"><span class="pre">center_index</span></code>), and the spread of the profile is determined by its size (<code class="docutils literal notranslate"><span class="pre">sigma</span></code>). The <code class="docutils literal notranslate"><span class="pre">center_index</span></code> slider moves the CF center through V1: The first vertices lie in the left hemisphere, the remaining ones in the right hemisphere. You can also type a vertex index into the box next to the slider.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Tuning profile { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_tuning</span><span class="p">(</span><span class="n">center_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">cf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="n">center_index</span><span class="o">=</span><span class="n">center_index</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">center_index</span><span class="p">]</span>
+    <span class="n">is_same_hemi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span>  <span class="c1"># Vertices in the other hemisphere are infinitely far away</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">ax_distance</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="n">draw_v1_map</span><span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">TUNING_CMAP</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Tuning"</span><span class="p">)</span>
+    <span class="n">ax_map</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Tuning profile on V1"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+
+    <span class="n">ax_distance</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">is_same_hemi</span><span class="p">],</span> <span class="n">profile</span><span class="p">[</span><span class="n">is_same_hemi</span><span class="p">],</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax_distance</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">ax_distance</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Tuning profile by distance"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_distance</span><span class="p">,</span> <span class="s2">"Distance to the CF center (mm)"</span><span class="p">,</span> <span class="s2">"Tuning"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_tuning</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"center_index"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="stimulus-encoding">
+<h3>Stimulus encoding<a class="headerlink" href="#stimulus-encoding" title="Link to this heading">#</a></h3>
+<p>In CF models, the tuning profile is encoded with the source region response through a dot-product operation, just like the stimulus design matrix in pRF models. At every time frame, this operation multiplies the response of every source vertex with its value in the tuning profile and sums the products over all source vertices. The result is the predicted activity of the target neuron population.</p>
+<p>We illustrate this by creating an instance of the CF stimulus encoder.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">CFStimulusEncoder</span>
+
+<span class="n">cf_encoder</span> <span class="o">=</span> <span class="n">CFStimulusEncoder</span><span class="p">()</span>
+
+<span class="c1"># We first predict the tuning profile</span>
+<span class="n">simulated_tuning_profile</span> <span class="o">=</span> <span class="n">cf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">tuning_params</span><span class="p">)</span>
+
+<span class="c1"># Then we stimulus-encode it</span>
+<span class="n">simulated_encoded_profile</span> <span class="o">=</span> <span class="n">cf_encoder</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">simulated_tuning_profile</span><span class="p">,</span> <span class="n">tuning_params</span><span class="p">)</span>
+
+<span class="n">simulated_encoded_profile</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One value per time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the source region response at a single time frame on the map of V1 together with the CF (left; the circle has a radius of <code class="docutils literal notranslate"><span class="pre">sigma</span></code>) and the predicted target neuron population activity (right). The <code class="docutils literal notranslate"><span class="pre">time_frame</span></code> slider selects the time frame shown on the left, which is marked with a dot on the right.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Stimulus encoding { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">predict_encoded</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Predict the tuning profile and encode it with the source region response."""</span>
+    <span class="k">return</span> <span class="n">cf_encoder</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">cf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">params</span><span class="p">),</span> <span class="n">params</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="c1"># Use the same color range for all time frames</span>
+<span class="n">source_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">source_response</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">99</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_encoding</span><span class="p">(</span><span class="n">time_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">encoded</span> <span class="o">=</span> <span class="n">predict_encoded</span><span class="p">(</span><span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Vertices with a strong response are dark</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">draw_v1_map</span><span class="p">(</span>
+        <span class="n">ax_map</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">source_response</span><span class="p">[:,</span> <span class="n">time_frame</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">SOURCE_CMAP</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">source_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vmax</span><span class="o">=</span><span class="n">source_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">draw_cf_location</span><span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">"center_index"</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"BOLD response (PSC)"</span><span class="p">)</span>
+    <span class="n">ax_map</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Source region response and CF at time frame </span><span class="si">{</span><span class="n">time_frame</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">encoded</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">time_frame</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">time_frame</span><span class="p">,</span> <span class="n">encoded</span><span class="p">[</span><span class="n">time_frame</span><span class="p">],</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted target neuron population activity"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted activity"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="c1"># Start at the time frame where the starting CF predicts the highest activity</span>
+<span class="n">start_encoded</span> <span class="o">=</span> <span class="n">predict_encoded</span><span class="p">(</span><span class="n">to_frame</span><span class="p">(</span><span class="n">center_index</span><span class="o">=</span><span class="n">START_VALUES</span><span class="p">[</span><span class="s2">"center_index"</span><span class="p">],</span> <span class="n">sigma</span><span class="o">=</span><span class="n">START_VALUES</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">]))</span>
+<span class="n">time_frame_slider</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">IntSlider</span><span class="p">(</span>
+    <span class="n">value</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">start_encoded</span><span class="p">)),</span>
+    <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="nb">max</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">time_frames</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"time_frame"</span><span class="p">,</span>
+    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_encoding</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time_frame"</span><span class="p">:</span> <span class="n">time_frame_slider</span><span class="p">,</span> <span class="o">**</span><span class="n">make_sliders</span><span class="p">(</span><span class="s2">"center_index"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">)})</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="scaling-models">
+<h3>Scaling models<a class="headerlink" href="#scaling-models" title="Link to this heading">#</a></h3>
+<p>The encoded response has a certain amplitude (i.e., scale) and a baseline. However, the observed BOLD responses of target neuron populations often differ in their amplitude and baseline from the source region response (e.g., due to differences in the vasculature or in the distance to the receiver coil). To account for these differences, a <em>scaling</em> submodel can modify the amplitude and baseline of the predicted response, just like in pRF models.</p>
+<p>We create an instance of a scaling model and modify the encoded response.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.scaling</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaselineAmplitude</span>
+
+<span class="n">scaling_model</span> <span class="o">=</span> <span class="n">BaselineAmplitude</span><span class="p">()</span>
+
+<span class="n">scaling_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]})</span>
+
+<span class="n">scaled_response</span> <span class="o">=</span> <span class="n">scaling_model</span><span class="p">(</span><span class="n">simulated_encoded_profile</span><span class="p">,</span> <span class="n">scaling_params</span><span class="p">)</span>
+
+<span class="n">scaled_response</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the encoded response before (blue) and after (orange) scaling. The dashed gray line shows the scaled response for the starting parameters.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Scaling { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">predict_scaled</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Predict the encoded response before and after scaling."""</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">START_VALUES</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">})</span>
+    <span class="n">encoded</span> <span class="o">=</span> <span class="n">predict_encoded</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">encoded</span><span class="p">,</span> <span class="n">scaling_model</span><span class="p">(</span><span class="n">encoded</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">params</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="n">_</span><span class="p">,</span> <span class="n">start_scaled</span> <span class="o">=</span> <span class="n">predict_scaled</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_scaling</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">encoded</span><span class="p">,</span> <span class="n">scaled</span> <span class="o">=</span> <span class="n">predict_scaled</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">start_scaled</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Starting parameters (scaled)"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">encoded</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Before scaling"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">scaled</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">ORANGE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"After scaling"</span><span class="p">)</span>
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Encoded response before and after scaling"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_scaling</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"baseline"</span><span class="p">,</span> <span class="s2">"amplitude"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="the-full-canonical-model">
+<h3>The full canonical model<a class="headerlink" href="#the-full-canonical-model" title="Link to this heading">#</a></h3>
+<p>Now that we have seen every submodel, we can combine them into the full CF model. In prfmodel, we call this a <em>canonical</em> model because it performs all necessary steps to get from input (i.e., source region response and distance matrix) to output (i.e., predicted BOLD response): tuning profile, stimulus encoding, and scaling. We create an instance of the canonical Gaussian CF model, which uses the submodels from above by default, and make a prediction with all parameters at once.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianCFModel</span>
+
+<span class="n">cf_model</span> <span class="o">=</span> <span class="n">GaussianCFModel</span><span class="p">()</span>
+
+<span class="n">start_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"center_index"</span><span class="p">:</span> <span class="p">[</span><span class="mi">448</span><span class="p">],</span>
+        <span class="s2">"sigma"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+        <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Make prediction with CF model</span>
+<span class="n">simulated_response</span> <span class="o">=</span> <span class="n">cf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">start_params</span><span class="p">)</span>
+
+<span class="n">simulated_response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One predicted timecourse with one value per time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the CF on the map of V1 (left) and the predicted BOLD response of the full model (right). The dashed gray line shows the prediction for the starting parameters above. Use the sliders to see how all parameters together shape the predicted BOLD response.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Full model { display-mode: "form" }</span>
+<span class="n">start_response</span> <span class="o">=</span> <span class="n">cf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">START_VALUES</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_prediction</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">cf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">draw_v1_map</span><span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#d9d9d9"</span><span class="p">)</span>
+    <span class="n">draw_cf_location</span><span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">"center_index"</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">])</span>
+    <span class="n">ax_map</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"CF on V1"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Starting parameters"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Current parameters"</span><span class="p">)</span>
+    <span class="n">add_legend</span><span class="p">(</span><span class="n">ax_response</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted BOLD response"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame"</span><span class="p">,</span> <span class="s2">"Predicted BOLD response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_prediction</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"center_index"</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">,</span> <span class="s2">"baseline"</span><span class="p">,</span> <span class="s2">"amplitude"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+</section>
+<section id="fitting-the-model-to-data">
+<h2>Fitting the model to data<a class="headerlink" href="#fitting-the-model-to-data" title="Link to this heading">#</a></h2>
+<section id="inspecting-the-data">
+<h3>Inspecting the data<a class="headerlink" href="#inspecting-the-data" title="Link to this heading">#</a></h3>
+<p>Before we fit the canonical Gaussian CF model to empirical data, we inspect the BOLD response timecourses in percent signal change that we computed at the beginning (<code class="docutils literal notranslate"><span class="pre">response_psc</span></code>). The dataset contains one timecourse for every vertex of the standardized surface in both hemispheres. We start with the source region response, which is the input of the CF model.</p>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 3</p>
+<p>Plot the recorded BOLD response in V1 (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_response_heatmap</span></code>). How does V1 respond to the experimental stimulus?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To visualize the response on the inflated surface, we create a helper function with <code class="docutils literal notranslate"><span class="pre">make_surface_plot</span></code> from <code class="docutils literal notranslate"><span class="pre">plotting_helpers.py</span></code> like in the first practical. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior). In contrast to the first practical, the response is already given for every vertex of the surface, so we do not need to project it from a volume onto the surface.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plotting_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_surface_plot</span>
+
+<span class="n">plot_surf_stat_map_helper</span> <span class="o">=</span> <span class="n">make_surface_plot</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We plot the standard deviation of each timecourse on the surface to get an overview of the variability in the BOLD timecourses across the surface. Vertices with missing values (<code class="docutils literal notranslate"><span class="pre">NaN</span></code>) are not colored.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate standard deviation of each timecourse</span>
+<span class="n">response_sd</span> <span class="o">=</span> <span class="n">response_psc</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plot_surf_stat_map_helper</span><span class="p">(</span><span class="n">response_sd</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"BOLD response standard deviation (in PSC)"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To orient ourselves on the surface, we also plot the location of the early visual areas V1 to V4. In the atlas, V2, V3, and V4 have the labels 4, 5, and 6. We will use these areas later to interpret the estimated CF parameters.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Atlas labels of the early visual areas</span>
+<span class="n">visual_area_labels</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"V1"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"V2"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"V3"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">"V4"</span><span class="p">:</span> <span class="mi">6</span><span class="p">}</span>
+
+<span class="c1"># Concatenate the labels of both hemispheres (left first)</span>
+<span class="n">atlas_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">surface</span><span class="o">.</span><span class="n">atlas</span><span class="p">[</span><span class="s2">"left"</span><span class="p">],</span> <span class="n">surface</span><span class="o">.</span><span class="n">atlas</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]])</span>
+
+<span class="c1"># Name of the visual area of each vertex; empty for vertices outside of V1 to V4</span>
+<span class="n">visual_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">atlas_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">visual_area_labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">visual_area</span><span class="p">[</span><span class="n">atlas_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+
+<span class="c1"># Number the areas from 1 (V1) to 4 (V4) for plotting</span>
+<span class="n">visual_area_number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">atlas_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">visual_area_labels</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">visual_area_number</span><span class="p">[</span><span class="n">visual_area</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">number</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_surf_stat_map_helper</span><span class="p">(</span>
+    <span class="n">visual_area_number</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">([</span><span class="s2">"#2a78d6"</span><span class="p">,</span> <span class="s2">"#eb6834"</span><span class="p">,</span> <span class="s2">"#1baf7a"</span><span class="p">,</span> <span class="s2">"#8c5bd6"</span><span class="p">]),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Visual areas V1 to V4"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Label the colors of the colorbar (the last axes of the figure) with the names of the areas</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">visual_area_labels</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="selecting-valid-vertices">
+<h3>Selecting valid vertices<a class="headerlink" href="#selecting-valid-vertices" title="Link to this heading">#</a></h3>
+<p>Some vertices do not have a valid timecourse, that is, their timecourse contains missing values (<code class="docutils literal notranslate"><span class="pre">NaN</span></code>). We filter out all vertices with missing values.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_is_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">response_psc</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">response_valid</span> <span class="o">=</span> <span class="n">response_psc</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span>
+
+<span class="n">response_is_valid</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># Fraction of valid vertices</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="grid-search">
+<h3>Grid search<a class="headerlink" href="#grid-search" title="Link to this heading">#</a></h3>
+<p>We fit the canonical Gaussian CF model that we created above (<code class="docutils literal notranslate"><span class="pre">cf_model</span></code>) to the response of every valid vertex. In contrast to the pRF model in the first practical, we do not need to adjust the model to the TR of the recording: The CF model has no impulse response submodel, and its prediction has the same time frames as the source region response.</p>
+<p>We fit the model in two stages. In the first stage, we perform a “brute-force” grid search to find good estimates for the parameters of the CF tuning profile (i.e., <code class="docutils literal notranslate"><span class="pre">center_index</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma</span></code>). For <code class="docutils literal notranslate"><span class="pre">center_index</span></code>, we test every V1 vertex. Because <code class="docutils literal notranslate"><span class="pre">center_index</span></code> is a whole number that selects a row of the distance matrix, the grid search is the only way to estimate it in prfmodel (it cannot be optimized with stochastic gradient descent). The values for <code class="docutils literal notranslate"><span class="pre">sigma</span></code> are log-spaced between 0.5 and 20 mm. A CF with a <code class="docutils literal notranslate"><span class="pre">sigma</span></code> of 0.5 mm practically only includes the center vertex because neighboring vertices are about 1.5 mm apart.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, we only provide a single value so that they will stay constant across the entire grid.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grid_param_ranges</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"center_index"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)),</span>  <span class="c1"># Every V1 vertex</span>
+    <span class="s2">"sigma"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>  <span class="c1"># Log-spaced (in mm)</span>
+    <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+    <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To run the grid search, we construct the <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.GridFitter</span></code>. The grid has 29,390 parameter combinations (2,939 V1 vertices times 10 values for <code class="docutils literal notranslate"><span class="pre">sigma</span></code>). We set <code class="docutils literal notranslate"><span class="pre">batch_size=20</span></code> to let the fitter evaluate 20 parameter combinations at the same time which saves us a lot of memory. By default, the <code class="docutils literal notranslate"><span class="pre">loss</span></code> (i.e., the metric the fitter minimizes between model predictions and data) is the negative correlation coefficient, which ignores differences in baseline and amplitude between model predictions and observed data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridFitter</span>
+
+<span class="c1"># Create grid fitter object</span>
+<span class="n">grid_fitter</span> <span class="o">=</span> <span class="n">GridFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">cf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+    <span class="n">compile_step</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Setting 'compile_step=True' speeds up the fitting</span>
+<span class="p">)</span>
+
+<span class="c1"># Run grid search</span>
+<span class="n">grid_history</span><span class="p">,</span> <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">parameter_values</span><span class="o">=</span><span class="n">grid_param_ranges</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can print the parameters estimated by the grid search.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grid_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Because the grid search can only return values that are in the grid, it is worth checking how the estimates are distributed across the grid. The figure below shows how many vertices have their CF center at each V1 vertex on the map of V1 (left) and the distribution of the CF sizes with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_grid_parameter_distribution</span></code> (right). CF sizes at the smallest or largest value of the grid are highlighted in red.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Figure: Distribution of the grid search estimates { display-mode: "form" }</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_grid_parameter_distribution</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">ax_sigma</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Number of vertices with their CF center at each V1 vertex; a log scale also shows V1 vertices with few counts</span>
+<span class="n">center_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">grid_params</span><span class="p">[</span><span class="s2">"center_index"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">minlength</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">))</span>
+<span class="n">points</span> <span class="o">=</span> <span class="n">draw_v1_map</span><span class="p">(</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">center_counts</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">TUNING_CMAP</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">SymLogNorm</span><span class="p">(</span><span class="n">linthresh</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_map</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Number of vertices"</span><span class="p">)</span>
+<span class="n">ax_map</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"CF centers"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+
+<span class="n">plot_grid_parameter_distribution</span><span class="p">(</span><span class="n">grid_params</span><span class="p">,</span> <span class="n">grid_param_ranges</span><span class="p">,</span> <span class="s2">"sigma"</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_sigma</span><span class="p">)</span>  <span class="c1"># Detects log spacing</span>
+<span class="n">ax_sigma</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">"sigma (in mm)"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"CF sizes"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="least-squares">
+<h3>Least-squares<a class="headerlink" href="#least-squares" title="Link to this heading">#</a></h3>
+<p>In the grid search, we ignored the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameters. In prfmodel, we estimate them with least-squares by regressing the observed responses on the predicted CF model responses for each vertex. The intercept and slope of the least-squares regression become the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameter, respectively.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeastSquaresFitter</span>
+
+<span class="c1"># Create least-squares fitter</span>
+<span class="n">ls_fitter</span> <span class="o">=</span> <span class="n">LeastSquaresFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">cf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Run least squares fit</span>
+<span class="n">ls_history</span><span class="p">,</span> <span class="n">ls_params</span> <span class="o">=</span> <span class="n">ls_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">grid_params</span><span class="p">,</span>
+    <span class="n">slope_name</span><span class="o">=</span><span class="s2">"amplitude"</span><span class="p">,</span>  <span class="c1"># Names of parameters to be optimized with least squares</span>
+    <span class="n">intercept_name</span><span class="o">=</span><span class="s2">"baseline"</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can print the parameter estimates from the grid search together with the least-squares parameter estimates.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ls_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="evaluating-the-model-fit">
+<h2>Evaluating the model fit<a class="headerlink" href="#evaluating-the-model-fit" title="Link to this heading">#</a></h2>
+<p>Now that the CF model parameters are estimated, we can compare the model predictions against the observed responses. Because we want to make predictions for all vertices at once, we wrap our <code class="docutils literal notranslate"><span class="pre">cf_model</span></code> in the <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.batched</span></code> function. The modifier changes the behavior of the model to make predictions for batches of vertices sequentially. This saves us a lot of memory at the expense of minimal runtime overhead.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched</span>
+
+<span class="n">predict_batched</span> <span class="o">=</span> <span class="n">batched</span><span class="p">(</span><span class="n">cf_model</span><span class="p">)</span>
+
+<span class="c1"># Make predictions with the estimated parameters</span>
+<span class="n">pred_response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">predict_batched</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">ls_params</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can quantify how well the predictions align with the observed timecourses using the R-squared metric, which we compute with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_r_squared</span></code>. This metric indicates the proportion of variance in the observed data explained by our model predictions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_r_squared</span>
+
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">calculate_r_squared</span><span class="p">(</span><span class="n">response_valid</span><span class="p">,</span> <span class="n">pred_response</span><span class="p">)</span>  <span class="c1"># One score per vertex</span>
+<span class="n">r_squared</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 4</p>
+<p>Plot the distribution of R-squared values (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_hist</span></code>). Why is there a large spike of R-squared values close to 1?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To plot the R-squared scores on the surface, we need one value for every vertex, including the invalid ones. We define a helper function that fills the values of the valid vertices into an array with one value per vertex and sets the invalid vertices to <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fill_valid_vertices</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fill values for the valid vertices into an array with one value per vertex."""</span>
+    <span class="n">values_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">response_psc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">values_full</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+    <span class="k">return</span> <span class="n">values_full</span>
+
+
+<span class="n">plot_surf_stat_map_helper</span><span class="p">(</span><span class="n">fill_valid_vertices</span><span class="p">(</span><span class="n">r_squared</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Variance explained (R-squared)"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Vertices far outside the visual cortex, for example, in the motor or auditory cortex, reach R-squared scores of about 0.3, although they do not respond to the visual stimulus. The grid search picks the best of 29,390 predictions for every vertex, so some prediction always matches the noise in a timecourse to some degree. Such vertices often have the smallest CF size in the grid because a CF that only includes a single (noisy) V1 vertex can follow the noise more closely than a larger CF that averages over many V1 vertices.</p>
+<p>We also compare the predicted against the observed timecourses for a few vertices with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code>. We pick the vertex with the median R-squared score in each of V2, V3, and V4.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_observed_predicted</span>
+
+<span class="n">visual_area_valid</span> <span class="o">=</span> <span class="n">visual_area</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">area</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="s2">"V2"</span><span class="p">,</span> <span class="s2">"V3"</span><span class="p">,</span> <span class="s2">"V4"</span><span class="p">]):</span>
+    <span class="c1"># Index of the valid vertex with the median R-squared score in the area</span>
+    <span class="n">area_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">visual_area_valid</span> <span class="o">==</span> <span class="n">area</span><span class="p">)</span>
+    <span class="n">vertex_index</span> <span class="o">=</span> <span class="n">area_indices</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">r_squared</span><span class="p">[</span><span class="n">area_indices</span><span class="p">])[</span><span class="nb">len</span><span class="p">(</span><span class="n">area_indices</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]]</span>
+    <span class="n">plot_observed_predicted</span><span class="p">(</span><span class="n">response_valid</span><span class="p">[</span><span class="n">vertex_index</span><span class="p">],</span> <span class="n">pred_response</span><span class="p">[</span><span class="n">vertex_index</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">"BOLD response (in PSC)"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">area</span><span class="si">}</span><span class="s2">: R-squared = </span><span class="si">{</span><span class="n">r_squared</span><span class="p">[</span><span class="n">vertex_index</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Time frame (in TR)"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 5</p>
+<p>Why does the fit for the vertex in V2 look so different from the fits in V3 and V4? Think about what the response of V1 to the experimental stimulus looks like and what a response in V2-V4 <em>should</em> look like.</p>
+</div>
+</section>
+<section id="interpreting-the-model-parameters">
+<h2>Interpreting the model parameters<a class="headerlink" href="#interpreting-the-model-parameters" title="Link to this heading">#</a></h2>
+<p>To analyze and interpret the CF parameters, we zoom in on vertices for which we can trust the CF estimates. We select vertices that fulfill three criteria:</p>
+<ul class="simple">
+<li><p>The R-squared is above 0.5. This threshold is somewhat arbitrary, but it excludes most vertices whose R-squared scores only reflect noise (see above).</p></li>
+<li><p>The vertex lies outside V1. V1 vertices are perfectly predicted by their own response (see Exercise 4).</p></li>
+<li><p>The CF size is below the largest <code class="docutils literal notranslate"><span class="pre">sigma</span></code> value in the grid. An estimate at the ceiling of the grid suggests that the best fitting CF size lies outside the grid.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">center_index</span> <span class="o">=</span> <span class="n">ls_params</span><span class="p">[</span><span class="s2">"center_index"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">ls_params</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="n">r_squared_threshold</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="n">selection_criteria</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="sa">f</span><span class="s2">"r_squared &gt; </span><span class="si">{</span><span class="n">r_squared_threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="n">r_squared</span> <span class="o">&gt;</span> <span class="n">r_squared_threshold</span><span class="p">,</span>
+    <span class="s2">"outside V1"</span><span class="p">:</span> <span class="o">~</span><span class="n">is_v1</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">],</span>
+    <span class="c1"># Least squares does not change sigma, so it is always one of the grid values</span>
+    <span class="s2">"sigma below grid ceiling"</span><span class="p">:</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">grid_param_ranges</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">])),</span>
+<span class="p">})</span>
+
+<span class="n">is_selected</span> <span class="o">=</span> <span class="n">selection_criteria</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fill_selected</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fill values of the selected vertices into an array with one value per vertex; all others are NaN."""</span>
+    <span class="k">return</span> <span class="n">fill_valid_vertices</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_selected</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+
+
+<span class="c1"># Fraction of valid vertices that fulfill each criterion and all criteria together</span>
+<span class="n">selection_criteria</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">all_criteria</span><span class="o">=</span><span class="n">is_selected</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>First, we look at the CF size indicated by <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and plot it on the surface.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_surf_stat_map_helper</span><span class="p">(</span><span class="n">fill_selected</span><span class="p">(</span><span class="n">sigma</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"CF size (sigma, in mm)"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Second, to compare the CF sizes between the visual areas, we plot the average <code class="docutils literal notranslate"><span class="pre">sigma</span></code> of the selected vertices in V2, V3, and V4 with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_parameter_by_roi</span></code>. The error bars show the standard error of the mean.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_parameter_by_roi</span>
+
+<span class="n">plot_parameter_by_roi</span><span class="p">(</span>
+    <span class="n">ls_params</span><span class="p">[</span><span class="n">is_selected</span><span class="p">],</span>
+    <span class="s2">"sigma"</span><span class="p">,</span>
+    <span class="n">visual_area_valid</span><span class="p">[</span><span class="n">is_selected</span><span class="p">],</span>
+    <span class="n">order</span><span class="o">=</span><span class="p">[</span><span class="s2">"V2"</span><span class="p">,</span> <span class="s2">"V3"</span><span class="p">,</span> <span class="s2">"V4"</span><span class="p">],</span>
+    <span class="n">error</span><span class="o">=</span><span class="s2">"sem"</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Visual area"</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">"CF size (sigma, in mm)"</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 6</p>
+<p>Interpret the CF size surface plot and target ROI comparison. What does it mean when higher-order visual areas have larger CFs in V1?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 7</p>
+<p>CF models weight the response of all neuron populations in the source region. When these responses substantially differ in scale, this can distort the CF estimates. Instead of expressing the source response in PSC, we can also express it in z-scores. Does this change the CF estimates for this example dataset? Does z-scoring source responses change the interpretation of the CF model parameters in general?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_z</span> <span class="o">=</span> <span class="p">(</span><span class="n">response_raw</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">response_raw</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">response_raw</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">response_z</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 8</p>
+<p>Are CF models symmetric? Would the CF for V1 <span class="math notranslate nohighlight">\(\rightarrow\)</span> V2 be the same as the CF for V2 <span class="math notranslate nohighlight">\(\rightarrow\)</span> V1?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 9</p>
+<p>Fit a CF model with V2 as the source ROI and V3 and V4 as the target ROIs. Do you see a similar relationship between CF size and visual hierarchy?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 10 (advanced)</p>
+<p>In their study, Haak et al. (2013) correlate the pRF eccentricity and polar angle of source and target neuron populations in the CF model. Fit a canonical Gaussian 2D pRF model to V1-V4 and correlate the pRF eccentricity and polar angle associated with the CF center of every target population in V2-V4 with its actual pRF eccentricity and polar angle. Do you see similar correlations as reported by Haak et al. (2013)? Hint: The dataset does not contain a ready-made pRF stimulus, so you first need to create a <code class="docutils literal notranslate"><span class="pre">prfmodel.stimuli.PRFStimulus</span></code> from the raw design matrix (see Exercise 1).</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Glasser, M. F., Coalson, T. S., Robinson, E. C., Hacker, C. D., Harwell, J., Yacoub, E., Ugurbil, K., Andersson, J., Beckmann, C. F., Jenkinson, M., Smith, S. M., &amp; Van Essen, D. C. (2016). A multi-modal parcellation of human cerebral cortex. <em>Nature</em>, <em>536</em>(7615), 171-178. https://doi.org/10.1038/nature18933</p>
+<p>Haak, K. V., Winawer, J., Harvey, B. M., Renken, R., Dumoulin, S. O., Wandell, B. A., &amp; Cornelissen, F. W. (2013). Connective field modeling. <em>NeuroImage</em>, <em>66</em>, 376-384. https://doi.org/10.1016/j.neuroimage.2012.10.037</p>
+<p>Van Essen, D. C., Ugurbil, K., Auerbach, E., Barch, D., Behrens, T. E. J., Bucholz, R., Chang, A., Chen, L., Corbetta, M., Curtiss, S. W., Della Penna, S., Feinberg, D., Glasser, M. F., Harel, N., Heath, A. C., Larson-Prior, L., Marcus, D., Michalareas, G., Moeller, S., … WU-Minn HCP Consortium. (2012). The Human Connectome Project: A data acquisition perspective. <em>NeuroImage</em>, <em>62</em>(4), 2222-2231. https://doi.org/10.1016/j.neuroimage.2012.02.018</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="03-prf-visual-fmri-comparison.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Practical 3: Model comparison and selection</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-canonical-gaussian-cf-model">The canonical Gaussian CF model</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-source-region-response-and-distance-matrix">Input: Source region response and distance matrix</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-model-step-by-step">Building the model step by step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuning-profiles">Tuning profiles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stimulus-encoding">Stimulus encoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-models">Scaling models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-canonical-model">The full canonical model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model-to-data">Fitting the model to data</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-data">Inspecting the data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-valid-vertices">Selecting valid vertices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid-search">Grid search</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#least-squares">Least-squares</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit">Evaluating the model fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Popylar Team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Spinoza Centre for Neuroimaging and Netherlands eScience Center.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
