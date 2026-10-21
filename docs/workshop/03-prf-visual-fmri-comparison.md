@@ -74,7 +74,7 @@ pd.set_option("display.precision", 3)
 
 ## Loading the dataset
 
-In this practical, we use the Arrow-of-Time (AOT) dataset from the first practical (Knapen, 2026). The BOLD response was recorded with a 7 Tesla MRI scanner while the subject watched a moving bar stimulus. The dataset contains a single timecourse per voxel, which is the median over several runs of the experiment. We load the dataset together with the inflated surface of the subject.
+In this practical, we use the Arrow-of-Time (AOT) dataset from the first practical. The BOLD response was recorded with a 7 Tesla MRI scanner while the subject watched a moving bar stimulus. The dataset contains a single timecourse per voxel, which is the median over several runs of the experiment. We load the dataset together with the inflated surface of the subject.
 
 ```{code-cell} ipython3
 from prfmodel.examples import load_dataset
@@ -322,7 +322,7 @@ tr = 0.9
 impulse_model = DerivativeTwoGammaImpulse(resolution=tr)
 ```
 
-To see how the additional parameters of the CSS, DoG, and DN models change their predictions, we use interactive figures like in the first practical. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters. The figure updates when you release a slider.
+To see how the additional parameters of the CSS, DoG, and DN models change their predictions, we use interactive figures like in the first practical. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters.
 
 Each figure shows a pRF in the center of the visual field with a size of 1 degree. The left panel shows the predicted neuron population response $r$ (before the convolution with the impulse response) while a vertical bar like the one in the experiment is at different horizontal positions in the visual field. The right panel shows the predicted BOLD response to the first half of the run. The dashed gray lines show the predictions of the Gaussian model with the same center and size. Because the additional parameters also change the scale of the predictions, we scale all predictions to a maximum of 1 so that we can compare their shapes.
 
@@ -405,10 +405,10 @@ $$
 P(t; \mu_x, \mu_y, \sigma) = \sum_{x, y} S(t, x, y) \, G(x, y; \mu_x, \mu_y, \sigma)
 $$
 
-For the Gaussian model, this encoded response is the predicted neuron population response $r(t) = P(t; \mu_x, \mu_y, \sigma)$. It is convolved with the impulse response $h$ and scaled with the parameters `amplitude` ($\alpha$) and `baseline` ($\beta$) to give the predicted BOLD response:
+For the Gaussian model, this encoded response is the predicted neuron population response $r(t) = P(t; \mu_x, \mu_y, \sigma)$. It is convolved with the impulse response $h$ and scaled with the parameters `amplitude` ($\beta$) and `baseline` ($\alpha$) to give the predicted BOLD response:
 
 $$
-\hat{y}(t) = \alpha \, (h * r)(t) + \beta
+\hat{y}(t) = \beta \, (h * r)(t) + \alpha
 $$
 
 The other models only differ in how they compute $r(t)$ from one or two encoded Gaussians. All Gaussians of a model share the same center $(\mu_x, \mu_y)$.
@@ -550,10 +550,10 @@ css_params
 The DoG model subtracts the response of a larger surround Gaussian from the response of a center Gaussian:
 
 $$
-r(t) = a_c \, P(t; \mu_x, \mu_y, \sigma_c) - a_s \, P(t; \mu_x, \mu_y, \sigma_s)
+r(t) = \beta_c \, P(t; \mu_x, \mu_y, \sigma_c) - \beta_s \, P(t; \mu_x, \mu_y, \sigma_s)
 $$
 
-The parameters $a_c$, $a_s$, $\sigma_c$, and $\sigma_s$ are called `amplitude_center`, `amplitude_surround`, `sigma_center`, and `sigma_surround`. A positive `amplitude_surround` means that stimulation of the surround suppresses the response. Because the two amplitudes already scale the response, the DoG model has no separate `amplitude` parameter, and the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.
+The parameters $\beta_c$, $\beta_s$, $\sigma_c$, and $\sigma_s$ are called `amplitude_center`, `amplitude_surround`, `sigma_center`, and `sigma_surround`. A positive `amplitude_surround` means that stimulation of the surround suppresses the response. Because the two amplitudes already scale the response, the DoG model has no separate `amplitude` parameter, and the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \alpha$.
 
 In the figure below, the center Gaussian has `amplitude_center` and `sigma_center` equal to 1. Move the sliders to see how the size and the strength of the surround change the response to the bar and the predicted BOLD response.
 
@@ -646,7 +646,7 @@ The standard deviations $\sigma_A$ and $\sigma_N$ are called `sigma_activation` 
 
 The parameters $a$, $b$, $c$, and $d$ are called `amplitude_activation`, `baseline_activation`, `amplitude_normalization`, and `baseline_normalization`. Multiplying all four parameters by the same factor does not change the predicted response, meaning that different combinations of the four parameters can lead to the same predicted response and model fit. The consequence is that the DN model with four free parameters is *non-identifiable* which makes estimating the parameters difficult. To make parameter estimation easier and the model identifiable, we only estimate three of the four parameters and fix $c$ to 1.
 
-The subtraction of $b/d$ makes sure that the response is zero when there is no stimulus. Like for the DoG model, $a$ already scales the response, so the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \beta$.
+The subtraction of $b/d$ makes sure that the response is zero when there is no stimulus. Like for the DoG model, $a$ already scales the response, so the predicted BOLD response is $\hat{y}(t) = (h * r)(t) + \alpha$.
 
 In the figure below, $a$, $c$, and `sigma_activation` are equal to 1. Move the sliders to see how the size of the normalization Gaussian and the two baselines change the response to the bar and the predicted BOLD response. Because the baselines can be very small or very large, their sliders change them on a logarithmic scale.
 
@@ -955,6 +955,10 @@ When we interpret the parameters of the selected models, we need to keep in mind
 # Your code goes here
 ```
 
+> **Exercise 18:** Plot the surround and normalization pRFs of the DoG and DN model on the stimulus grid. How much of these pRFs is covered by the stimulus? Does the stimulus design provide enough information to estimate these pRFs? How does this relate to whether the DoG and DN model fit a voxel better than the Gaussian and CSS model?
+
++++
+
 ## Summary
 
 - Models with more free parameters that can mimic simpler models always fit the training data at least as well. Therefore, we cannot use the in-sample fit to compare models.
@@ -970,7 +974,5 @@ Aqil, M., Knapen, T., & Dumoulin, S. O. (2021). Divisive normalization unifies d
 Dumoulin, S. O., & Wandell, B. A. (2008). Population receptive field estimates in human visual cortex. *NeuroImage*, *39*(2), 647-660. https://doi.org/10.1016/j.neuroimage.2007.09.034
 
 Kay, K. N., Winawer, J., Mezer, A., & Wandell, B. A. (2013). Compressive spatial summation in human visual cortex. *Journal of Neurophysiology*, *110*(2), 481-494. https://doi.org/10.1152/jn.00105.2013
-
-Knapen, T. (2026). Single-subject arrow-of-time example dataset. *figshare*. https://doi.org/10.6084/m9.figshare.34032573
 
 Zuiderbaan, W., Harvey, B. M., & Dumoulin, S. O. (2012). Modeling center-surround configurations in population receptive fields using fMRI. *Journal of Vision*, *12*(3), 10. https://doi.org/10.1167/12.3.10
