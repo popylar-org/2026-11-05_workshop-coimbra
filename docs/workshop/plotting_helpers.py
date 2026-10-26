@@ -165,6 +165,58 @@ def downsample_stat_map(stat_map: np.ndarray, merged_index: np.ndarray, cyclic: 
     return np.divide(sums, counts, out=np.full(num_merged, np.nan), where=counts > 0)
 
 
+def get_color_range(
+    values: np.ndarray, vmin: float | None, vmax: float | None, cmap: str, cyclic: bool,
+) -> tuple[float, float, str]:
+    """Return the color range and colormap that all views of a plot share.
+
+    With `cyclic=True`, angles in radians use the color range [-pi, pi] with the cyclic colormap "hsv". Otherwise, a
+    missing `vmin` or `vmax` is set to the smallest or largest value that is not NaN.
+    """
+    if cyclic:
+        return -np.pi, np.pi, "hsv"
+    if (vmin is None or vmax is None) and np.all(np.isnan(values)):
+        msg = "Cannot infer the color range because all values are NaN; pass vmin and vmax"
+        raise ValueError(msg)
+    vmin = np.nanmin(values) if vmin is None else vmin
+    vmax = np.nanmax(values) if vmax is None else vmax
+    return vmin, vmax, cmap
+
+
+def plot_surface_views(
+    surf_views: dict[str, dict],
+    norm: mpl.colors.Normalize,
+    cmap: str,
+    title: str | None,
+    panel_width: float,
+) -> tuple[plt.Figure, np.ndarray]:
+    """Plot views of a surface side by side with one colorbar for `norm` and `cmap` next to them.
+
+    `surf_views` maps the title of each view to the keyword arguments of `nilearn.plotting.plot_surf_stat_map` for
+    this view (including `surf_mesh`).
+    """
+    fig, axes = plt.subplots(
+        1, len(surf_views), subplot_kw={"projection": "3d"}, figsize=(panel_width * len(surf_views), 4.5),
+        layout="constrained", squeeze=False,
+    )
+    axes = axes[0]
+
+    for ax, (view_name, view_kwargs) in zip(axes, surf_views.items()):
+        surf_mesh = view_kwargs["surf_mesh"]
+        if isinstance(surf_mesh, InMemoryMesh):
+            # nilearn centers the coordinates of a single mesh in place, which would, e.g., undo separate_hemispheres
+            surf_mesh = InMemoryMesh(surf_mesh.coordinates.copy(), surf_mesh.faces)
+        plot_surf_stat_map(**(view_kwargs | {"surf_mesh": surf_mesh}), colorbar=False, axes=ax, figure=fig)
+        ax.set_title(view_name)
+
+    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axes, shrink=0.6)
+
+    if title is not None:
+        fig.suptitle(title)
+
+    return fig, axes
+
+
 def make_surface_plot(mesh: PolyMesh, cell_size: float = 2.0) -> Callable[..., tuple[plt.Figure, np.ndarray]]:
     """Create a function that plots a stat map with one value per vertex of `mesh` on the surface.
 
@@ -217,12 +269,8 @@ def make_surface_plot(mesh: PolyMesh, cell_size: float = 2.0) -> Callable[..., t
             msg = f"Expected one value for each of the {sum(num_vertices.values())} vertices, got shape {stat_map.shape}"
             raise ValueError(msg)
 
-        if cyclic:
-            vmin, vmax, cmap = -np.pi, np.pi, "hsv"
-
         # Use the same color range for all views
-        vmin = np.nanmin(stat_map) if vmin is None else vmin
-        vmax = np.nanmax(stat_map) if vmax is None else vmax
+        vmin, vmax, cmap = get_color_range(stat_map, vmin, vmax, cmap, cyclic)
 
         # Downsampled stat maps for each hemisphere (left first)
         stat_maps = {}
@@ -233,39 +281,210 @@ def make_surface_plot(mesh: PolyMesh, cell_size: float = 2.0) -> Callable[..., t
             start = stop
         stat_maps["both"] = np.concatenate([stat_maps[hemi] for hemi in hemispheres])
 
-        fig, axes = plt.subplots(
-            1, len(surf_views), subplot_kw={"projection": "3d"}, figsize=(12, 4.5), layout="constrained",
+        return plot_surface_views(
+            {
+                view_name: {
+                    "surf_mesh": plot_mesh if hemi == "both" else plot_mesh.parts[hemi],
+                    "stat_map": stat_maps[hemi],
+                    "vmin": vmin,
+                    "vmax": vmax,
+                    "symmetric_cbar": False,
+                    "hemi": hemi,
+                    "view": (elev, azim),
+                    "cmap": cmap,
+                }
+                for view_name, (hemi, elev, azim) in surf_views.items()
+            },
+            norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax),
+            cmap=cmap,
+            title=title,
+            panel_width=4.0,
         )
 
-        for ax, (view_name, (hemi, elev, azim)) in zip(axes, surf_views.items()):
-            plot_surf_stat_map(
-                # nilearn centers the coordinates of a single hemisphere in place, which would undo
-                # separate_hemispheres
-                plot_mesh if hemi == "both" else InMemoryMesh(
-                    plot_mesh.parts[hemi].coordinates.copy(), plot_mesh.parts[hemi].faces,
-                ),
-                stat_maps[hemi],
-                vmin=vmin,
-                vmax=vmax,
-                symmetric_cbar=False,
-                hemi=hemi,
-                view=(elev, azim),
+    return plot_surf_stat_map_helper
+
+
+# -- Electrode plots ----------------------------------------------------------
+
+
+def compute_vertex_normals(mesh: InMemoryMesh) -> np.ndarray:
+    """Compute the outward unit normal of every vertex as the area-weighted average of the normals of its faces.
+
+    Vertices that do not belong to any face with a non-zero area get a zero vector.
+    """
+    coords, faces = mesh.coordinates, mesh.faces
+    # The cross product of two edges is normal to the face and as long as twice the face area
+    face_normals = np.cross(coords[faces[:, 1]] - coords[faces[:, 0]], coords[faces[:, 2]] - coords[faces[:, 0]])
+    vertex_normals = np.zeros_like(coords, dtype=float)
+    for corner in range(3):
+        np.add.at(vertex_normals, faces[:, corner], face_normals)
+    lengths = np.linalg.norm(vertex_normals, axis=1, keepdims=True)
+    return np.divide(vertex_normals, lengths, out=np.zeros_like(vertex_normals), where=lengths > 0)
+
+
+def crop_mesh(mesh: InMemoryMesh, center: np.ndarray, half_width: float) -> tuple[InMemoryMesh, np.ndarray]:
+    """Only keep the faces of `mesh` whose corners all lie inside a cube around `center`.
+
+    Returns the cropped mesh and, for every vertex of the cropped mesh, the index of the vertex in `mesh`.
+    """
+    is_inside = np.all(np.abs(mesh.coordinates - center) <= half_width, axis=1)
+    faces = mesh.faces[np.all(is_inside[mesh.faces], axis=1)]
+    kept_vertices = np.unique(faces)
+    new_index = np.full(mesh.n_vertices, -1)
+    new_index[kept_vertices] = np.arange(kept_vertices.size)
+    return InMemoryMesh(mesh.coordinates[kept_vertices], new_index[faces]), kept_vertices
+
+
+def make_electrode_plot(
+    mesh: InMemoryMesh,
+    electrode_vertices: np.ndarray,
+    hemi: str,
+    sulcal_depth: np.ndarray | None = None,
+    zoom_electrodes: np.ndarray | None = None,
+    cell_size: float = 2.0,
+) -> Callable[..., tuple[plt.Figure, np.ndarray]]:
+    """Create a function that plots one value per electrode as markers on the surface of a single hemisphere.
+
+    `electrode_vertices` contains the index of the vertex of `mesh` that lies closest to each electrode. The first
+    view shows the lateral side of the hemisphere on a surface that is downsampled like in `make_surface_plot`. If
+    `zoom_electrodes` (a boolean mask over the electrodes) is given, a second view zooms in on these electrodes and
+    looks at them from the direction that their part of the surface faces. If `sulcal_depth` is given, sulci are shown
+    in a darker gray than gyri. Each view only shows the electrodes on the part of the surface that faces the viewer.
+    """
+    electrode_vertices = np.asarray(electrode_vertices)
+    sulcal_depth = None if sulcal_depth is None else np.asarray(sulcal_depth, dtype=float)
+
+    # Place the markers slightly above the surface
+    normals = compute_vertex_normals(mesh)[electrode_vertices]
+    has_no_normal = ~np.any(normals, axis=1)
+    if np.any(has_no_normal):
+        # A zero normal never faces the viewer
+        msg = f"Not showing {has_no_normal.sum()} electrode(s) that lie on vertices without a surface normal"
+        warnings.warn(msg, stacklevel=2)
+    marker_coords = mesh.coordinates[electrode_vertices] + 1.5 * normals
+
+    def to_background(depth: np.ndarray | None) -> np.ndarray | None:
+        """Show sulci (positive sulcal depth) in a darker gray than gyri."""
+        return None if depth is None else np.where(depth > 0, 0.45, 0.2)
+
+    # Each view has an elevation and azimuth, a mesh, a background, the limits of the axes, and a marker size; the
+    # lateral view is rotated slightly towards the back of the brain
+    lateral_mesh, merged_index = downsample_mesh(mesh, cell_size=cell_size)
+    surf_views = {
+        "Lateral": {
+            "view": (-10, 210 if hemi == "left" else 330),
+            "mesh": lateral_mesh,
+            "background": None if sulcal_depth is None else to_background(
+                downsample_stat_map(sulcal_depth, merged_index),
+            ),
+            "limits": None,
+            "marker_size": 12,
+        },
+    }
+
+    if zoom_electrodes is not None:
+        # Crop the surface at full resolution to a cube around the electrodes, leaving a margin of 5 mm
+        zoom_electrodes = np.asarray(zoom_electrodes, dtype=bool)
+        zoom_center = marker_coords[zoom_electrodes].mean(axis=0)
+        half_width = np.abs(marker_coords[zoom_electrodes] - zoom_center).max() + 5.0
+        zoom_mesh, kept_vertices = crop_mesh(mesh, zoom_center, half_width)
+        zoom_normal = normals[zoom_electrodes].mean(axis=0)
+        zoom_normal /= np.linalg.norm(zoom_normal)
+        surf_views["Zoomed in"] = {
+            "view": (np.rad2deg(np.arcsin(zoom_normal[2])), np.rad2deg(np.arctan2(zoom_normal[1], zoom_normal[0]))),
+            "mesh": zoom_mesh,
+            "background": None if sulcal_depth is None else to_background(sulcal_depth[kept_vertices]),
+            "limits": np.stack([zoom_center - half_width, zoom_center + half_width], axis=1),
+            "marker_size": 25,
+        }
+
+    def plot_electrodes(
+        values: np.ndarray,
+        vmin: float | None = None,
+        vmax: float | None = None,
+        title: str | None = None,
+        cmap: str = "inferno",
+        cyclic: bool = False,
+    ) -> tuple[plt.Figure, np.ndarray]:
+        """Plot one value per electrode as colored markers on the surface.
+
+        Electrodes with NaN values are shown as small gray markers. Set `cyclic=True` for angles in radians (e.g.,
+        polar angle) to use the color range [-pi, pi] with the cyclic colormap "hsv".
+        """
+        values = np.asarray(values, dtype=float)
+
+        if values.shape != electrode_vertices.shape:
+            msg = f"Expected one value for each of the {electrode_vertices.size} electrodes, got shape {values.shape}"
+            raise ValueError(msg)
+
+        # Use the same color range for all views
+        vmin, vmax, cmap = get_color_range(values, vmin, vmax, cmap, cyclic)
+        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+        is_missing = np.isnan(values)
+
+        with warnings.catch_warnings():
+            # nilearn only shows the background together with a stat map, so we plot a stat map without values;
+            # nilearn warns that it only contains NaN values
+            warnings.filterwarnings("ignore", message="All-NaN slice encountered", category=RuntimeWarning)
+            fig, axes = plot_surface_views(
+                {
+                    view_name: {
+                        "surf_mesh": surf_view["mesh"],
+                        "stat_map": np.full(surf_view["mesh"].n_vertices, np.nan),
+                        "bg_map": surf_view["background"],
+                        "vmin": 0.0,
+                        "vmax": 1.0,
+                        "hemi": hemi,
+                        "view": surf_view["view"],
+                    }
+                    for view_name, surf_view in surf_views.items()
+                },
+                norm=norm,
                 cmap=cmap,
-                colorbar=False,
-                axes=ax,
-                figure=fig,
+                title=title,
+                panel_width=5.5,
             )
-            ax.set_title(view_name)
 
-        fig.colorbar(
-            mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=vmin, vmax=vmax), cmap=cmap),
-            ax=axes,
-            shrink=0.6,
-        )
+        for ax, surf_view in zip(axes, surf_views.values()):
+            # Move the markers and limits by the same amount that nilearn centered the coordinates by
+            offset = surf_view["mesh"].coordinates.mean(axis=0)
+            if surf_view["limits"] is not None:
+                limits = surf_view["limits"] - offset[:, np.newaxis]
+                ax.set(xlim=limits[0], ylim=limits[1], zlim=limits[2])
+                ax.set_box_aspect((1, 1, 1), zoom=1.3)
 
-        if title is not None:
-            fig.suptitle(title)
+            # Only show electrodes on the part of the surface that faces the viewer
+            elev, azim = np.deg2rad(surf_view["view"])
+            view_direction = np.array([np.cos(elev) * np.cos(azim), np.cos(elev) * np.sin(azim), np.sin(elev)])
+            is_visible = normals @ view_direction > 0.0
+            if surf_view["limits"] is not None:
+                # Hide electrodes outside of the zoomed box, where the surface is cropped
+                is_visible &= np.all(
+                    (marker_coords >= surf_view["limits"][:, 0]) & (marker_coords <= surf_view["limits"][:, 1]), axis=1,
+                )
+
+            # Draw the markers on top of the surface instead of sorting them by depth
+            ax.computed_zorder = False
+            marker_size = surf_view["marker_size"]
+            ax.scatter(
+                *(marker_coords[is_visible & is_missing] - offset).T,
+                s=marker_size / 3,
+                color=GRAY,
+                depthshade=False,
+                zorder=2,
+            )
+            ax.scatter(
+                *(marker_coords[is_visible & ~is_missing] - offset).T,
+                c=values[is_visible & ~is_missing],
+                s=marker_size,
+                cmap=cmap,
+                norm=norm,
+                edgecolors="black",
+                linewidths=0.3,
+                depthshade=False,
+                zorder=3,
+            )
 
         return fig, axes
 
-    return plot_surf_stat_map_helper
+    return plot_electrodes
