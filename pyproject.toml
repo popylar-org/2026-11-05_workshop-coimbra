@@ -22,6 +22,3 @@ docs = [
 [tool.uv]
 package = false
 default-groups = ["docs"]
-
-[tool.uv.sources]
-prfmodel = { git = "https://github.com/popylar-org/prfmodel.git" }
