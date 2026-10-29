@@ -1,7 +1,7 @@
 # Overview
 
 **When**: 5th and 6th of November 2026.
-<br>**Where**: FPCE - UC Edifício 2, University of Coimbra, Portugal.
+<br>**Where**: FPCE - UC Edifício 2, University of Coimbra, Portugal. Room number 1.2.
 <br>**Costs**: 125 Euros (including lunch, drinks, and social dinner).
 <br>**Sign up**: Registration closed.
 
