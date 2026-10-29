@@ -20,8 +20,8 @@
   content: "\f303"; /* Font Awesome pencil */
 }
 
-/* Solutions: notebook pages write them as collapsed <details class="solution"> blocks so that they also collapse on
-   Colab; on the website they get the look of the exercise admonitions */
+/* Solutions: _ext/solutions.py inserts them as collapsed <details class="solution"> blocks so that they also collapse
+   on Colab; on the website they get the look of the exercise admonitions */
 
 details.solution {
   margin: 1.5rem auto;

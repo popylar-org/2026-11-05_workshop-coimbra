@@ -6,6 +6,10 @@ A MyST document counts as a notebook when its jupytext front matter defines a
 * adds an "Open in Colab" badge and a download link below the page title, and
 * writes ``<outdir>/<colab_notebook_dir>/<docname>.ipynb`` after an HTML build.
 
+The notebooks are created from the source as Sphinx reads it, that is, after
+other extensions changed it in the ``source-read`` event (e.g., solutions.py
+inserts the solutions into the practicals).
+
 On every page, blockquotes that start with a bold "Exercise ..." label are
 rendered as exercise admonitions.
 
@@ -16,9 +20,9 @@ set ``colab_path_prefix`` to that subdirectory.
 
 Python modules that notebooks import (``colab_modules``, paths relative to the
 source directory) are copied next to the generated notebooks. In every
-notebook in the same directory as a module, a code cell that downloads it from
-the ``colab_branch`` is inserted before the first cell that imports it, so that
-the import also works on Colab.
+notebook that imports a module, a code cell that downloads it from the
+``colab_branch`` is inserted before the first cell that imports it, so that the
+import also works on Colab and in notebooks outside the module's directory.
 """
 
 import re
@@ -36,18 +40,19 @@ logger = logging.getLogger(__name__)
 COLAB_BADGE = "https://colab.research.google.com/assets/colab-badge.svg"
 
 
-def _is_notebook(path: Path) -> bool:
-    if path.suffix != ".md":
-        return False
-    return "kernelspec" in jupytext.read(path).metadata
+def _collect_notebook(app: Sphinx, docname: str, source: list[str]) -> None:
+    """Keep the source of notebook pages to convert it to a notebook after the build."""
+    if Path(app.env.doc2path(docname)).suffix != ".md":
+        return
+    if "kernelspec" in jupytext.reads(source[0], fmt="md").metadata:
+        app.env.colab_notebooks[docname] = source[0]
 
 
 def _add_colab_links(app: Sphinx, doctree: nodes.document) -> None:
     env = app.env
     docname = env.docname
-    if not _is_notebook(Path(env.doc2path(docname))):
+    if docname not in env.colab_notebooks:
         return
-    env.colab_notebooks.add(docname)
 
     config = app.config
     notebook_path = f"{config.colab_notebook_dir}/{docname}.ipynb"
@@ -99,11 +104,9 @@ def _highlight_exercises(app: Sphinx, doctree: nodes.document) -> None:
         quote.replace_self(admonition)
 
 
-def _insert_module_downloads(config, docname: str, notebook: nbformat.NotebookNode) -> None:
+def _insert_module_downloads(config, notebook: nbformat.NotebookNode) -> None:
     """Insert a cell that downloads a module before the first cell of the notebook that imports it."""
     for module in config.colab_modules:
-        if Path(module).parent != Path(docname).parent:
-            continue
         name = Path(module).stem
         imports = re.compile(rf"^\s*(from\s+{name}\s+import|import\s+{name}\b)", re.MULTILINE)
         index = next(
@@ -132,9 +135,9 @@ def _write_notebooks(app: Sphinx, exception: Exception | None) -> None:
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(Path(app.srcdir) / module, out)
         logger.info("colab_notebooks: copied %s", out.relative_to(app.outdir))
-    for docname in sorted(app.env.colab_notebooks):
-        notebook = jupytext.read(Path(app.env.doc2path(docname)))
-        _insert_module_downloads(config, docname, notebook)
+    for docname, source in sorted(app.env.colab_notebooks.items()):
+        notebook = jupytext.reads(source, fmt="md")
+        _insert_module_downloads(config, notebook)
         if config.colab_setup_cell:
             notebook.cells.insert(0, nbformat.v4.new_code_cell(config.colab_setup_cell))
         out = Path(app.outdir) / config.colab_notebook_dir / f"{docname}.ipynb"
@@ -144,13 +147,14 @@ def _write_notebooks(app: Sphinx, exception: Exception | None) -> None:
 
 
 def _init_env(app: Sphinx, env) -> None:
-    if not hasattr(env, "colab_notebooks"):
-        env.colab_notebooks = set()
+    # Maps the docname of every notebook page to its source (a set of docnames in older environments).
+    if not isinstance(getattr(env, "colab_notebooks", None), dict):
+        env.colab_notebooks = {}
 
 
 def _purge_doc(app: Sphinx, env, docname: str) -> None:
     _init_env(app, env)
-    env.colab_notebooks.discard(docname)
+    env.colab_notebooks.pop(docname, None)
 
 
 def _merge_info(app: Sphinx, env, docnames, other) -> None:
@@ -168,6 +172,8 @@ def setup(app: Sphinx) -> dict:
     app.connect("builder-inited", lambda app: _init_env(app, app.env))
     app.connect("env-purge-doc", _purge_doc)
     app.connect("env-merge-info", _merge_info)
+    # Run after other extensions changed the source (default priority 500).
+    app.connect("source-read", _collect_notebook, priority=900)
     app.connect("doctree-read", _add_colab_links)
     app.connect("doctree-read", _highlight_exercises)
     app.connect("build-finished", _write_notebooks)

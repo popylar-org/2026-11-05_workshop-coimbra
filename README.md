@@ -46,3 +46,14 @@ Plotting helper functions that several notebooks share live in `docs/workshop/pl
 The notebooks import it from their own directory. For Colab, modules listed in `colab_modules`
 in `docs/conf.py` are copied next to the generated notebooks, and a cell inserted before the first
 import of a module downloads it from the `gh-pages` branch.
+
+### Solutions
+
+Write exercises in the practicals as blockquotes that start with a bold label, e.g.
+`> **Exercise 3:** ...`. Their solutions live in a file of the same name in `docs/solutions/`,
+with one `## Exercise <number>` section per exercise (see `docs/solutions/01-prf-visual-fmri.md`).
+The pages in `docs/solutions/` show the practical from `docs/workshop/` with each solution inserted
+below its exercise as a collapsed box (see `docs/_ext/solutions.py`), so the practicals are not
+copied. Each solution goes directly below its exercise and any code cells that follow it, but above
+a `# Your code goes here` cell. The build warns about exercises without a solution and solutions
+without an exercise.

@@ -15,6 +15,7 @@ author = "The Popylar Team"
 extensions = [
     "myst_nb",
     "sphinx_copybutton",
+    "solutions",
     "colab_notebooks",
 ]
 
@@ -58,6 +59,13 @@ html_theme_options = {
     # No search bar in the header; search stays available in the sidebar.
     "navbar_persistent": [],
 }
+
+# -- Solutions (see _ext/solutions.py) ---------------------------------------
+
+# Every document in solutions_dir except the index renders the practical of the same name in solutions_practicals_dir
+# with the solutions inserted below its exercises.
+solutions_dir = "solutions"
+solutions_practicals_dir = "workshop"
 
 # -- Colab notebooks (see _ext/colab_notebooks.py) ---------------------------
 
