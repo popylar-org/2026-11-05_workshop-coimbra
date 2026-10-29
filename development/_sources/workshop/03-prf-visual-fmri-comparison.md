@@ -50,12 +50,12 @@ In this practical, we compare four models: The canonical Gaussian 2D pRF model, 
 
 ## Installation and Setup
 
-First, we need to install prfmodel from GitHub. We install the package with the TensorFlow backend (for more information on the different backends, see the [Backends](https://popylar-org.github.io/prfmodel/development/backends.html) section in the package documentation).
+First, we need to install prfmodel from PyPI. We install the package with the TensorFlow backend (for more information on the different backends, see the [Backends](https://popylar-org.github.io/prfmodel/development/backends.html) section in the package documentation).
 
 **Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.**
 
 ```{code-cell} ipython3
-!pip install "prfmodel[tensorflow] @ git+https://github.com/popylar-org/prfmodel.git"
+!pip install "prfmodel[tensorflow]==0.1.0"
 ```
 
 We set the backend to TensorFlow and a default for printing.
