@@ -1,5 +1,7 @@
 # Schedule
 
+The workshop will take place at: FPCE - UC Edifício 2, University of Coimbra, Portugal. Room number 1.2.
+
 The schedule is still provisional and the exact order of the sessions might be subject to change.
 
 ## Day 1: Thursday, 5 November 2026
@@ -21,6 +23,8 @@ The schedule is still provisional and the exact order of the sessions might be s
 
 ## Day 2: Friday, 6 November 2026
 
+The social dinner will be at: Solar do Bacalhau: Rua da Sota, 12, Coimbra, Portugal, 3000-066.
+
 | Time  | Session                              | Speaker      |
 |-------|--------------------------------------|--------------|
 | 9:00  | Recap                                | Malte Lüken  |
@@ -30,9 +34,9 @@ The schedule is still provisional and the exact order of the sessions might be s
 | 10:45 | Presentation 2: Neural contrast sensitivity functions                  | Marcus Daghlian |
 | 11:15 | Break                                |              |
 | 11:30 | Modelling choices and best practices | Malte Lüken  |
-| 12:00 | Practical 3                          | Malte Lüken  |
+| 12:00 | Practical 3                          |              |
 | 13:00 | Lunch                                |              |
 | 14:00 | Practical 4                          |              |
 | 16:30 | Recap and discussion                 |              |
 | 17:00 | End                                  |              |
-| 19:30 | Social dinner (location TBD)         |              |
+| 19:30 | Social dinner                        |              |
