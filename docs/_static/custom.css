@@ -20,6 +20,35 @@
   content: "\f303"; /* Font Awesome pencil */
 }
 
+/* Solutions: notebook pages write them as collapsed <details class="solution"> blocks so that they also collapse on
+   Colab; on the website they get the look of the exercise admonitions */
+
+details.solution {
+  margin: 1.5rem auto;
+  padding: 0 0.6rem;
+  overflow: hidden;
+  border-left: 0.2rem solid var(--pst-color-success);
+  border-radius: 0.25rem;
+  background-color: var(--pst-color-on-background);
+  box-shadow: 0 0.2rem 0.5rem var(--pst-color-shadow), 0 0 0.0625rem var(--pst-color-shadow);
+}
+
+details.solution > summary {
+  margin: 0 -0.6rem;
+  padding: 0.4rem 0.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--pst-color-success-bg);
+}
+
+details.solution[open] > summary {
+  margin-bottom: 0.75rem;
+}
+
+details.solution[open] {
+  padding-bottom: 0.25rem;
+}
+
 /* Version switcher in the top bar (see _templates/polyversion-switcher.html) */
 
 .polyversion-switcher {
