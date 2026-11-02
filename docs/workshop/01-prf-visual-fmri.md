@@ -133,6 +133,35 @@ HTML(ani.to_html5_video())
 
 +++
 
+The design matrix and grid are square and span about -4 to 4 degrees in both directions. However, the stimulus was shown on a rectangular screen that is wider than it is tall, so the bar never reaches the top and bottom of the design matrix. The cells outside the screen are never stimulated. Therefore, we crop the design matrix and grid to the cells that the bar covers in at least one time frame.
+
+```{code-cell} ipython3
+import numpy as np
+from prfmodel.stimuli import PRFStimulus
+
+# Cells that the bar covers in at least one time frame lie on the screen
+is_on_screen = stimulus.design.max(axis=0) > 0.0
+
+# The screen is a rectangle, so we keep the rows (y) and columns (x) of the design matrix between its edges
+rows_on_screen = np.flatnonzero(is_on_screen.any(axis=1))
+cols_on_screen = np.flatnonzero(is_on_screen.any(axis=0))
+rows = slice(rows_on_screen[0], rows_on_screen[-1] + 1)
+cols = slice(cols_on_screen[0], cols_on_screen[-1] + 1)
+
+stimulus = PRFStimulus(
+    design=stimulus.design[:, rows, cols],
+    grid=stimulus.grid[rows, cols],
+    frame_duration=stimulus.frame_duration,
+    dimension_labels=stimulus.dimension_labels,
+)
+
+print(stimulus)
+
+# The grid stores y in grid[..., 0] and x in grid[..., 1]
+(y_min, x_min), (y_max, x_max) = stimulus.grid.min(axis=(0, 1)), stimulus.grid.max(axis=(0, 1))
+print(f"Screen: x from {x_min:.2f} to {x_max:.2f} degrees, y from {y_min:.2f} to {y_max:.2f} degrees")
+```
+
 ### Building the model step by step
 
 The pRF is the part of the stimulus feature space that stimulates activity of the neuron population. The pRF model takes
@@ -797,7 +826,7 @@ show_interactive(
 
 We fit the canonical Gaussian 2D pRF model in two stages. In the first stage, we perform a "brute-force" grid search to find good estimates for the parameters of the pRF tuning profile (i.e., `mu_x`, `mu_y`, and `sigma`).
 
-For the grid search, we define ranges of `mu_x`, `mu_y`, and `sigma` that we want to construct a grid of parameter values from. We create them from the stimulus with `prfmodel.fitters.grid_values_2d_prf`. Here, the values for `mu_x` and `mu_y` span twice the visual field covered by the stimulus (`mu_extent=2.0`). Later, we will filter out voxels for which the pRF center lies outside the stimulus grid because their responses cannot be reliably measured by the experiment. The values for `sigma` are log-spaced between 0.05 and 4 degrees. We use 21 values for `mu_x` and `mu_y` so that the center (0 degrees) and edges ($\pm 4$ degrees) of the stimulus land on grid values. If they did not, `grid_values_2d_prf` would warn us and suggest a number of values that aligns them.
+For the grid search, we define ranges of `mu_x`, `mu_y`, and `sigma` that we want to construct a grid of parameter values from. We create them from the stimulus with `prfmodel.fitters.grid_values_2d_prf`. Here, the values for `mu_x` and `mu_y` span twice the visual field covered by the stimulus (`mu_extent=2.0`). Later, we will filter out voxels for which the pRF center lies outside the stimulus grid because their responses cannot be reliably measured by the experiment. The values for `sigma` are log-spaced between 0.05 and 4 degrees. We use 21 values for `mu_x` and `mu_y` so that the center (0 degrees) and edges of the stimulus (about $\pm 3.9$ degrees for `mu_x` and $\pm 2.8$ degrees for `mu_y`) land on grid values. If they did not, `grid_values_2d_prf` would warn us and suggest a number of values that aligns them.
 
 For `baseline`, `amplitude`, and `weight_deriv`, we only provide a single value so that they will stay constant across the entire grid.
 

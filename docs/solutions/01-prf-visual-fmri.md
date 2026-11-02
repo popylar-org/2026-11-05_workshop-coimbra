@@ -27,11 +27,13 @@ print(stimulus.grid[0, 0], stimulus.grid[-1, -1])  # Coordinates (y, x) of two o
 
 The design matrix has the shape (340, 128, 128). The first dimension contains the 340 time frames of the experiment (one frame per 0.9 seconds, see `frame_duration`). The other two dimensions are the 128 × 128 cells of the visual field in the order y, x (see `dimension_labels`). The values lie between 0 and 1 and indicate for how much of a time frame a cell is covered by the bar (0: not covered, 1: covered during the whole time frame). The design matrix averages the images shown on the screen over each time frame. Because the bar moves by about 6 cells per time frame, cells at its leading and trailing edges are covered only for part of the frame, which creates gradual ramps at the edges. In some time frames, the whole bar has a value of about 0.93 because it was not shown during a short part of the frame.
 
-The grid has the shape (128, 128, 2). For every cell of the design matrix, it contains the y- and x-coordinate in degrees of visual angle. The coordinates run from about -4 to 4 degrees in both directions, so the stimulus covers 8 × 8 degrees of the visual field.
+The grid has the shape (128, 128, 2). For every cell of the design matrix, it contains the y- and x-coordinate in degrees of visual angle. The coordinates run from about -4 to 4 degrees in both directions, so the design matrix covers 8 × 8 degrees of the visual field. However, the bar only covers a part of it (see Exercise 3).
 
 ## Exercise 3
 
 Every frame of the video shows one time frame of the design matrix (its first dimension), and the image shows the cells of the visual field (its second and third dimension: y and x). The axes of the video show the grid coordinates, which range from about -4 to 4 degrees of visual angle in both directions. Bright cells are covered by the bar. The bar sweeps across the visual field in four directions (top to bottom, left to right, bottom to top, right to left), with blank periods in between. After a long blank period in the middle of the run, the four sweeps are repeated in the reverse order.
+
+The video also shows that the bar never reaches the top and bottom of the design matrix: It only covers about -2.8 to 2.8 degrees vertically (and -3.9 to 3.9 degrees horizontally). The stimulus was shown on a rectangular screen, and the cells above and below it are never stimulated. Thus, the design matrix is larger than the part of the visual field that is covered by the stimulus.
 
 ## Exercise 4
 
@@ -146,15 +148,15 @@ Because we subtracted the baseline, the average is close to zero for most of the
 
 ## Exercise 18
 
-You can reach an R-squared of about 0.85, for example, with `mu_x` = 0.7, `mu_y` = 2.3, `sigma` = 0.9, `weight_deriv` = -0.5, `baseline` = 0.1, and `amplitude` = 0.11. With `weight_deriv` = 0, the R-squared increases to about 0.9. For comparison, the grid search and least-squares below reach an R-squared of 0.84 for this voxel.
+You can reach an R-squared of about 0.85, for example, with `mu_x` = 0.7, `mu_y` = 2.3, `sigma` = 0.9, `weight_deriv` = -0.5, `baseline` = 0.1, and `amplitude` = 0.11. With `weight_deriv` = 0, the R-squared increases to about 0.9. For comparison, the grid search and least-squares below reach an R-squared of 0.85 for this voxel.
 
 - **Easy:** The pRF center determines *when* the peaks occur. The horizontal bar (top to bottom and bottom to top) crosses the pRF at a time that depends on `mu_y`, and the vertical bar at a time that depends on `mu_x`. Because each bar orientation moves in both directions, moving the center shifts the peaks of the two opposite sweeps in opposite directions in time. `baseline` and `amplitude` are also easy because they only shift and scale the prediction.
 - **Hard:** `sigma` and `amplitude` trade off against each other (Exercise 12): A larger `sigma` makes the peaks broader and lower, which a larger `amplitude` can compensate. Only the width of the peaks distinguishes the two, and the noise makes the width hard to judge. `weight_deriv` shifts all peaks slightly in the same direction in time and changes their shape, which is easy to confuse with small changes of the center and size.
 
 ## Exercise 19
 
-- **pRF centers:** Many centers lie at the edges and corners of the stimulus or in its center. About a quarter of the voxels have a center outside the stimulus, some of them even at the outer edge of the grid (±8 degrees). Most of these voxels only contain noise, or their pRF lies (partly) outside the stimulus, so the data hardly constrain their center.
-- **pRF sizes:** The sizes pile up at both ends of the grid: About 19% of the voxels have the smallest size (0.05 degrees) and 13% the largest size (4 degrees). Very small pRFs are typical for voxels that only contain noise: A tiny pRF predicts sharp peaks that can correlate with random fluctuations. More importantly, almost half of the voxels with an R-squared above 0.3 have the largest size of the grid. The best fitting size of these voxels probably lies above 4 degrees, so the range of `sigma` is too small.
+- **pRF centers:** Many centers lie at the edges and corners of the stimulus or in its center. Almost half of the voxels (47%) have a center outside the stimulus, most of them above or below it, and some of them even at the outer edge of the grid (about ±7.9 degrees for `mu_x` and ±5.6 degrees for `mu_y`). Most of these voxels only contain noise, or their pRF lies (partly) outside the stimulus, so the data hardly constrain their center.
+- **pRF sizes:** The sizes pile up at both ends of the grid: About 27% of the voxels have the smallest size (0.05 degrees) and 13% the largest size (4 degrees). Very small pRFs are typical for voxels that only contain noise: A tiny pRF predicts sharp peaks that can correlate with random fluctuations. More importantly, almost half of the voxels with an R-squared above 0.3 have the largest size of the grid. The best fitting size of these voxels probably lies above 4 degrees, so the range of `sigma` is too small.
 
 We extend the range of `sigma` to 10 degrees and add a range for `weight_deriv`. Note that the grid search takes longer because the grid has 3.6 times as many parameter combinations.
 
@@ -193,11 +195,11 @@ axes[2].set(xlabel="weight_deriv", title="Weight of the derivative")
 print(f"Original grid: {np.mean(grid_history.history['loss']):.4f}, new grid: {np.mean(grid_history_new.history['loss']):.4f}")
 ```
 
-On a random subset of 10,000 voxels, the mean loss decreases from -0.222 to -0.233. The two changes help in different ways:
+The mean loss decreases from -0.2209 to -0.2311. The two changes help in different ways:
 
-- Extending `sigma` alone hardly changes the mean loss (-0.223) because most voxels only contain noise. However, it removes the ceiling for most of the well-fitting voxels: Only 5% of them have the new largest size of 10 degrees.
+- Extending `sigma` alone hardly changes the mean loss (-0.2213) because most voxels only contain noise. However, it removes the ceiling for most of the well-fitting voxels: Only 5% of them have the new largest size of 10 degrees.
 - The range for `weight_deriv` gives most of the improvement. Most of the well-fitting voxels choose `weight_deriv` = 0, which is again the edge of the grid, so the range could be extended further.
-- A finer grid for the pRF centers (e.g., `num_mu=41`) also lowers the loss slightly (-0.224), but it takes about four times as long.
+- A finer grid for the pRF centers (e.g., `num_mu=41`) also lowers the loss slightly (-0.2224), but it takes about four times as long.
 
 Keep in mind that a larger grid also fits the noise better, so a lower mean loss does not always mean that the estimates are more accurate.
 
@@ -303,7 +305,7 @@ for threshold in [0.1, 0.5]:
 
 The pRFs are smallest (`sigma` below 1 degree) around the occipital pole and in the calcarine sulcus, that is, in early visual cortex. Further away from the pole, on the dorsal, ventral, and lateral surface of the occipital lobe, where the higher visual areas lie, the pRFs are larger (2 to 3 degrees).
 
-With a lower threshold of 0.1, about twice as many voxels are selected (6,718 instead of 3,484). The additional voxels extend into higher visual areas and the parietal lobe and mostly have large pRFs, but they also include noisy voxels with very small or arbitrary sizes. With a higher threshold of 0.5, only 2,006 voxels remain, mostly in early visual cortex. The overall pattern stays the same, but the threshold determines how much of the cortex we see and how noisy the map is.
+With a lower threshold of 0.1, about twice as many voxels are selected (6,393 instead of 3,380). The additional voxels extend into higher visual areas and the parietal lobe and mostly have large pRFs, but they also include noisy voxels with very small or arbitrary sizes. With a higher threshold of 0.5, only 1,930 voxels remain, mostly in early visual cortex. The overall pattern stays the same, but the threshold determines how much of the cortex we see and how noisy the map is.
 
 ## Exercise 25
 
@@ -332,15 +334,15 @@ eccentricity_surf = calculate_eccentricity(mu_x_surf, mu_y_surf)
 plot_surf_stat_map_helper(eccentricity_surf, vmin=0.0, vmax=5.0, title="Eccentricity");
 ```
 
-The eccentricity is lowest (center of the visual field) at the occipital pole and on the posterior surface close to it. It increases with the distance from the pole: forward along the calcarine sulcus in the medial views, and outward on the posterior surface. The stimulus only covers the central 4 degrees (up to about 5.7 degrees in the corners), so we only see the central part of the eccentricity map: Voxels that represent the periphery of the visual field further forward in the calcarine sulcus are not stimulated and therefore not selected.
+The eccentricity is lowest (center of the visual field) at the occipital pole and on the posterior surface close to it. It increases with the distance from the pole: forward along the calcarine sulcus in the medial views, and outward on the posterior surface. The stimulus only covers the central 2.8 degrees vertically and 3.9 degrees horizontally (up to about 4.8 degrees in the corners), so we only see the central part of the eccentricity map: Voxels that represent the periphery of the visual field further forward in the calcarine sulcus are not stimulated and therefore not selected.
 
 ## Exercise 27
 
 Dumoulin and Wandell (2008) found the classical retinotopic organization of the early visual cortex: Each hemisphere represents the contralateral visual field. In V1, the upper visual field is represented below and the lower visual field above the calcarine sulcus, and the polar angle reverses at the vertical and horizontal meridians, which form the borders between V1, V2, and V3. The eccentricity increases from the occipital pole forward.
 
-Our polar angle and eccentricity maps agree with these patterns, although our stimulus only covers the central 4 degrees of the visual field, so we can only compare the central part of the maps.
+Our polar angle and eccentricity maps agree with these patterns, although our stimulus only covers the central 3 to 4 degrees of the visual field, so we can only compare the central part of the maps.
 
-Dumoulin and Wandell (2008) also found that the pRF size increases with eccentricity within each visual area and from V1 to the higher visual areas. Our size map shows larger pRFs in the higher visual areas (Exercise 24). However, among the selected voxels, the size hardly changes with eccentricity (the mean `sigma` is about 1.7 degrees in all eccentricity bins). This is a consequence of our fitting procedure rather than of the data: The grid only contains 10 sizes, least-squares does not change them, and we excluded the voxels with a size at the ceiling of the grid (4 degrees), which are almost half of the well-fitting voxels. With a grid that extends `sigma` to 10 degrees (Exercise 19), the size increases with eccentricity.
+Dumoulin and Wandell (2008) also found that the pRF size increases with eccentricity within each visual area and from V1 to the higher visual areas. Our size map shows larger pRFs in the higher visual areas (Exercise 24). However, among the selected voxels, the size hardly changes with eccentricity (the mean `sigma` is about 1.7 to 1.8 degrees in all eccentricity bins up to 4 degrees). This is a consequence of our fitting procedure rather than of the data: The grid only contains 10 sizes, least-squares does not change them, and we excluded the voxels with a size at the ceiling of the grid (4 degrees), which are almost half of the well-fitting voxels. With a grid that extends `sigma` to 10 degrees (Exercise 19), the size increases with eccentricity.
 
 ## Exercise 28
 

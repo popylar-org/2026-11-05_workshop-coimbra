@@ -85,6 +85,34 @@ dataset = load_dataset("7t-aot-visual", surface_type="inflated")
 stimulus = dataset.stimulus
 ```
 
+Like in the first practical, we crop the design matrix and grid to the rectangular screen on which the stimulus was shown, that is, to the cells that the bar covers in at least one time frame.
+
+```{code-cell} ipython3
+from prfmodel.stimuli import PRFStimulus
+
+# Cells that the bar covers in at least one time frame lie on the screen
+is_on_screen = stimulus.design.max(axis=0) > 0.0
+
+# The screen is a rectangle, so we keep the rows (y) and columns (x) of the design matrix between its edges
+rows_on_screen = np.flatnonzero(is_on_screen.any(axis=1))
+cols_on_screen = np.flatnonzero(is_on_screen.any(axis=0))
+rows = slice(rows_on_screen[0], rows_on_screen[-1] + 1)
+cols = slice(cols_on_screen[0], cols_on_screen[-1] + 1)
+
+stimulus = PRFStimulus(
+    design=stimulus.design[:, rows, cols],
+    grid=stimulus.grid[rows, cols],
+    frame_duration=stimulus.frame_duration,
+    dimension_labels=stimulus.dimension_labels,
+)
+
+print(stimulus)
+
+# The grid stores y in grid[..., 0] and x in grid[..., 1]
+(y_min, x_min), (y_max, x_max) = stimulus.grid.min(axis=(0, 1)), stimulus.grid.max(axis=(0, 1))
+print(f"Screen: x from {x_min:.2f} to {x_max:.2f} degrees, y from {y_min:.2f} to {y_max:.2f} degrees")
+```
+
 Like in the first practical, we subtract the baseline from the raw BOLD response and only keep voxels with a response that varies over time.
 
 ```{code-cell} ipython3
@@ -154,13 +182,21 @@ ax.legend(loc="upper right");
 We create a separate stimulus for each half that only contains the frames of that half. The stimulus grid stays the same.
 
 ```{code-cell} ipython3
-from prfmodel.stimuli import PRFStimulus
-
 first_half = slice(None, split)  # Frames 0 to 167
 second_half = slice(split, None)  # Frames 168 to 339
 
-stimulus_first = PRFStimulus(design=stimulus.design[first_half], grid=stimulus.grid, dimension_labels=["y", "x"])
-stimulus_second = PRFStimulus(design=stimulus.design[second_half], grid=stimulus.grid, dimension_labels=["y", "x"])
+stimulus_first = PRFStimulus(
+    design=stimulus.design[first_half],
+    grid=stimulus.grid,
+    frame_duration=stimulus.frame_duration,
+    dimension_labels=["y", "x"],
+)
+stimulus_second = PRFStimulus(
+    design=stimulus.design[second_half],
+    grid=stimulus.grid,
+    frame_duration=stimulus.frame_duration,
+    dimension_labels=["y", "x"],
+)
 
 stimulus_first.design.shape, stimulus_second.design.shape
 ```
@@ -349,6 +385,7 @@ bar_positions = np.linspace(-4.0, 4.0, 81)
 bar_stimulus = PRFStimulus(
     design=(np.abs(stimulus.grid[..., 1] - bar_positions[:, None, None]) <= bar_width / 2).astype("float32"),
     grid=stimulus.grid,
+    frame_duration=stimulus.frame_duration,
     dimension_labels=["y", "x"],
 )
 
@@ -484,10 +521,10 @@ gaussian_params
 The CSS model raises the stimulus-encoded pRF response to the power of the compression exponent `n` before it is convolved with the impulse response:
 
 $$
-r(t) = g \, P(t; \mu_x, \mu_y, \sigma)^n
+r(t) = P(t; \mu_x, \mu_y, \sigma)^n
 $$
 
-With `n` below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a `gain` parameter $g$ that multiplies the compressed response. It has the same effect as `amplitude`, so we fix it to its starting value of 1. The predicted BOLD response $\hat{y}(t)$ is computed in the same way as for the Gaussian model.
+With `n` below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The CSS model of Kay et al. (2013) also has a gain parameter that multiplies the compressed response. It has the same effect as `amplitude`, so the CSS model in prfmodel uses `amplitude` instead of a separate gain parameter. The predicted BOLD response $\hat{y}(t)$ is computed in the same way as for the Gaussian model.
 
 Move the `n` slider in the figure below to see how the exponent changes the response to the bar and the predicted BOLD response. With `n` equal to 1, the CSS model makes the same predictions as the Gaussian model.
 
@@ -503,7 +540,7 @@ from prfmodel.models.prf import Gaussian2DCSSPRFModel
 
 
 def plot_css(n: float) -> None:
-    plot_model_comparison(Gaussian2DCSSPRFModel, "CSS", sigma=1.0, gain=1.0, n=n, amplitude=1.0)
+    plot_model_comparison(Gaussian2DCSSPRFModel, "CSS", sigma=1.0, n=n, amplitude=1.0)
 
 
 show_interactive(plot_css, {"n": make_slider("n", 0.5, 0.05, 1.5, 0.05)})
@@ -516,7 +553,7 @@ from prfmodel.models.prf import Gaussian2DCSSPRFModel, init_css_from_gaussian
 
 css_model = Gaussian2DCSSPRFModel(impulse_model=impulse_model)
 
-# Start from the Gaussian estimates with n = 0.5 and gain = 1
+# Start from the Gaussian estimates with n = 0.5
 css_init_params = init_css_from_gaussian(gaussian_params)
 
 _, css_init_params = LeastSquaresFitter(model=css_model, stimulus=stimulus_first).fit(
@@ -538,7 +575,7 @@ css_sgd_fitter = SGDFitter(
 css_history, css_params = css_sgd_fitter.fit(
     data=response_first,
     init_parameters=css_init_params,
-    fixed_parameters=["weight_deriv", "gain"],
+    fixed_parameters=["weight_deriv"],
     num_steps=num_steps,
 )
 
@@ -923,7 +960,7 @@ for name in model_names:
 # Your code goes here
 ```
 
-> **Exercise 14:** Compute how much the out-of-sample R-squared of each model improves over the Gaussian model for each voxel. Plot the improvement against the eccentricity and the size (`sigma`) of the pRF estimated with the Gaussian model (hint: use `prfmodel.utils.calculate_eccentricity`; averaging the improvement within bins of eccentricity or size makes the pattern easier to see). You can also plot the improvement on the surface with a diverging colormap (e.g., `cmap="RdBu_r"` with a symmetric color range). For which pRFs do the more complex models make the largest difference? Keep in mind that the stimulus only covers the visual field up to 4 degrees from the center horizontally and vertically: How well can the models describe pRFs with centers outside of this region?
+> **Exercise 14:** Compute how much the out-of-sample R-squared of each model improves over the Gaussian model for each voxel. Plot the improvement against the eccentricity and the size (`sigma`) of the pRF estimated with the Gaussian model (hint: use `prfmodel.utils.calculate_eccentricity`; averaging the improvement within bins of eccentricity or size makes the pattern easier to see). You can also plot the improvement on the surface with a diverging colormap (e.g., `cmap="RdBu_r"` with a symmetric color range). For which pRFs do the more complex models make the largest difference? Keep in mind that the stimulus only covers the visual field up to about 3.9 degrees from the center horizontally and 2.8 degrees vertically: How well can the models describe pRFs with centers outside of this region?
 
 ```{code-cell} ipython3
 # Your code goes here
