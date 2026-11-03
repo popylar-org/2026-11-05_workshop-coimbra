@@ -744,6 +744,8 @@ After least-squares estimation, the estimates for `mu` and `sigma` are still lyi
 
 By default, `prfmodel.fitters.SGDFitter` optimizes every parameter it is given, so it also estimates `weight_deriv` for every vertex. This allows the timing of the BOLD response to differ slightly between vertices, but it also means that the shape of the impulse response is no longer fixed while `mu` and `sigma` are estimated.
 
+We set `batch_size=5000` to run SGD for 5000 vertices at a time to keep the memory load manageable.
+
 ```{code-cell} ipython3
 from keras import ops
 from prfmodel.fitters import SGDFitter
@@ -761,6 +763,7 @@ sgd_fitter = SGDFitter(
 sgd_history, sgd_params = sgd_fitter.fit(
     data=vertex_response,
     init_parameters=ls_params,
+    batch_size=5000,
 )
 ```
 
