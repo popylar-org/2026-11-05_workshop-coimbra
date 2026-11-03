@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.19.6
+    jupytext_version: 1.19.5
 kernelspec:
   display_name: prfmodel (3.10.12)
   language: python
@@ -235,7 +235,6 @@ For each surface vertex, we identify the voxels assigned to it, retain those wit
 Vertices without any valid contributing voxels are excluded. We keep track of the original surface vertex indices so that the responses can later be matched to their anatomical ROI labels and geodesic distances.
 
 ```{code-cell} ipython3
-
 #Load the dataset's voxel-to-vertex mapping
 vertex_voxel_offsets = dataset.method2_vertex_voxel_offsets
 vertex_voxel_rows = dataset.method2_vertex_voxel_rows
@@ -357,7 +356,9 @@ from prfmodel.models.prf import Gaussian1DPRFModel
 print(stimulus.frame_duration)
 
 # Create the impulse model
-impulse_model = DerivativeTwoGammaImpulse()
+impulse_model = DerivativeTwoGammaImpulse(
+    resolution=stimulus.frame_duration
+)
 ```
 
 We can visualize the predicted impulse response. The two-gamma parameters (`delay`, `dispersion`, `undershoot`,
@@ -370,8 +371,8 @@ import pandas as pd
 # Only weight_deriv is set; the two-gamma parameters use the model's default Glover HRF values
 impulse_default_params = pd.DataFrame({"weight_deriv": [-0.5]})
 
-# Predict impulse response (two-gamma parameters use the default Glover HRF values)
-impulse_response = np.asarray(impulse_model.at_resolution(stimulus.frame_duration)(impulse_default_params))
+# Predict impulse response
+impulse_response = impulse_model(impulse_default_params)
 
 fig = px.line(
     pd.DataFrame({"Time frame (in TR)": np.arange(impulse_response.shape[1]), "Impulse response": impulse_response[0]}),
@@ -402,7 +403,7 @@ We average these four cycles to obtain a single 44-frame predicted response. Fin
 We define a set of starting parameters to generate predictions with our pRF model. Specifically, we predict the model response for each unique numerosity value in the stimulus. Each prediction represents the response over one 44-frame stimulus cycle, following the removal of the pre-scan interval, averaging of repeated cycles and detrending.
 
 ```{code-cell} ipython3
-import tensorflow as tf
+from keras import ops
 from typing import Callable
 from prfmodel.stimuli import PRFStimulus
 from prfmodel.typing import Tensor
@@ -413,7 +414,7 @@ def average_cycles_and_detrend(
     cycle_length: int = 44,
     num_cycles: int = 4,
     n_dct: float = 0.5
-    ) -> Callable:
+) -> Callable:
     """Average repeated stimulus cycles and detrend the predictions."""
 
     # Use the same cosine basis as the measured-response detrending
@@ -431,15 +432,21 @@ def average_cycles_and_detrend(
         predictions = predictions[:, num_prescan_frames:]
 
         # 2. Average repeated stimulus cycles
-        predictions = tf.reshape(predictions, (tf.shape(predictions)[0], num_cycles, cycle_length))
-        predictions = tf.reduce_mean(predictions, axis=1)
+        predictions = ops.reshape(
+            predictions, (-1, num_cycles, cycle_length)
+        )
+        predictions = ops.mean(predictions, axis=1)
 
         # 3. Detrend averaged predictions
-        trends_tf = tf.cast(trends, predictions.dtype)
-        pinv_trends_tf = tf.cast(pinv_trends, predictions.dtype)
+        trends_keras = ops.cast(trends, predictions.dtype)
+        pinv_trends_keras = ops.cast(pinv_trends, predictions.dtype)
 
-        beta = tf.matmul(predictions, pinv_trends_tf, transpose_b=True)
-        fitted_trend = tf.matmul(beta, trends_tf, transpose_b=True)
+        beta = ops.matmul(
+            predictions, ops.transpose(pinv_trends_keras)
+        )
+        fitted_trend = ops.matmul(
+            beta, ops.transpose(trends_keras)
+        )
 
         predictions = predictions - fitted_trend
 
@@ -524,7 +531,6 @@ Second, the stimulus samples log-numerosity space at only eight points. The clos
 Let's construct the {py:class}`prfmodel.fitters.GridFitter` and perform the grid search. Note that we set `batch_size=20` to let the `GridFitter` evaluate 20 parameter combinations at the same time, which saves memory. By default, the `loss` (i.e., the metric to minimize between model predictions and data) is the negative correlation. This ignores differences in baseline and amplitude between model predictions and observed data. This means the data do not need to be demeaned or converted to percent signal change first, but it also means that `baseline` and `amplitude` cannot be estimated by the grid search itself. We fix them here and estimate them with least squares in the next step.
 
 ```{code-cell} ipython3
-
 from prfmodel.fitters import GridFitter
 
 # Create grid fitter object
@@ -803,7 +809,7 @@ Before plotting, we apply an R-squared threshold to exclude vertices where the m
 
 The visual ROI boundaries were defined using earlier programs and subsequently transformed into the coordinate space of the current surface representation. Because these transformations involve several steps, small differences in alignment between the ROI outlines and the surface may occur. The boundaries should therefore be interpreted as an anatomical reference rather than an exact delineation of the displayed vertices.
 
-Here, we use an R-squared threshold of 0.2 just like before and plot NPC2 for the left and right hemispheres. 
+Here, we use an R-squared threshold of 0.2 just like before and plot NPC2 for the left and right hemispheres.
 
 ```{code-cell} ipython3
 import importlib
@@ -908,7 +914,6 @@ plot_data = prepare_distance_data(
     sigma_max=sigma_max
 )
 ```
-
 
 We now group vertices into distance bins of 2 mm. For each bin, we calculate the mean preferred numerosity across all vertices within that bin, separately for each stimulus condition.
 
