@@ -18,16 +18,19 @@ flowchart TD
     p3["3: Model comparison and selection"]
     p4["4: Gaussian connective field model"]
     p5["5: pRF models for ECoG data"]
+    p5["6: Numerosity pRF model"]
 
     p1 --> p2 --> p3 -. last part .-> p5
     p1 --> p5
     p1 --> p4
+    p1 --> p6
 
     click p1 href "01-prf-visual-fmri.html"
     click p2 href "02-prf-visual-fmri-cv.html"
     click p3 href "03-prf-visual-fmri-comparison.html"
     click p4 href "04-cf-visual-fmri.html"
     click p5 href "05-prf-visual-ecog.html"
+    click p6 href "06-prf-numerosity.html"
 ```
 
 ```{toctree}
@@ -38,4 +41,5 @@ flowchart TD
 03-prf-visual-fmri-comparison
 04-cf-visual-fmri
 05-prf-visual-ecog
+06-prf-numerosity
 ```
