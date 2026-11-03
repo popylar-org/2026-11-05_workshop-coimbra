@@ -104,15 +104,14 @@ We first use the **Average** condition, which combines the responses across the 
 The stimulus sequence consists of four repetitions of a 44-frame cycle, preceded by a six-frame pre-scan interval (182 frames in total). During preprocessing, the pre-scan frames are excluded and the four repetitions are averaged, resulting in a 44-frame response time course for each voxel.
 
 ```{code-cell} ipython3
-from pathlib import Path
+from prfmodel.examples import load_dataset
 import pickle
 
-# Find the workshop repository root
-PROJECT_ROOT = Path.cwd()
+# Download the dataset (uses cached files if already downloaded)
+example_data = load_dataset("numerosity-four-conditions")
 
-data_path = PROJECT_ROOT / "data" / "fmri_full_grid_dataset.pkl"
-
-with data_path.open("rb") as f:
+# Load the volumetric response data
+with example_data.files["responses"].open("rb") as f:
     dataset = pickle.load(f)
 
 # Inspect volumetric response tables
@@ -813,7 +812,7 @@ import helpers
 importlib.reload(helpers)
 from helpers import plot_numerosity_flatmaps
 
-surf_dir = PROJECT_ROOT / "data" / "s1" / "surf"
+surf_dir = example_data.files["lh_flat"].parent
 # pRF filtering
 r2_threshold = 0.2
 lh_roi_id = 3
