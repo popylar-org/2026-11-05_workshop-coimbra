@@ -57,3 +57,12 @@ below its exercise as a collapsed box (see `docs/_ext/solutions.py`), so the pra
 copied. Each solution goes directly below its exercise and any code cells that follow it, but above
 a `# Your code goes here` cell. The build warns about exercises without a solution and solutions
 without an exercise.
+
+## Generative AI usage
+
+Claude Code (Opus version 5.5) was used to partially generate and improve the workshop materials. All improvements were
+manually evaluated and approved by the authors.
+
+## Copyright
+
+2026, Netherlands eScience Center, Vrije Universiteit Amsterdam, Netherlands Institute for Neuroscience
