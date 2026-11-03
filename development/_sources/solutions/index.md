@@ -13,4 +13,5 @@ opened on Colab or downloaded as notebooks.
 03-prf-visual-fmri-comparison
 04-cf-visual-fmri
 05-prf-visual-ecog
+07-ncsf-visual-fmri
 ```

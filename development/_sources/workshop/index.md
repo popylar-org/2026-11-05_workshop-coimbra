@@ -18,12 +18,14 @@ flowchart TD
     p3["3: Model comparison and selection"]
     p4["4: Gaussian connective field model"]
     p5["5: pRF models for ECoG data"]
-    p5["6: Numerosity pRF model"]
+    p6["6: Numerosity pRF model"]
+    p7["7: Neural contrast sensitivity function model"]
 
     p1 --> p2 --> p3 -. last part .-> p5
     p1 --> p5
     p1 --> p4
     p1 --> p6
+    p1 --> p7
 
     click p1 href "01-prf-visual-fmri.html"
     click p2 href "02-prf-visual-fmri-cv.html"
@@ -31,6 +33,7 @@ flowchart TD
     click p4 href "04-cf-visual-fmri.html"
     click p5 href "05-prf-visual-ecog.html"
     click p6 href "06-prf-numerosity.html"
+    click p7 href "07-ncsf-visual-fmri.html"
 ```
 
 ```{toctree}
@@ -42,4 +45,5 @@ flowchart TD
 04-cf-visual-fmri
 05-prf-visual-ecog
 06-prf-numerosity
+07-ncsf-visual-fmri
 ```
