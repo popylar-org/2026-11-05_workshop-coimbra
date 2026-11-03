@@ -17,7 +17,7 @@ This is the notebook for the first practical of the workshop. This practical cov
 
 **We recommend going through this notebook first to get familiar with the prfmodel package before starting with the notebooks of the other practicals.**
 
-The first part of this practical goes through the canonical Gaussian 2D pRF model step-by-step. The model input and output as well as every submodel is motivated and explained with interavtive visualizations. This part only looks at model prediction but not at fitting the model to data. This is what the second part is about: Fitting the model to an empirical dataset obtained with a 7T fMRI scanner. This part covers data inspection and visualization on an inflated surface of the brain. It goes through multiple consecutive fitting stages (grid search, least-squares, and SGD) and concludes with evaluation the model fit and interpreting its parameters. 
+The first part of this practical goes through the canonical Gaussian 2D pRF model step-by-step. The model input and output as well as every submodel is motivated and explained with interactive visualizations. This part only looks at model prediction but not at fitting the model to data. This is what the second part is about: Fitting the model to an empirical dataset obtained with a 7T fMRI scanner. This part covers data inspection and visualization on an inflated surface of the brain. It goes through multiple consecutive fitting stages (grid search, least-squares, and SGD) and concludes with evaluation the model fit and interpreting its parameters. 
 
 +++
 
@@ -401,7 +401,8 @@ show_interactive(plot_encoding, {"time_frame": time_frame_slider, **make_sliders
 
 ### Impulse response models for BOLD measurements
 
-The predicted neuron population activity does not yet account for the characteristic shape of the BOLD recording. By default, the canonical Gaussian 2D pRF model in prfmodel approximates the shape of the BOLD response with the weighted difference of two gamma densities. From this difference, we then also subtract its weighted derivative. While the parameters for the difference weight and the gamma densities are typically fixed at default values, we estimate the weight of the derivative. This is the `weight_deriv` parameter.
+he pRF model so far predicts the activity of the neural population in each voxel. fMRI does not measure that activity directly, but the BOLD signal: a sluggish, delayed change in blood oxygenation that follows neural activity. The BOLD signal peaks about 5–6 s post stimulus onset, dips below baseline, and returns to baseline after roughly 20 s. This response shape is called the hemodynamic impulse response function (HIRF). To predict a measured BOLD time series, we therefore convolve the predicted neural activity with a HIRF.
+By default, prfmodel models the HIRF as the difference of two gamma functions: the first produces the peak and the second, subtracted from it, produces the undershoot. Their parameters are fixed at standard values. Because the timing of the BOLD response varies somewhat across voxels and participants, we subtract a weighted copy of the HIRF’s time derivative, which shifts the HIRF slightly earlier or later. This weight, `weight_deriv`, is estimated for each voxel along with the pRF parameters
 
 +++
 
@@ -432,6 +433,13 @@ tags: [hide-input]
 no_deriv_impulse = impulse_model(to_frame(weight_deriv=0.0))[0]
 impulse_frames = np.arange(len(no_deriv_impulse))
 
+# Fix the y-axis to the range of the impulse responses for all values of the slider
+_, deriv_min, deriv_max, deriv_step = PARAM_SLIDERS["weight_deriv"]
+deriv_values = np.arange(deriv_min, deriv_max + deriv_step / 2, deriv_step)
+all_impulses = np.asarray(impulse_model(pd.DataFrame({"weight_deriv": deriv_values})))
+impulse_margin = 0.1 * np.ptp(all_impulses)
+impulse_limits = (all_impulses.min() - impulse_margin, all_impulses.max() + impulse_margin)
+
 
 def plot_impulse(weight_deriv: float) -> None:
     impulse = impulse_model(to_frame(weight_deriv=weight_deriv))[0]
@@ -441,6 +449,7 @@ def plot_impulse(weight_deriv: float) -> None:
     ax.axhline(0.0, color="#bdbdbd", linewidth=1)
     ax.plot(impulse_frames, no_deriv_impulse, color=GRAY, linestyle="--", linewidth=1.5, label="weight_deriv = 0")
     ax.plot(impulse_frames, impulse, color=BLUE, linewidth=2, label=f"weight_deriv = {weight_deriv:.1f}")
+    ax.set_ylim(impulse_limits)
     add_legend(ax)
     ax.set_title("Impulse response", loc="left")
     style_axes(ax, "Time frame", "Predicted impulse response")
