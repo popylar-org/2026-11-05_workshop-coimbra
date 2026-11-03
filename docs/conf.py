@@ -15,6 +15,7 @@ author = "The Popylar Team"
 extensions = [
     "myst_nb",
     "sphinx_copybutton",
+    "sphinxcontrib.mermaid",
     "solutions",
     "colab_notebooks",
 ]
@@ -41,6 +42,12 @@ myst_heading_anchors = 3
 nb_execution_mode = "off"
 # Shell commands such as `!pip install` are not valid Python and cannot be highlighted.
 suppress_warnings = ["misc.highlighting_failure"]
+
+# -- Mermaid -----------------------------------------------------------------
+
+# Scale diagrams to the width of the page instead of a fixed height; they are small enough to not need fullscreen.
+mermaid_height = "auto"
+mermaid_fullscreen = False
 
 # -- HTML output -------------------------------------------------------------
 
