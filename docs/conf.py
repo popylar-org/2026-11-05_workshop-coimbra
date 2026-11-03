@@ -81,7 +81,7 @@ colab_branch = "gh-pages"
 colab_notebook_dir = "notebooks"
 # Modules that the notebooks import; copied next to the notebooks and downloaded by a cell that is inserted before
 # the first import of the module in every notebook in the same directory.
-colab_modules = ["workshop/plotting_helpers.py"]
+colab_modules = ["workshop/plotting_helpers.py", "workshop/helpers.py", "workshop/dataset.py"]
 
 # -- Versions (see poly.py) --------------------------------------------------
 

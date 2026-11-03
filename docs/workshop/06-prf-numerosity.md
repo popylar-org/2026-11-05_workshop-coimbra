@@ -131,14 +131,15 @@ Now that we have the stimulus, we load the recorded BOLD responses of a single s
 ```{code-cell} ipython3
 import pickle
 
+from dataset import Dataset
 from prfmodel.examples import load_dataset
 
 # Downloads on first use and caches in a user data directory (see prfmodel.examples.get_data_dir)
 example_data = load_dataset("numerosity-four-conditions")
 
-# The responses are stored as a Dataset object, which is defined in the module dataset.py
+# Loading the Dataset object requires its definition from the module dataset.py
 with example_data.files["responses"].open("rb") as f:
-    dataset = pickle.load(f)
+    dataset: Dataset = pickle.load(f)
 
 {condition: response.shape for condition, response in dataset.responses.items()}  # One timecourse per voxel
 ```
@@ -319,48 +320,150 @@ pd.Series(roi_index_valid).value_counts().sort_index().rename(index=roi_mapping)
 
 ### Inspecting the data
 
-Before we fit the pRF model, we inspect the BOLD response timecourses of the vertices in one numerosity map, the left NumTO. The figure below shows the timecourse of every tenth vertex in the map; use the slider or the play button to go through them. Note that the unit of the time frames is the repetition time (TR), which is 2.1 seconds for this dataset.
+Before we fit the pRF model, we inspect the BOLD response timecourses of the vertices in the numerosity maps. To explore the data and, later, the model, we use interactive figures. The code that creates the figures is hidden: Run a hidden cell to show its figure and use the sliders and dropdown menus to change what it shows. The figure updates when you release a slider. You can expand a hidden cell if you are curious about its code.
+
+The first hidden cell defines helper functions for the interactive figures. Some of them are shared by all practicals and are imported from the module `plotting_helpers.py`, which lies next to this notebook.
 
 ```{code-cell} ipython3
-import plotly.express as px
-import plotly.io as pio
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Helper functions for the interactive figures { display-mode: "form" }
+import ipywidgets as widgets
+import matplotlib.pyplot as plt
+from plotting_helpers import BLUE, GRAY, make_slider, show_interactive, style_axes, to_frame
 
-pio.renderers.default = "notebook_connected"  # Requires an internet connection
-pio.templates.default = "simple_white"
+# Numerosity shown at each time frame of a stimulus cycle (the first cycle after the six pre-scan frames)
+cycle_frames = np.arange(n_timepoints)
+cycle_numerosity = unique_numerosities[stimulus.design[6:6 + n_timepoints].argmax(axis=1)]
 
-# Responses of the vertices in the left NumTO (ROI label 1)
-roi_response = vertex_response[roi_index_valid == 1]
+# Indices of the valid vertices in each ROI
+vertices_per_roi = {label: np.flatnonzero(roi_index_valid == label) for label in roi_mapping}
 
-fig = px.line(
-    roi_response[::10].T,  # Every tenth vertex
-    animation_frame="variable",
-    range_x=(0, 44),
-    range_y=(-1.5, 1.5),
-    labels={
-        "index": "Time frame (in TR)",
-        "value": "BOLD response (in PSC)",
-        "variable": "Vertex",
-    },
-    title="BOLD response of vertices in lh_NumTO",
-)
+# Starting value, minimum, maximum, and step size of the slider for each parameter
+PARAM_SLIDERS = {
+    "mu": (1.1, 0.0, 3.0, 0.05),
+    "sigma": (0.5, 0.1, 3.0, 0.05),
+    "weight_deriv": (-0.5, -2.0, 2.0, 0.1),
+}
+START_VALUES = {name: value for name, (value, *_) in PARAM_SLIDERS.items()}
 
-# Show each vertex for 900 ms with a transition of 400 ms
-fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 900
-fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 400
 
-fig.update_layout(showlegend=False, height=450)
-fig.show()
+def make_sliders(*names: str) -> dict[str, widgets.FloatSlider]:
+    """Create a slider for each parameter."""
+    return {name: make_slider(name, *PARAM_SLIDERS[name]) for name in names}
+
+
+def make_vertex_widgets(slider_name: str) -> dict[str, widgets.ValueWidget]:
+    """Create a dropdown menu to select an ROI and a slider to select a vertex in the ROI."""
+    roi_dropdown = widgets.Dropdown(
+        options=[(name, label) for label, name in roi_mapping.items()], value=1, description="roi",
+    )
+    vertex_slider = widgets.IntSlider(
+        value=0, min=0, max=len(vertices_per_roi[1]) - 1, description=slider_name, continuous_update=False,
+    )
+
+    def update_slider_range(change: dict) -> None:
+        vertex_slider.max = len(vertices_per_roi[change["new"]]) - 1
+
+    # Observing the dropdown before the figure does updates the slider range before the figure is redrawn
+    roi_dropdown.observe(update_slider_range, names="value")
+
+    return {"roi": roi_dropdown, slider_name: vertex_slider}
+
+
+def draw_stimulus(ax: plt.Axes) -> None:
+    """Draw the numerosity shown at each time frame of a stimulus cycle."""
+    ax.step(cycle_frames, cycle_numerosity, where="mid", color="#595959", linewidth=1.5)
+    ax.set_yscale("log")
+    ax.set_yticks([1, 7, 20], labels=["1", "7", "20"])
+    ax.minorticks_off()
+    ax.tick_params(labelbottom=False)
+    style_axes(ax, "", "Numerosity")
+
+
+def draw_response_axes(response_ax: plt.Axes, stimulus_ax: plt.Axes, title: str) -> None:
+    """Style the response axes and place the title and legend above the stimulus."""
+    response_ax.axhline(0.0, color="#bdbdbd", linewidth=1)
+    style_axes(response_ax, "Time frame (in TR)", "BOLD response (in PSC)")
+    stimulus_ax.set_title(title, loc="left")
+    handles, labels = response_ax.get_legend_handles_labels()
+    if handles:
+        stimulus_ax.legend(
+            handles, labels, frameon=False, loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, borderaxespad=0.2,
+        )
+
+
+def draw_prf(ax: plt.Axes, mu: float, sigma: float) -> None:
+    """Draw the pRF as a Gaussian in log-numerosity space and mark the numerosities of the stimulus on it."""
+    numerosities = np.geomspace(0.5, 40.0, 300)
+    ax.plot(numerosities, np.exp(-((np.log(numerosities) - mu) ** 2) / (2 * sigma**2)), color=BLUE, linewidth=2)
+    ax.plot(
+        unique_numerosities,
+        np.exp(-((unique_log_numerosities - mu) ** 2) / (2 * sigma**2)),
+        "o",
+        color=GRAY,
+        markersize=6,
+    )
+    ax.set_xscale("log")
+    ax.set_xticks(unique_numerosities, labels=unique_numerosities.astype(int))
+    ax.minorticks_off()
+    ax.set_ylim(-0.05, 1.1)
+    style_axes(ax, "Numerosity (log scale)", "Tuning (relative to peak)")
+
+
+def make_prf_response_figure() -> dict[str, plt.Axes]:
+    """Create a figure with the pRF on the left and the stimulus above the BOLD response on the right."""
+    _, axes = plt.subplot_mosaic(
+        [["prf", "stimulus"], ["prf", "response"]],
+        figsize=(12, 4.5),
+        width_ratios=[1.3, 2.5],
+        height_ratios=[1, 3],
+        layout="constrained",
+    )
+    axes["stimulus"].sharex(axes["response"])
+    draw_stimulus(axes["stimulus"])
+    return axes
 ```
 
-> **Exercise 4:** Go through the timecourses of the vertices. Which patterns do you see and how do they relate to the stimulus? Do they match your expectations from Exercise 1?
+The figure below shows the BOLD response timecourse of a single vertex in a numerosity map together with the numerosity that is shown at each time frame of the stimulus cycle. Select the numerosity map with the `roi` dropdown menu and go through its vertices with the `vertex` slider. Note that the unit of the time frames is the repetition time (TR), which is 2.1 seconds for this dataset.
+
+```{code-cell} ipython3
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Interactive figure: BOLD response of the vertices in a numerosity map { display-mode: "form" }
+def plot_vertex_response(roi: int, vertex: int) -> None:
+    vertices = vertices_per_roi[roi]
+    vertex_index = vertices[min(vertex, len(vertices) - 1)]
+
+    _, (ax_stimulus, ax_response) = plt.subplots(
+        2, 1, figsize=(12, 4.5), sharex=True, height_ratios=[1, 3], layout="constrained",
+    )
+
+    draw_stimulus(ax_stimulus)
+    ax_response.plot(cycle_frames, vertex_response[vertex_index], color=BLUE, linewidth=2)
+    draw_response_axes(ax_response, ax_stimulus, f"{roi_mapping[roi]}: vertex {vertex} of {len(vertices) - 1}")
+
+    plt.show()
+
+
+show_interactive(plot_vertex_response, make_vertex_widgets("vertex"))
+```
+
+> **Exercise 4:** Go through the timecourses of the vertices in the left NumTO (`lh_NumTO`). Which patterns do you see and how do they relate to the stimulus? Do they match your expectations from Exercise 1?
 
 +++
 
-> **Exercise 5:** Plot the timecourses of the vertices in another numerosity map, for example, the left NumF (ROI label 6). How do they compare to the timecourses in the left NumTO?
+> **Exercise 5:** Select another numerosity map in the `roi` dropdown menu, for example, the left NumF (`lh_NumF`). How do the timecourses compare to the timecourses in the left NumTO?
 
-```{code-cell} ipython3
-# Your code goes here
-```
++++
 
 ### Defining the pRF model
 
@@ -390,18 +493,38 @@ impulse_response = impulse_model(impulse_params)
 impulse_response.shape  # One value per time frame of the impulse response
 ```
 
-We plot the predicted impulse response.
+The figure below shows the impulse response for the `weight_deriv` that you set with the slider. The dashed gray line shows the impulse response without the derivative (i.e., `weight_deriv = 0`).
 
 ```{code-cell} ipython3
-fig = px.line(
-    x=np.arange(impulse_response.shape[1]),
-    y=impulse_response[0],
-    labels={"x": "Time frame (in TR)", "y": "Predicted impulse response"},
-    title="Impulse response",
-)
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Interactive figure: Impulse response { display-mode: "form" }
+from plotting_helpers import add_legend
 
-fig.update_layout(height=450)
-fig.show()
+no_deriv_impulse = impulse_model(to_frame(weight_deriv=0.0))[0]
+impulse_frames = np.arange(len(no_deriv_impulse))
+
+
+def plot_impulse(weight_deriv: float) -> None:
+    impulse = impulse_model(to_frame(weight_deriv=weight_deriv))[0]
+
+    fig, ax = plt.subplots(figsize=(8, 3.8), layout="constrained")
+
+    ax.axhline(0.0, color="#bdbdbd", linewidth=1)
+    ax.plot(impulse_frames, no_deriv_impulse, color=GRAY, linestyle="--", linewidth=1.5, label="weight_deriv = 0")
+    ax.plot(impulse_frames, impulse, color=BLUE, linewidth=2, label=f"weight_deriv = {weight_deriv:.1f}")
+    add_legend(ax)
+    ax.set_title("Impulse response", loc="left")
+    style_axes(ax, "Time frame (in TR)", "Predicted impulse response")
+
+    plt.show()
+
+
+show_interactive(plot_impulse, make_sliders("weight_deriv"))
 ```
 
 We insert the impulse model into the pRF model.
@@ -470,60 +593,65 @@ def average_cycles_and_detrend(
 prf_model.call = average_cycles_and_detrend(prf_model.call)
 ```
 
-To see what the processed predictions look like, we predict the response for each numerosity in the stimulus as the preferred numerosity (i.e., `mu` is the log numerosity) with the same pRF size `sigma`.
+To see what the processed predictions look like, we make a prediction with a set of starting parameters. The pRF prefers a numerosity of about 3 ($\exp(1.1) \approx 3.0$).
 
 ```{code-cell} ipython3
-num_numerosities = len(unique_log_numerosities)
-
-# One row of parameters for every numerosity in the stimulus
 start_params = pd.DataFrame(
     {
-        "mu": unique_log_numerosities,
-        "sigma": [1.0] * num_numerosities,
-        "weight_deriv": [-0.5] * num_numerosities,
-        "baseline": [0.0] * num_numerosities,
-        "amplitude": [1.0] * num_numerosities,
+        "mu": [1.1],
+        "sigma": [0.5],
+        "weight_deriv": [-0.5],
+        "baseline": [0.0],
+        "amplitude": [1.0],
     },
 )
 
 # Make prediction with pRF model
-simulated_response = np.asarray(prf_model(stimulus, start_params))
+simulated_response = prf_model(stimulus, start_params)
 
-simulated_response.shape  # One predicted timecourse of one cycle for every numerosity
+simulated_response.shape  # One predicted timecourse of a stimulus cycle
 ```
 
-The figure below shows the predicted response for one preferred numerosity at a time; use the slider or the play button to go through them.
+The figure below shows the pRF in numerosity space (left) and the predicted BOLD response for one stimulus cycle (right). The gray dots on the pRF mark the numerosities of the stimulus. The dashed gray line shows the prediction for the starting parameters above. Use the sliders to see how the parameters shape the predicted BOLD response. We keep `baseline` and `amplitude` fixed: Detrending removes the mean of the prediction, so `baseline` has no effect, and `amplitude` only scales the prediction.
 
 ```{code-cell} ipython3
-fig = px.line(
-    pd.DataFrame(simulated_response.T, columns=unique_numerosities.astype(int)),
-    animation_frame="variable",
-    range_x=(0, 44),
-    labels={
-        "index": "Time frame (in TR)",
-        "value": "Predicted BOLD response",
-        "variable": "Preferred numerosity",
-    },
-    title="Predicted BOLD response for different preferred numerosities",
-)
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Interactive figure: Full model { display-mode: "form" }
+start_response = prf_model(stimulus, to_frame(**START_VALUES, baseline=0.0, amplitude=1.0))[0]
 
-# Show each preferred numerosity for 900 ms with a transition of 400 ms
-fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 900
-fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 400
 
-fig.update_layout(showlegend=False, height=450)
-fig.show()
+def plot_prediction(**params: float) -> None:
+    response = prf_model(stimulus, to_frame(**params, baseline=0.0, amplitude=1.0))[0]
+
+    axes = make_prf_response_figure()
+
+    draw_prf(axes["prf"], params["mu"], params["sigma"])
+    axes["prf"].set_title(f"pRF (preferred numerosity = {np.exp(params['mu']):.1f})", loc="left")
+
+    axes["response"].plot(
+        cycle_frames, start_response, color=GRAY, linestyle="--", linewidth=1.5, label="Starting parameters",
+    )
+    axes["response"].plot(cycle_frames, response, color=BLUE, linewidth=2, label="Current parameters")
+    draw_response_axes(axes["response"], axes["stimulus"], "Predicted BOLD response")
+
+    plt.show()
+
+
+show_interactive(plot_prediction, make_sliders("mu", "sigma", "weight_deriv"))
 ```
 
-> **Exercise 6:** How does the predicted response change with the preferred numerosity? Relate the timing of the peaks in the predicted response to the stimulus design.
+> **Exercise 6:** Move the `mu` slider through the numerosities of the stimulus. How does the predicted response change with the preferred numerosity? Relate the timing of the peaks in the predicted response to the stimulus.
 
 +++
 
-> **Exercise 7:** Predict the responses again with a smaller (e.g., `sigma = 0.3`) and a larger pRF size (e.g., `sigma = 2.0`). How do the predictions change and why?
+> **Exercise 7:** Move the `sigma` slider to a small (e.g., `sigma = 0.2`) and a large value (e.g., `sigma = 2.0`). How does the predicted response change and why?
 
-```{code-cell} ipython3
-# Your code goes here
-```
++++
 
 ### Grid search
 
@@ -682,38 +810,49 @@ r_squared.shape
 # Your code goes here
 ```
 
-In addition to computing the R-squared scores, we compare the predicted against the observed timecourses for individual vertices. We select the vertices in the left NumTO and sort them by their R-squared score. The figure below shows the observed and predicted timecourses of the ten vertices with the highest scores, together with their R-squared score, pRF size (`sigma`), and preferred numerosity. The function `plot_vertex_fits` that creates the figure is defined in the module `helpers.py`, which lies next to this notebook.
+In addition to computing the R-squared scores, we compare the predicted against the observed timecourses for individual vertices. The figure below shows the estimated pRF of a vertex (left) and its observed (gray) and predicted (blue) BOLD response (right). Select the numerosity map with the `roi` dropdown menu. The `rank` slider goes through the vertices of the map sorted by their R-squared score, from the highest score (rank 0) to the lowest.
 
 ```{code-cell} ipython3
-from helpers import plot_vertex_fits
+---
+cellView: form
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
+# @title Interactive figure: Observed and predicted responses { display-mode: "form" }
+# Indices of the valid vertices in each ROI, sorted from the highest to the lowest R-squared score
+vertices_by_r_squared = {
+    label: vertices[np.argsort(r_squared[vertices])[::-1]] for label, vertices in vertices_per_roi.items()
+}
 
-roi_index = 1  # lh_NumTO
-roi_mask = roi_index_valid == roi_index
 
-# Observed and predicted responses, R-squared scores, and parameters of the vertices in the ROI
-vertex_response_roi = vertex_response[roi_mask]
-pred_response_roi = pred_response[roi_mask]
-r_squared_roi = r_squared[roi_mask]
-sgd_params_roi = sgd_params.loc[roi_mask].reset_index(drop=True)
+def plot_vertex_fit(roi: int, rank: int) -> None:
+    vertices = vertices_by_r_squared[roi]
+    vertex_index = vertices[min(rank, len(vertices) - 1)]
+    mu, sigma = sgd_params.loc[vertex_index, ["mu", "sigma"]]
 
-# Indices of the ten vertices with the highest R-squared scores (highest first)
-best_vertices = np.argsort(r_squared_roi)[::-1][:10]
+    axes = make_prf_response_figure()
 
-plot_vertex_fits(
-    observed=vertex_response_roi[best_vertices],
-    predicted=pred_response_roi[best_vertices],
-    r_squared=r_squared_roi[best_vertices],
-    sigma=sgd_params_roi["sigma"].to_numpy()[best_vertices],
-    preferred_numerosity=np.exp(sgd_params_roi["mu"].to_numpy()[best_vertices]),
-    roi_name=roi_mapping[roi_index],
-)
+    draw_prf(axes["prf"], mu, sigma)
+    axes["prf"].set_title(f"pRF (preferred numerosity = {np.exp(mu):.1f},\nsigma = {sigma:.2f})", loc="left")
+
+    axes["response"].plot(cycle_frames, vertex_response[vertex_index], color=GRAY, linewidth=1.5, label="Observed")
+    axes["response"].plot(cycle_frames, pred_response[vertex_index], color=BLUE, linewidth=2, label="Predicted")
+    draw_response_axes(
+        axes["response"],
+        axes["stimulus"],
+        f"{roi_mapping[roi]}, rank {rank} of {len(vertices) - 1}: R-squared = {r_squared[vertex_index]:.2f}",
+    )
+
+    plt.show()
+
+
+show_interactive(plot_vertex_fit, make_vertex_widgets("rank"))
 ```
 
-> **Exercise 12:** Plot the observed and predicted timecourses of the ten vertices in the left NumTO with the *lowest* R-squared scores. Why does the model not fit well for these vertices?
+> **Exercise 12:** Move the `rank` slider to the vertices with the lowest R-squared scores in the left NumTO (i.e., the highest ranks). Why does the model not fit well for these vertices? Do you see differences between the numerosity maps?
 
-```{code-cell} ipython3
-# Your code goes here
-```
++++
 
 ## Interpreting the model parameters
 
