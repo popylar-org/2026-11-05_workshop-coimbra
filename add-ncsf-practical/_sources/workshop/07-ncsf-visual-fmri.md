@@ -1064,9 +1064,8 @@ style_axes(ax, "Eccentricity of the template atlas (in degrees)", "Median peak S
 ## Summary
 
 - The nCSF model describes to which SFs and contrasts a neuron population responds. Its tuning model combines a CSF (an asymmetric log-parabola with the parameters `cs_peak`, `sf_peak`, and `width_r`) with a contrast response function (a Naka-Rushton function with the exponent `slope_crf`).
-- Unlike pRF models, the nCSF model does not need a stimulus grid or a stimulus encoding step: The stimulus only describes the SF and contrast of a full-screen grating at every time frame.
+- Unlike pRF models, the nCSF model does not need a stimulus grid or a stimulus encoding step. The stimulus only describes the SF and contrast of a full-screen grating at every time frame.
 - We fit the nCSF model with the same stages as pRF models: grid search, least-squares, and SGD. During SGD, we keep the CSF parameters between bounds, because the data hardly constrain them beyond the range of SFs and contrasts in the stimulus.
-- The model can only be fitted to vertices that respond to the stimulus. Large parts of V1 and V2 represent the visual field beyond the screen and are not driven by the gratings.
 - The estimated CSFs differ between visual areas and across the visual field: The peak SF is highest in early visual cortex and decreases with eccentricity.
 
 ## References

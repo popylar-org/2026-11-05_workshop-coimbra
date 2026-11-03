@@ -46,10 +46,9 @@ pd.set_option("display.precision", 3)
 
 ## The canonical Gaussian CF model
 
-A connective field (CF) model maps the recorded activity of one neuron population (source) to the recorded activity of another
-neuron population (target). Both neuron populations can be located in different brain areas (i.e., regions of interest; ROIs). In this example, we use the canonical CF model adapted from Haak et al. (2013) where the CF is defined in the ROI of the source population, for example, V1 in the visual cortex. It is centered on the location of the neuron population whose activity (and the activity of surrounding populations) predicts the activity in the target population best.
+A connective field (CF) model is a topographically informed model of connectivity between neuronal populations. It tries to find the patch within a source region (the CF) that best explains the signal in a target population. You can think of this as an adaptation of traditional PRF models, where this source ROI replaces the stimulus space as the space in which the PRF/CF is defined. In this example, we use the canonical CF model adapted from Haak et al. (2013) where the CF is a 2D Gaussian in V1. Hence, we want to find the 2D Gaussian patch in V1 whose average Gaussian-weighted activity predicts the activity in a given target population best by varying its center location within V1 and size.
 
-In this example, we use V1 as the ROI in which the source populations are located. We map the recorded blood oxygenation level-dependent (BOLD) response from an fMRI experiment of the source populations to *all* other neuron populations in the brain (i.e., one population per vertex on the surface). The BOLD response is recorded while the subject is exposed to an experimental stimulus. In this case, this is a series of bar apertures that move across the visual field on a computer screen. 
+In this example, we map the recorded blood oxygenation level-dependent (BOLD) response from an fMRI experiment of the source populations covered by the CF to all other neuron populations in the brain (i.e., one population per vertex on the surface). The BOLD response is recorded while the subject is exposed to an experimental stimulus. In this case, this is a series of bar apertures that move across the visual field on a computer screen.
 
 +++
 
@@ -166,7 +165,7 @@ The canonical Gaussian CF model gets from input (i.e., source region response an
 2. The *stimulus encoding* computes the overlap between the tuning profile and the recorded neural activity in the source ROI, which gives the predicted target neuron population activity.
 3. The *scaling* adjusts the baseline and amplitude of the predicted BOLD response.
 
-Importantly, the canonical CF model does not have an impulse model to account for the shape of the BOLD measurement. This is because the recorded response in the source region already has the same shape as the response in the target populations.
+Importantly, since both the source and target populations are BOLD signals, there is no need for an impulse model to account for the shape of the HRF
 
 +++
 
@@ -422,7 +421,7 @@ show_interactive(plot_encoding, {"time_frame": time_frame_slider, **make_sliders
 
 ### Scaling models
 
-The encoded response has a certain amplitude (i.e., scale) and a baseline. However, the observed BOLD responses of target neuron populations often differ in their amplitude and baseline from the source region response (e.g., due to differences in the vasculature or in the distance to the receiver coil). To account for these differences, a *scaling* submodel can modify the amplitude and baseline of the predicted response, just like in pRF models.
+The encoded response has a certain amplitude (i.e., scale) and a baseline. However, the observed BOLD responses of target neuron populations often differ in their amplitude and baseline from the source region response. This is mainly because target neuron populations receive input from multiple source regions, perform different computations, and are often less sensitive to the experimental stimulus. To account for these differences, a *scaling* submodel can modify the amplitude and baseline of the predicted response, just like in pRF models.
 
 +++
 
@@ -752,7 +751,7 @@ def fill_valid_vertices(values: np.ndarray) -> np.ndarray:
 plot_surf_stat_map_helper(fill_valid_vertices(r_squared), vmin=0.0, vmax=1.0, title="Variance explained (R-squared)");
 ```
 
-Vertices far outside the visual cortex, for example, in the motor or auditory cortex, reach R-squared scores of about 0.3, although they do not respond to the visual stimulus. The grid search picks the best of 29,390 predictions for every vertex, so some prediction always matches the noise in a timecourse to some degree. Such vertices often have the smallest CF size in the grid because a CF that only includes a single (noisy) V1 vertex can follow the noise more closely than a larger CF that averages over many V1 vertices.
+Vertices far outside the visual cortex reach R-squared scores of about 0.3, although they do not respond to the visual stimulus. The grid search picks the best of 29,390 predictions for every vertex, so some prediction always matches the noise in a timecourse to some degree. Such vertices often have the smallest CF size in the grid because a CF that only includes a single (noisy) V1 vertex can follow the noise more closely than a larger CF that averages over many V1 vertices.
 
 We also compare the predicted against the observed timecourses for a few vertices with `prfmodel.plotting.plot_observed_predicted`. We pick the vertex with the median R-squared score in each of V2, V3, and V4.
 

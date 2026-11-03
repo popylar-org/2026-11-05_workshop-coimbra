@@ -295,7 +295,7 @@ r_squared_train.shape
 
 ## Same stimulus, new session
 
-To assess the out-of-sample model fit, we first evaluate its predictions on the first run of the second session. The subject saw exactly the same stimulus as in the training run. What differs is the noise in the measurement and everything that changes between sessions, for example, the position of the head in the scanner, the alignment of the data to the anatomy, and the state of the subject. This tells us whether the model captures a pattern in the responses that we can reproduce in a new measurement, and not just the noise of the training run.
+To assess the out-of-sample model fit, we evaluate its predictions on the first run of the second session. The subject saw exactly the same stimulus as in the training run, so this tests two things. First, the measurement noise in this run is independent of the training run. A model that captures a reproducible response pattern will still predict the data well, but a model that has fit mainly noise will not. Second, the run comes from a separate session, so it only matches the training data if both sessions are well aligned to the same anatomy. If they are not, the test voxels no longer correspond to the training voxels and the generalization performance drops sharply, even for a good model.
 
 We load the dataset for this run using the `split` argument.
 

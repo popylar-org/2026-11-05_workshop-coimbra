@@ -1539,9 +1539,8 @@ R(t) = \frac{C(t)^q}{C(t)^q + Q(f(t))^q}
 <h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>The nCSF model describes to which SFs and contrasts a neuron population responds. Its tuning model combines a CSF (an asymmetric log-parabola with the parameters <code class="docutils literal notranslate"><span class="pre">cs_peak</span></code>, <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code>, and <code class="docutils literal notranslate"><span class="pre">width_r</span></code>) with a contrast response function (a Naka-Rushton function with the exponent <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code>).</p></li>
-<li><p>Unlike pRF models, the nCSF model does not need a stimulus grid or a stimulus encoding step: The stimulus only describes the SF and contrast of a full-screen grating at every time frame.</p></li>
+<li><p>Unlike pRF models, the nCSF model does not need a stimulus grid or a stimulus encoding step. The stimulus only describes the SF and contrast of a full-screen grating at every time frame.</p></li>
 <li><p>We fit the nCSF model with the same stages as pRF models: grid search, least-squares, and SGD. During SGD, we keep the CSF parameters between bounds, because the data hardly constrain them beyond the range of SFs and contrasts in the stimulus.</p></li>
-<li><p>The model can only be fitted to vertices that respond to the stimulus. Large parts of V1 and V2 represent the visual field beyond the screen and are not driven by the gratings.</p></li>
 <li><p>The estimated CSFs differ between visual areas and across the visual field: The peak SF is highest in early visual cortex and decreases with eccentricity.</p></li>
 </ul>
 </section>

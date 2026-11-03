@@ -5,6 +5,18 @@
   margin-right: 0.5em;
 }
 
+/* Mermaid diagrams are rendered inside a <pre>, which should not look like a code block */
+
+pre.mermaid {
+  background-color: transparent;
+  border: none;
+}
+
+/* sphinxcontrib-mermaid already switches to the dark Mermaid theme, so the theme must not also invert the colors */
+html[data-theme="dark"] pre.mermaid > svg {
+  filter: none;
+}
+
 /* Exercises (see _highlight_exercises in _ext/colab_notebooks.py) */
 
 .admonition.exercise {
