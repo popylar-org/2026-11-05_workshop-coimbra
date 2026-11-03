@@ -242,30 +242,9 @@
   </li>
   <li>
     <a class="dropdown-item polyversion-item"
-       href="../../add-connective-field/">
+       href="../../add-ncsf-practical/">
       <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-connective-field</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-first-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-first-practical</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-second-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-second-practical</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-third-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-third-practical</span>
+      <span class="polyversion-name">add-ncsf-practical</span>
     </a>
   </li>
   <li>
@@ -435,7 +414,7 @@
 <p><strong>Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.</strong></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow]==0.1.0"</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow]==0.2.0"</span>
 </pre></div>
 </div>
 </div>
@@ -527,7 +506,7 @@ get an overview of the stimulus with <code class="docutils literal notranslate">
 </pre></div>
 </div>
 <p>The design matrix has the shape (340, 128, 128). The first dimension contains the 340 time frames of the experiment (one frame per 0.9 seconds, see <code class="docutils literal notranslate"><span class="pre">frame_duration</span></code>). The other two dimensions are the 128 × 128 cells of the visual field in the order y, x (see <code class="docutils literal notranslate"><span class="pre">dimension_labels</span></code>). The values lie between 0 and 1 and indicate for how much of a time frame a cell is covered by the bar (0: not covered, 1: covered during the whole time frame). The design matrix averages the images shown on the screen over each time frame. Because the bar moves by about 6 cells per time frame, cells at its leading and trailing edges are covered only for part of the frame, which creates gradual ramps at the edges. In some time frames, the whole bar has a value of about 0.93 because it was not shown during a short part of the frame.</p>
-<p>The grid has the shape (128, 128, 2). For every cell of the design matrix, it contains the y- and x-coordinate in degrees of visual angle. The coordinates run from about -4 to 4 degrees in both directions, so the stimulus covers 8 × 8 degrees of the visual field.</p>
+<p>The grid has the shape (128, 128, 2). For every cell of the design matrix, it contains the y- and x-coordinate in degrees of visual angle. The coordinates run from about -4 to 4 degrees in both directions, so the design matrix covers 8 × 8 degrees of the visual field. However, the bar only covers a part of it (see Exercise 3).</p>
 </details><div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
@@ -556,6 +535,7 @@ coordinates as a video.</p>
 <details class="solution">
 <summary>Solution</summary>
 <p>Every frame of the video shows one time frame of the design matrix (its first dimension), and the image shows the cells of the visual field (its second and third dimension: y and x). The axes of the video show the grid coordinates, which range from about -4 to 4 degrees of visual angle in both directions. Bright cells are covered by the bar. The bar sweeps across the visual field in four directions (top to bottom, left to right, bottom to top, right to left), with blank periods in between. After a long blank period in the middle of the run, the four sweeps are repeated in the reverse order.</p>
+<p>The video also shows that the bar never reaches the top and bottom of the design matrix: It only covers about -2.8 to 2.8 degrees vertically (and -3.9 to 3.9 degrees horizontally). The stimulus was shown on a rectangular screen, and the cells above and below it are never stimulated. Thus, the design matrix is larger than the part of the visual field that is covered by the stimulus.</p>
 </details><div class="exercise admonition">
 <p class="admonition-title">Exercise 4</p>
 <p>What do you expect the activity of a neuron population that responds to this stimulus to look like?</p>
@@ -563,7 +543,38 @@ coordinates as a video.</p>
 <details class="solution">
 <summary>Solution</summary>
 <p>A neuron population only responds when the bar covers the part of the visual field that it is sensitive to (its pRF). We therefore expect a short burst of activity every time the bar passes over the pRF, that is, one burst per sweep, and no activity during the blank periods. The timing of the bursts within the sweeps depends on the location of the pRF. For example, a pRF in the upper visual field is crossed early in the top-to-bottom sweep and late in the bottom-to-top sweep. The duration of the bursts depends on the size of the pRF: A large pRF overlaps with the bar for longer than a small one.</p>
-</details></section>
+</details><p>The design matrix and grid are square and span about -4 to 4 degrees in both directions. However, the stimulus was shown on a rectangular screen that is wider than it is tall, so the bar never reaches the top and bottom of the design matrix. The cells outside the screen are never stimulated. Therefore, we crop the design matrix and grid to the cells that the bar covers in at least one time frame.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.stimuli</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRFStimulus</span>
+
+<span class="c1"># Cells that the bar covers in at least one time frame lie on the screen</span>
+<span class="n">is_on_screen</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+
+<span class="c1"># The screen is a rectangle, so we keep the rows (y) and columns (x) of the design matrix between its edges</span>
+<span class="n">rows_on_screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">is_on_screen</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">cols_on_screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">is_on_screen</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">rows_on_screen</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rows_on_screen</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">cols_on_screen</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cols_on_screen</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">stimulus</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[:,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+    <span class="n">frame_duration</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">frame_duration</span><span class="p">,</span>
+    <span class="n">dimension_labels</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">dimension_labels</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">stimulus</span><span class="p">)</span>
+
+<span class="c1"># The grid stores y in grid[..., 0] and x in grid[..., 1]</span>
+<span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">x_min</span><span class="p">),</span> <span class="p">(</span><span class="n">y_max</span><span class="p">,</span> <span class="n">x_max</span><span class="p">)</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Screen: x from </span><span class="si">{</span><span class="n">x_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">x_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> degrees, y from </span><span class="si">{</span><span class="n">y_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">y_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> degrees"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="building-the-model-step-by-step">
 <h3>Building the model step by step<a class="headerlink" href="#building-the-model-step-by-step" title="Link to this heading">#</a></h3>
 <p>The pRF is the part of the stimulus feature space that stimulates activity of the neuron population. The pRF model takes
@@ -1365,7 +1376,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 </div>
 <details class="solution">
 <summary>Solution</summary>
-<p>You can reach an R-squared of about 0.85, for example, with <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> = 0.7, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> = 2.3, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> = 0.9, <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> = -0.5, <code class="docutils literal notranslate"><span class="pre">baseline</span></code> = 0.1, and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> = 0.11. With <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> = 0, the R-squared increases to about 0.9. For comparison, the grid search and least-squares below reach an R-squared of 0.84 for this voxel.</p>
+<p>You can reach an R-squared of about 0.85, for example, with <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> = 0.7, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> = 2.3, <code class="docutils literal notranslate"><span class="pre">sigma</span></code> = 0.9, <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> = -0.5, <code class="docutils literal notranslate"><span class="pre">baseline</span></code> = 0.1, and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> = 0.11. With <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> = 0, the R-squared increases to about 0.9. For comparison, the grid search and least-squares below reach an R-squared of 0.85 for this voxel.</p>
 <ul class="simple">
 <li><p><strong>Easy:</strong> The pRF center determines <em>when</em> the peaks occur. The horizontal bar (top to bottom and bottom to top) crosses the pRF at a time that depends on <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and the vertical bar at a time that depends on <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>. Because each bar orientation moves in both directions, moving the center shifts the peaks of the two opposite sweeps in opposite directions in time. <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> are also easy because they only shift and scale the prediction.</p></li>
 <li><p><strong>Hard:</strong> <code class="docutils literal notranslate"><span class="pre">sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> trade off against each other (Exercise 12): A larger <code class="docutils literal notranslate"><span class="pre">sigma</span></code> makes the peaks broader and lower, which a larger <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> can compensate. Only the width of the peaks distinguishes the two, and the noise makes the width hard to judge. <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> shifts all peaks slightly in the same direction in time and changes their shape, which is easy to confuse with small changes of the center and size.</p></li>
@@ -1374,7 +1385,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <section id="grid-search">
 <h3>Grid search<a class="headerlink" href="#grid-search" title="Link to this heading">#</a></h3>
 <p>We fit the canonical Gaussian 2D pRF model in two stages. In the first stage, we perform a “brute-force” grid search to find good estimates for the parameters of the pRF tuning profile (i.e., <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code>).</p>
-<p>For the grid search, we define ranges of <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> that we want to construct a grid of parameter values from. We create them from the stimulus with <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.grid_values_2d_prf</span></code>. Here, the values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> span twice the visual field covered by the stimulus (<code class="docutils literal notranslate"><span class="pre">mu_extent=2.0</span></code>). Later, we will filter out voxels for which the pRF center lies outside the stimulus grid because their responses cannot be reliably measured by the experiment. The values for <code class="docutils literal notranslate"><span class="pre">sigma</span></code> are log-spaced between 0.05 and 4 degrees. We use 21 values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> so that the center (0 degrees) and edges (<span class="math notranslate nohighlight">\(\pm 4\)</span> degrees) of the stimulus land on grid values. If they did not, <code class="docutils literal notranslate"><span class="pre">grid_values_2d_prf</span></code> would warn us and suggest a number of values that aligns them.</p>
+<p>For the grid search, we define ranges of <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> that we want to construct a grid of parameter values from. We create them from the stimulus with <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.grid_values_2d_prf</span></code>. Here, the values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> span twice the visual field covered by the stimulus (<code class="docutils literal notranslate"><span class="pre">mu_extent=2.0</span></code>). Later, we will filter out voxels for which the pRF center lies outside the stimulus grid because their responses cannot be reliably measured by the experiment. The values for <code class="docutils literal notranslate"><span class="pre">sigma</span></code> are log-spaced between 0.05 and 4 degrees. We use 21 values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> so that the center (0 degrees) and edges of the stimulus (about <span class="math notranslate nohighlight">\(\pm 3.9\)</span> degrees for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <span class="math notranslate nohighlight">\(\pm 2.8\)</span> degrees for <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>) land on grid values. If they did not, <code class="docutils literal notranslate"><span class="pre">grid_values_2d_prf</span></code> would warn us and suggest a number of values that aligns them.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">baseline</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, and <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>, we only provide a single value so that they will stay constant across the entire grid.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1452,8 +1463,8 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <details class="solution">
 <summary>Solution</summary>
 <ul class="simple">
-<li><p><strong>pRF centers:</strong> Many centers lie at the edges and corners of the stimulus or in its center. About a quarter of the voxels have a center outside the stimulus, some of them even at the outer edge of the grid (±8 degrees). Most of these voxels only contain noise, or their pRF lies (partly) outside the stimulus, so the data hardly constrain their center.</p></li>
-<li><p><strong>pRF sizes:</strong> The sizes pile up at both ends of the grid: About 19% of the voxels have the smallest size (0.05 degrees) and 13% the largest size (4 degrees). Very small pRFs are typical for voxels that only contain noise: A tiny pRF predicts sharp peaks that can correlate with random fluctuations. More importantly, almost half of the voxels with an R-squared above 0.3 have the largest size of the grid. The best fitting size of these voxels probably lies above 4 degrees, so the range of <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is too small.</p></li>
+<li><p><strong>pRF centers:</strong> Many centers lie at the edges and corners of the stimulus or in its center. Almost half of the voxels (47%) have a center outside the stimulus, most of them above or below it, and some of them even at the outer edge of the grid (about ±7.9 degrees for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and ±5.6 degrees for <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>). Most of these voxels only contain noise, or their pRF lies (partly) outside the stimulus, so the data hardly constrain their center.</p></li>
+<li><p><strong>pRF sizes:</strong> The sizes pile up at both ends of the grid: About 27% of the voxels have the smallest size (0.05 degrees) and 13% the largest size (4 degrees). Very small pRFs are typical for voxels that only contain noise: A tiny pRF predicts sharp peaks that can correlate with random fluctuations. More importantly, almost half of the voxels with an R-squared above 0.3 have the largest size of the grid. The best fitting size of these voxels probably lies above 4 degrees, so the range of <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is too small.</p></li>
 </ul>
 <p>We extend the range of <code class="docutils literal notranslate"><span class="pre">sigma</span></code> to 10 degrees and add a range for <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>. Note that the grid search takes longer because the grid has 3.6 times as many parameter combinations.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extend the range of sigma and add a range for weight_deriv</span>
@@ -1490,11 +1501,11 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Original grid: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">grid_history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">'loss'</span><span class="p">])</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, new grid: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">grid_history_new</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">'loss'</span><span class="p">])</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>On a random subset of 10,000 voxels, the mean loss decreases from -0.222 to -0.233. The two changes help in different ways:</p>
+<p>The mean loss decreases from -0.2209 to -0.2311. The two changes help in different ways:</p>
 <ul class="simple">
-<li><p>Extending <code class="docutils literal notranslate"><span class="pre">sigma</span></code> alone hardly changes the mean loss (-0.223) because most voxels only contain noise. However, it removes the ceiling for most of the well-fitting voxels: Only 5% of them have the new largest size of 10 degrees.</p></li>
+<li><p>Extending <code class="docutils literal notranslate"><span class="pre">sigma</span></code> alone hardly changes the mean loss (-0.2213) because most voxels only contain noise. However, it removes the ceiling for most of the well-fitting voxels: Only 5% of them have the new largest size of 10 degrees.</p></li>
 <li><p>The range for <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> gives most of the improvement. Most of the well-fitting voxels choose <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> = 0, which is again the edge of the grid, so the range could be extended further.</p></li>
-<li><p>A finer grid for the pRF centers (e.g., <code class="docutils literal notranslate"><span class="pre">num_mu=41</span></code>) also lowers the loss slightly (-0.224), but it takes about four times as long.</p></li>
+<li><p>A finer grid for the pRF centers (e.g., <code class="docutils literal notranslate"><span class="pre">num_mu=41</span></code>) also lowers the loss slightly (-0.2224), but it takes about four times as long.</p></li>
 </ul>
 <p>Keep in mind that a larger grid also fits the noise better, so a lower mean loss does not always mean that the estimates are more accurate.</p>
 </details><div class="cell docutils container">
@@ -1834,7 +1845,7 @@ the projection, so that they are ignored.</p>
 </pre></div>
 </div>
 <p>The pRFs are smallest (<code class="docutils literal notranslate"><span class="pre">sigma</span></code> below 1 degree) around the occipital pole and in the calcarine sulcus, that is, in early visual cortex. Further away from the pole, on the dorsal, ventral, and lateral surface of the occipital lobe, where the higher visual areas lie, the pRFs are larger (2 to 3 degrees).</p>
-<p>With a lower threshold of 0.1, about twice as many voxels are selected (6,718 instead of 3,484). The additional voxels extend into higher visual areas and the parietal lobe and mostly have large pRFs, but they also include noisy voxels with very small or arbitrary sizes. With a higher threshold of 0.5, only 2,006 voxels remain, mostly in early visual cortex. The overall pattern stays the same, but the threshold determines how much of the cortex we see and how noisy the map is.</p>
+<p>With a lower threshold of 0.1, about twice as many voxels are selected (6,393 instead of 3,380). The additional voxels extend into higher visual areas and the parietal lobe and mostly have large pRFs, but they also include noisy voxels with very small or arbitrary sizes. With a higher threshold of 0.5, only 1,930 voxels remain, mostly in early visual cortex. The overall pattern stays the same, but the threshold determines how much of the cortex we see and how noisy the map is.</p>
 </details><div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
@@ -1881,7 +1892,7 @@ the projection, so that they are ignored.</p>
 <span class="n">plot_surf_stat_map_helper</span><span class="p">(</span><span class="n">eccentricity_surf</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Eccentricity"</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The eccentricity is lowest (center of the visual field) at the occipital pole and on the posterior surface close to it. It increases with the distance from the pole: forward along the calcarine sulcus in the medial views, and outward on the posterior surface. The stimulus only covers the central 4 degrees (up to about 5.7 degrees in the corners), so we only see the central part of the eccentricity map: Voxels that represent the periphery of the visual field further forward in the calcarine sulcus are not stimulated and therefore not selected.</p>
+<p>The eccentricity is lowest (center of the visual field) at the occipital pole and on the posterior surface close to it. It increases with the distance from the pole: forward along the calcarine sulcus in the medial views, and outward on the posterior surface. The stimulus only covers the central 2.8 degrees vertically and 3.9 degrees horizontally (up to about 4.8 degrees in the corners), so we only see the central part of the eccentricity map: Voxels that represent the periphery of the visual field further forward in the calcarine sulcus are not stimulated and therefore not selected.</p>
 </details><div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
@@ -1896,8 +1907,8 @@ the projection, so that they are ignored.</p>
 <details class="solution">
 <summary>Solution</summary>
 <p>Dumoulin and Wandell (2008) found the classical retinotopic organization of the early visual cortex: Each hemisphere represents the contralateral visual field. In V1, the upper visual field is represented below and the lower visual field above the calcarine sulcus, and the polar angle reverses at the vertical and horizontal meridians, which form the borders between V1, V2, and V3. The eccentricity increases from the occipital pole forward.</p>
-<p>Our polar angle and eccentricity maps agree with these patterns, although our stimulus only covers the central 4 degrees of the visual field, so we can only compare the central part of the maps.</p>
-<p>Dumoulin and Wandell (2008) also found that the pRF size increases with eccentricity within each visual area and from V1 to the higher visual areas. Our size map shows larger pRFs in the higher visual areas (Exercise 24). However, among the selected voxels, the size hardly changes with eccentricity (the mean <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is about 1.7 degrees in all eccentricity bins). This is a consequence of our fitting procedure rather than of the data: The grid only contains 10 sizes, least-squares does not change them, and we excluded the voxels with a size at the ceiling of the grid (4 degrees), which are almost half of the well-fitting voxels. With a grid that extends <code class="docutils literal notranslate"><span class="pre">sigma</span></code> to 10 degrees (Exercise 19), the size increases with eccentricity.</p>
+<p>Our polar angle and eccentricity maps agree with these patterns, although our stimulus only covers the central 3 to 4 degrees of the visual field, so we can only compare the central part of the maps.</p>
+<p>Dumoulin and Wandell (2008) also found that the pRF size increases with eccentricity within each visual area and from V1 to the higher visual areas. Our size map shows larger pRFs in the higher visual areas (Exercise 24). However, among the selected voxels, the size hardly changes with eccentricity (the mean <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is about 1.7 to 1.8 degrees in all eccentricity bins up to 4 degrees). This is a consequence of our fitting procedure rather than of the data: The grid only contains 10 sizes, least-squares does not change them, and we excluded the voxels with a size at the ceiling of the grid (4 degrees), which are almost half of the well-fitting voxels. With a grid that extends <code class="docutils literal notranslate"><span class="pre">sigma</span></code> to 10 degrees (Exercise 19), the size increases with eccentricity.</p>
 </details><div class="exercise admonition">
 <p class="admonition-title">Exercise 28 (optional, advanced)</p>
 <p>Fit the compressive spatial summation (CSS) pRF model (Kay et al., 2013) to the dataset using the same workflow. The CSS pRF model is implemented in the <code class="docutils literal notranslate"><span class="pre">prfmodel.models.prf.Gaussian2DCSSPRFModel</span></code> class. Look at the API documentation of the model class to get more information about its parameters. You can also take a look at the paper by Kay et al. (2013) for more background information.</p>

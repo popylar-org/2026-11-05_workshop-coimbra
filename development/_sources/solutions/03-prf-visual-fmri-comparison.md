@@ -529,7 +529,7 @@ for ax, (name, (label, values)) in zip(axes, additional_parameters.items()):
 - **Suppression (DoG):** The DoG model is only selected for about a hundred voxels. The surround is mostly 2 to 3 times as large as the center, without a clear relation to eccentricity. Some ratios are extremely large (above 10), which means that the surround is hardly constrained for these voxels (see Exercise 18).
 - **Normalization (DN):** The normalization Gaussian is relatively larger for pRFs close to the center of the visual field (median ratio of about 2.3 within 2 degrees) than for pRFs further out (about 1.5 beyond 6 degrees).
 
-These results should be interpreted with caution: pRFs with an eccentricity above about 4 degrees have their center outside the stimulus, so their parameters are poorly constrained (Exercise 14). Moreover, the selection of the DoG and DN models is not reliable for individual voxels (Exercise 15), and the eccentricity bins mix voxels from different visual areas, which can differ in compression and suppression (e.g., compression is stronger in higher visual areas; Kay et al., 2013).
+These results should be interpreted with caution: pRFs with an eccentricity above about 3 to 4 degrees have their center outside the stimulus (which only reaches 2.8 degrees vertically and 3.9 degrees horizontally), so their parameters are poorly constrained (Exercise 14). Moreover, the selection of the DoG and DN models is not reliable for individual voxels (Exercise 15), and the eccentricity bins mix voxels from different visual areas, which can differ in compression and suppression (e.g., compression is stronger in higher visual areas; Kay et al., 2013).
 
 ## Exercise 18
 
@@ -579,7 +579,7 @@ for ax, (name, (params, sigma_name)) in zip(axes, gaussians.items()):
     ax.set(xlabel="x (degrees)", ylabel="y (degrees)", title=f"{name}: {coverage[name][voxel_index]:.0%} inside")
 ```
 
-The surround and normalization Gaussians are much larger than the stimulus: The median `sigma_surround` is 5.6 degrees, and some estimates of `sigma_surround` and `sigma_normalization` reach tens of degrees, although the stimulus only spans 8 × 8 degrees. For the median voxel, only 21% of the DoG surround and 35% of the DN normalization Gaussian lie inside the stimulus. Even for voxels with a pRF center inside the stimulus, only about a third of the DoG surround lies inside. The plotted voxel is one of the more favorable cases: Its pRF lies well inside the stimulus, and still about a third of its surround lies outside.
+The surround and normalization Gaussians are much larger than the stimulus: The median `sigma_surround` is 5.6 degrees, and some estimates of `sigma_surround` and `sigma_normalization` reach tens of degrees, although the stimulus only spans about 7.9 × 5.6 degrees. For the median voxel, only 21% of the DoG surround and 35% of the DN normalization Gaussian lie inside the stimulus. Even for voxels with a pRF center inside the stimulus, only about a third of the DoG surround lies inside. The plotted voxel is one of the more favorable cases: Its pRF lies well inside the stimulus, and still about a third of its surround lies outside.
 
 Thus, the stimulus design does not provide enough information to estimate these Gaussians well. The data only constrain the part of a Gaussian that lies inside the stimulus. A larger, stronger surround can predict almost the same response as a smaller, weaker one, so the size and strength of the surround trade off against each other.
 

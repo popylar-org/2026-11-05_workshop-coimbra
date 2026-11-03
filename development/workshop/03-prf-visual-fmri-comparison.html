@@ -242,30 +242,9 @@
   </li>
   <li>
     <a class="dropdown-item polyversion-item"
-       href="../../add-connective-field/">
+       href="../../add-ncsf-practical/">
       <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-connective-field</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-first-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-first-practical</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-second-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-second-practical</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-third-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-third-practical</span>
+      <span class="polyversion-name">add-ncsf-practical</span>
     </a>
   </li>
   <li>
@@ -427,7 +406,7 @@
 <p><strong>Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.</strong></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow]==0.1.0"</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow]==0.2.0"</span>
 </pre></div>
 </div>
 </div>
@@ -460,6 +439,36 @@
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"7t-aot-visual"</span><span class="p">,</span> <span class="n">surface_type</span><span class="o">=</span><span class="s2">"inflated"</span><span class="p">)</span>
 
 <span class="n">stimulus</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">stimulus</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Like in the first practical, we crop the design matrix and grid to the rectangular screen on which the stimulus was shown, that is, to the cells that the bar covers in at least one time frame.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.stimuli</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRFStimulus</span>
+
+<span class="c1"># Cells that the bar covers in at least one time frame lie on the screen</span>
+<span class="n">is_on_screen</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+
+<span class="c1"># The screen is a rectangle, so we keep the rows (y) and columns (x) of the design matrix between its edges</span>
+<span class="n">rows_on_screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">is_on_screen</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">cols_on_screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">is_on_screen</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">rows_on_screen</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rows_on_screen</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">cols_on_screen</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cols_on_screen</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">stimulus</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[:,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+    <span class="n">frame_duration</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">frame_duration</span><span class="p">,</span>
+    <span class="n">dimension_labels</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">dimension_labels</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">stimulus</span><span class="p">)</span>
+
+<span class="c1"># The grid stores y in grid[..., 0] and x in grid[..., 1]</span>
+<span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">x_min</span><span class="p">),</span> <span class="p">(</span><span class="n">y_max</span><span class="p">,</span> <span class="n">x_max</span><span class="p">)</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Screen: x from </span><span class="si">{</span><span class="n">x_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">x_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> degrees, y from </span><span class="si">{</span><span class="n">y_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">y_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> degrees"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -564,13 +573,21 @@
 <p>We create a separate stimulus for each half that only contains the frames of that half. The stimulus grid stays the same.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.stimuli</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRFStimulus</span>
-
-<span class="n">first_half</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">split</span><span class="p">)</span>  <span class="c1"># Frames 0 to 167</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">first_half</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">split</span><span class="p">)</span>  <span class="c1"># Frames 0 to 167</span>
 <span class="n">second_half</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Frames 168 to 339</span>
 
-<span class="n">stimulus_first</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span><span class="n">design</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[</span><span class="n">first_half</span><span class="p">],</span> <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">dimension_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">])</span>
-<span class="n">stimulus_second</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span><span class="n">design</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[</span><span class="n">second_half</span><span class="p">],</span> <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">dimension_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">])</span>
+<span class="n">stimulus_first</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[</span><span class="n">first_half</span><span class="p">],</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+    <span class="n">frame_duration</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">frame_duration</span><span class="p">,</span>
+    <span class="n">dimension_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">stimulus_second</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[</span><span class="n">second_half</span><span class="p">],</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+    <span class="n">frame_duration</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">frame_duration</span><span class="p">,</span>
+    <span class="n">dimension_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">],</span>
+<span class="p">)</span>
 
 <span class="n">stimulus_first</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">stimulus_second</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">shape</span>
 </pre></div>
@@ -804,6 +821,7 @@
 <span class="n">bar_stimulus</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span>
     <span class="n">design</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bar_positions</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">bar_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">),</span>
     <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+    <span class="n">frame_duration</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">frame_duration</span><span class="p">,</span>
     <span class="n">dimension_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">],</span>
 <span class="p">)</span>
 
@@ -944,9 +962,9 @@ P(t; \mu_x, \mu_y, \sigma) = \sum_{x, y} S(t, x, y) \, G(x, y; \mu_x, \mu_y, \si
 <p>The CSS model raises the stimulus-encoded pRF response to the power of the compression exponent <code class="docutils literal notranslate"><span class="pre">n</span></code> before it is convolved with the impulse response:</p>
 <div class="math notranslate nohighlight">
 \[
-r(t) = g \, P(t; \mu_x, \mu_y, \sigma)^n
+r(t) = P(t; \mu_x, \mu_y, \sigma)^n
 \]</div>
-<p>With <code class="docutils literal notranslate"><span class="pre">n</span></code> below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The model also has a <code class="docutils literal notranslate"><span class="pre">gain</span></code> parameter <span class="math notranslate nohighlight">\(g\)</span> that multiplies the compressed response. It has the same effect as <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, so we fix it to its starting value of 1. The predicted BOLD response <span class="math notranslate nohighlight">\(\hat{y}(t)\)</span> is computed in the same way as for the Gaussian model.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">n</span></code> below 1, the response grows less than linearly with the part of the pRF that is covered by the stimulus. The CSS model of Kay et al. (2013) also has a gain parameter that multiplies the compressed response. It has the same effect as <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, so the CSS model in prfmodel uses <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> instead of a separate gain parameter. The predicted BOLD response <span class="math notranslate nohighlight">\(\hat{y}(t)\)</span> is computed in the same way as for the Gaussian model.</p>
 <p>Move the <code class="docutils literal notranslate"><span class="pre">n</span></code> slider in the figure below to see how the exponent changes the response to the bar and the predicted BOLD response. With <code class="docutils literal notranslate"><span class="pre">n</span></code> equal to 1, the CSS model makes the same predictions as the Gaussian model.</p>
 <div class="cell tag_hide-input docutils container">
 <details class="admonition hide above-input">
@@ -960,7 +978,7 @@ r(t) = g \, P(t; \mu_x, \mu_y, \sigma)^n
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_css</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">plot_model_comparison</span><span class="p">(</span><span class="n">Gaussian2DCSSPRFModel</span><span class="p">,</span> <span class="s2">"CSS"</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">plot_model_comparison</span><span class="p">(</span><span class="n">Gaussian2DCSSPRFModel</span><span class="p">,</span> <span class="s2">"CSS"</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
 
 <span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_css</span><span class="p">,</span> <span class="p">{</span><span class="s2">"n"</span><span class="p">:</span> <span class="n">make_slider</span><span class="p">(</span><span class="s2">"n"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)})</span>
@@ -976,7 +994,7 @@ r(t) = g \, P(t; \mu_x, \mu_y, \sigma)^n
 
 <span class="n">css_model</span> <span class="o">=</span> <span class="n">Gaussian2DCSSPRFModel</span><span class="p">(</span><span class="n">impulse_model</span><span class="o">=</span><span class="n">impulse_model</span><span class="p">)</span>
 
-<span class="c1"># Start from the Gaussian estimates with n = 0.5 and gain = 1</span>
+<span class="c1"># Start from the Gaussian estimates with n = 0.5</span>
 <span class="n">css_init_params</span> <span class="o">=</span> <span class="n">init_css_from_gaussian</span><span class="p">(</span><span class="n">gaussian_params</span><span class="p">)</span>
 
 <span class="n">_</span><span class="p">,</span> <span class="n">css_init_params</span> <span class="o">=</span> <span class="n">LeastSquaresFitter</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">css_model</span><span class="p">,</span> <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus_first</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
@@ -998,7 +1016,7 @@ r(t) = g \, P(t; \mu_x, \mu_y, \sigma)^n
 <span class="n">css_history</span><span class="p">,</span> <span class="n">css_params</span> <span class="o">=</span> <span class="n">css_sgd_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="n">data</span><span class="o">=</span><span class="n">response_first</span><span class="p">,</span>
     <span class="n">init_parameters</span><span class="o">=</span><span class="n">css_init_params</span><span class="p">,</span>
-    <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">"weight_deriv"</span><span class="p">,</span> <span class="s2">"gain"</span><span class="p">],</span>
+    <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">"weight_deriv"</span><span class="p">],</span>
     <span class="n">num_steps</span><span class="o">=</span><span class="n">num_steps</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -1444,7 +1462,7 @@ r(t) = \frac{a A(t) + b}{c N(t) + d} - \frac{b}{d}
 </div>
 <div class="exercise admonition">
 <p class="admonition-title">Exercise 14</p>
-<p>Compute how much the out-of-sample R-squared of each model improves over the Gaussian model for each voxel. Plot the improvement against the eccentricity and the size (<code class="docutils literal notranslate"><span class="pre">sigma</span></code>) of the pRF estimated with the Gaussian model (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_eccentricity</span></code>; averaging the improvement within bins of eccentricity or size makes the pattern easier to see). You can also plot the improvement on the surface with a diverging colormap (e.g., <code class="docutils literal notranslate"><span class="pre">cmap=&quot;RdBu_r&quot;</span></code> with a symmetric color range). For which pRFs do the more complex models make the largest difference? Keep in mind that the stimulus only covers the visual field up to 4 degrees from the center horizontally and vertically: How well can the models describe pRFs with centers outside of this region?</p>
+<p>Compute how much the out-of-sample R-squared of each model improves over the Gaussian model for each voxel. Plot the improvement against the eccentricity and the size (<code class="docutils literal notranslate"><span class="pre">sigma</span></code>) of the pRF estimated with the Gaussian model (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_eccentricity</span></code>; averaging the improvement within bins of eccentricity or size makes the pattern easier to see). You can also plot the improvement on the surface with a diverging colormap (e.g., <code class="docutils literal notranslate"><span class="pre">cmap=&quot;RdBu_r&quot;</span></code> with a symmetric color range). For which pRFs do the more complex models make the largest difference? Keep in mind that the stimulus only covers the visual field up to about 3.9 degrees from the center horizontally and 2.8 degrees vertically: How well can the models describe pRFs with centers outside of this region?</p>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">

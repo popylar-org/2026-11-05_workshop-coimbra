@@ -242,30 +242,9 @@
   </li>
   <li>
     <a class="dropdown-item polyversion-item"
-       href="../../add-connective-field/">
+       href="../../add-ncsf-practical/">
       <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-connective-field</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-first-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-first-practical</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-second-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-second-practical</span>
-    </a>
-  </li>
-  <li>
-    <a class="dropdown-item polyversion-item"
-       href="../../add-third-practical/">
-      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
-      <span class="polyversion-name">add-third-practical</span>
+      <span class="polyversion-name">add-ncsf-practical</span>
     </a>
   </li>
   <li>
@@ -435,7 +414,7 @@
 <p><strong>Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.</strong></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow]==0.1.0"</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow]==0.2.0"</span>
 </pre></div>
 </div>
 </div>
@@ -530,6 +509,37 @@ coordinates as a video.</p>
 <div class="exercise admonition">
 <p class="admonition-title">Exercise 4</p>
 <p>What do you expect the activity of a neuron population that responds to this stimulus to look like?</p>
+</div>
+<p>The design matrix and grid are square and span about -4 to 4 degrees in both directions. However, the stimulus was shown on a rectangular screen that is wider than it is tall, so the bar never reaches the top and bottom of the design matrix. The cells outside the screen are never stimulated. Therefore, we crop the design matrix and grid to the cells that the bar covers in at least one time frame.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.stimuli</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRFStimulus</span>
+
+<span class="c1"># Cells that the bar covers in at least one time frame lie on the screen</span>
+<span class="n">is_on_screen</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+
+<span class="c1"># The screen is a rectangle, so we keep the rows (y) and columns (x) of the design matrix between its edges</span>
+<span class="n">rows_on_screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">is_on_screen</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">cols_on_screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">is_on_screen</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">rows_on_screen</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rows_on_screen</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">cols_on_screen</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cols_on_screen</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">stimulus</span> <span class="o">=</span> <span class="n">PRFStimulus</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">design</span><span class="p">[:,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+    <span class="n">frame_duration</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">frame_duration</span><span class="p">,</span>
+    <span class="n">dimension_labels</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">dimension_labels</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">stimulus</span><span class="p">)</span>
+
+<span class="c1"># The grid stores y in grid[..., 0] and x in grid[..., 1]</span>
+<span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">x_min</span><span class="p">),</span> <span class="p">(</span><span class="n">y_max</span><span class="p">,</span> <span class="n">x_max</span><span class="p">)</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Screen: x from </span><span class="si">{</span><span class="n">x_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">x_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> degrees, y from </span><span class="si">{</span><span class="n">y_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">y_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> degrees"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="building-the-model-step-by-step">
@@ -1243,7 +1253,7 @@ fall inside a (dilated) gray matter mask. We can access the timecourses from the
 <section id="grid-search">
 <h3>Grid search<a class="headerlink" href="#grid-search" title="Link to this heading">#</a></h3>
 <p>We fit the canonical Gaussian 2D pRF model in two stages. In the first stage, we perform a “brute-force” grid search to find good estimates for the parameters of the pRF tuning profile (i.e., <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code>).</p>
-<p>For the grid search, we define ranges of <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> that we want to construct a grid of parameter values from. We create them from the stimulus with <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.grid_values_2d_prf</span></code>. Here, the values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> span twice the visual field covered by the stimulus (<code class="docutils literal notranslate"><span class="pre">mu_extent=2.0</span></code>). Later, we will filter out voxels for which the pRF center lies outside the stimulus grid because their responses cannot be reliably measured by the experiment. The values for <code class="docutils literal notranslate"><span class="pre">sigma</span></code> are log-spaced between 0.05 and 4 degrees. We use 21 values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> so that the center (0 degrees) and edges (<span class="math notranslate nohighlight">\(\pm 4\)</span> degrees) of the stimulus land on grid values. If they did not, <code class="docutils literal notranslate"><span class="pre">grid_values_2d_prf</span></code> would warn us and suggest a number of values that aligns them.</p>
+<p>For the grid search, we define ranges of <code class="docutils literal notranslate"><span class="pre">mu_x</span></code>, <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> that we want to construct a grid of parameter values from. We create them from the stimulus with <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.grid_values_2d_prf</span></code>. Here, the values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> span twice the visual field covered by the stimulus (<code class="docutils literal notranslate"><span class="pre">mu_extent=2.0</span></code>). Later, we will filter out voxels for which the pRF center lies outside the stimulus grid because their responses cannot be reliably measured by the experiment. The values for <code class="docutils literal notranslate"><span class="pre">sigma</span></code> are log-spaced between 0.05 and 4 degrees. We use 21 values for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <code class="docutils literal notranslate"><span class="pre">mu_y</span></code> so that the center (0 degrees) and edges of the stimulus (about <span class="math notranslate nohighlight">\(\pm 3.9\)</span> degrees for <code class="docutils literal notranslate"><span class="pre">mu_x</span></code> and <span class="math notranslate nohighlight">\(\pm 2.8\)</span> degrees for <code class="docutils literal notranslate"><span class="pre">mu_y</span></code>) land on grid values. If they did not, <code class="docutils literal notranslate"><span class="pre">grid_values_2d_prf</span></code> would warn us and suggest a number of values that aligns them.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">baseline</span></code>, <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, and <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>, we only provide a single value so that they will stay constant across the entire grid.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
