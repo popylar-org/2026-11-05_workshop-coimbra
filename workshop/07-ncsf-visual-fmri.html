@@ -1,0 +1,1675 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Practical 7: The neural contrast sensitivity function model &#8212; Popylar Population Receptive Field Modeling Workshop</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=d2ab90ba" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'workshop/07-ncsf-visual-fmri';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Solutions" href="../solutions/index.html" />
+    <link rel="prev" title="Practical 6: The Gaussian 1D population receptive field model for numerosity" href="06-prf-numerosity.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Popylar Population Receptive Field Modeling Workshop</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Overview
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../schedule.html">Schedule</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Workshop materials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-prf-visual-fmri.html">Practical 1: The canonical Gaussian 2D population receptive field model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-prf-visual-fmri-cv.html">Practical 2: Cross-validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-prf-visual-fmri-comparison.html">Practical 3: Model comparison and selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-cf-visual-fmri.html">Practical 4: The canonical Gaussian connective field model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-prf-visual-ecog.html">Practical 5: Population receptive field models for electrocorticography data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-prf-numerosity.html">Practical 6: The Gaussian 1D population receptive field model for numerosity</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Practical 7: The neural contrast sensitivity function model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../solutions/index.html">Solutions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../solutions/01-prf-visual-fmri.html">Practical 1: The canonical Gaussian 2D population receptive field model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../solutions/02-prf-visual-fmri-cv.html">Practical 2: Cross-validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../solutions/03-prf-visual-fmri-comparison.html">Practical 3: Model comparison and selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../solutions/04-cf-visual-fmri.html">Practical 4: The canonical Gaussian connective field model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../solutions/05-prf-visual-ecog.html">Practical 5: Population receptive field models for electrocorticography data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../solutions/06-prf-numerosity.html">Practical 6: The Gaussian 1D population receptive field model for numerosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../solutions/07-ncsf-visual-fmri.html">Practical 7: The neural contrast sensitivity function model</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="article-header-buttons">
+
+
+
+<div class="dropdown polyversion-switcher">
+  <button class="btn polyversion-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          aria-expanded="false" aria-label="Version: main" title="Switch version">
+    <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+    <span class="polyversion-name">main</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end polyversion-menu">
+  <li><h6 class="dropdown-header">Branches</h6></li>
+  <li>
+    <a class="dropdown-item polyversion-item active"
+       href="../" aria-current="true">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">main</span><span class="polyversion-badge">latest</span><i class="fa-solid fa-check polyversion-check" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="dropdown-item polyversion-item"
+       href="../add-ncsf-practical/">
+      <i class="fa-solid fa-code-branch fa-fw" aria-hidden="true"></i>
+      <span class="polyversion-name">add-ncsf-practical</span>
+    </a>
+  </li>
+  </ul>
+</div>
+<script>
+  document.querySelectorAll(".polyversion-item").forEach((item) => {
+    item.addEventListener("click", async (event) => {
+      // Open the current page in the selected version, or its home page if the page does not exist there.
+      event.preventDefault();
+      const versionRoot = new URL(item.getAttribute("href"), window.location.href);
+      const page = new URL("workshop/07-ncsf-visual-fmri.html", versionRoot);
+      try {
+        const response = await fetch(page, { method: "HEAD" });
+        window.location.href = response.ok ? page : versionRoot;
+      } catch {
+        window.location.href = versionRoot;
+      }
+    });
+  });
+</script>
+<a href="https://github.com/popylar-org/2026-11-05_workshop-coimbra" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Practical 7: The neural contrast sensitivity function model</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-neural-contrast-sensitivity-function-model">The neural contrast sensitivity function model</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-spatial-frequency-and-contrast">Input: Spatial frequency and contrast</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-model-step-by-step">Building the model step by step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contrast-sensitivity-function">Contrast sensitivity function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contrast-response-function">Contrast response function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-csf-tuning-model">The CSF tuning model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#impulse-response-and-scaling">Impulse response and scaling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-canonical-model">The full canonical model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model-to-data">Fitting the model to data</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-data">Inspecting the data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-valid-vertices">Selecting valid vertices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid-search">Grid search</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#least-squares">Least-squares</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-gradient-descent">Stochastic gradient descent</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit">Evaluating the model fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="practical-7-the-neural-contrast-sensitivity-function-model">
+<h1>Practical 7: The neural contrast sensitivity function model<a class="headerlink" href="#practical-7-the-neural-contrast-sensitivity-function-model" title="Link to this heading">#</a></h1>
+<p class="colab-links"><a href="https://colab.research.google.com/github/popylar-org/2026-11-05_workshop-coimbra/blob/gh-pages/notebooks/workshop/07-ncsf-visual-fmri.ipynb" target="_blank" rel="noopener"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> <a href="../notebooks/workshop/07-ncsf-visual-fmri.ipynb" download>Download notebook</a></p><p>This is the notebook for the neural contrast sensitivity function practical of the workshop. This practical covers the neural contrast sensitivity function (nCSF) model by Roelofzen et al. (2025), its different computational parts, and how to fit it to empirical data from a visual functional magnetic resonance imaging (fMRI) experiment.</p>
+<p><strong>We recommend going through the <a class="reference internal" href="01-prf-visual-fmri.html"><span class="std std-doc">first practical</span></a> on the canonical Gaussian population receptive field (pRF) model first to get familiar with the prfmodel package before starting with this practical.</strong></p>
+<p>The first part of this practical goes through the nCSF model step-by-step. The model input and output as well as every submodel is motivated and explained with interactive visualizations. The second part is about fitting the model to an empirical dataset obtained with a 7T fMRI scanner. This part covers data inspection and visualization on an inflated surface of the brain. It goes through multiple consecutive fitting stages (grid search, least-squares, and SGD) and concludes with evaluating the model fit and interpreting its parameters.</p>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#installation-and-setup">Installation and Setup</a></p></li>
+<li><p><a class="reference internal" href="#the-neural-contrast-sensitivity-function-model">The neural contrast sensitivity function model</a></p>
+<ul>
+<li><p><a class="reference internal" href="#input-spatial-frequency-and-contrast">Input: Spatial frequency and contrast</a></p></li>
+<li><p><a class="reference internal" href="#building-the-model-step-by-step">Building the model step by step</a></p></li>
+<li><p><a class="reference internal" href="#contrast-sensitivity-function">Contrast sensitivity function</a></p></li>
+<li><p><a class="reference internal" href="#contrast-response-function">Contrast response function</a></p></li>
+<li><p><a class="reference internal" href="#the-csf-tuning-model">The CSF tuning model</a></p></li>
+<li><p><a class="reference internal" href="#impulse-response-and-scaling">Impulse response and scaling</a></p></li>
+<li><p><a class="reference internal" href="#the-full-canonical-model">The full canonical model</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fitting-the-model-to-data">Fitting the model to data</a></p>
+<ul>
+<li><p><a class="reference internal" href="#inspecting-the-data">Inspecting the data</a></p></li>
+<li><p><a class="reference internal" href="#selecting-valid-vertices">Selecting valid vertices</a></p></li>
+<li><p><a class="reference internal" href="#grid-search">Grid search</a></p></li>
+<li><p><a class="reference internal" href="#least-squares">Least-squares</a></p></li>
+<li><p><a class="reference internal" href="#stochastic-gradient-descent">Stochastic gradient descent</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#evaluating-the-model-fit">Evaluating the model fit</a></p></li>
+<li><p><a class="reference internal" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></p></li>
+<li><p><a class="reference internal" href="#summary">Summary</a></p></li>
+<li><p><a class="reference internal" href="#references">References</a></p></li>
+</ul>
+</section>
+<section id="installation-and-setup">
+<h2>Installation and Setup<a class="headerlink" href="#installation-and-setup" title="Link to this heading">#</a></h2>
+<p>First, we need to install prfmodel from PyPI. We install the package with the TensorFlow backend (for more information on the different backends, see the <a class="reference external" href="https://popylar-org.github.io/prfmodel/development/backends.html">Backends</a> section in the package documentation).</p>
+<p><strong>Please make sure to use a GPU instance when installing prfmodel and running this notebook in Colab.</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">"prfmodel[tensorflow]==0.2.0"</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We set the backend to TensorFlow and a default for printing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Set keras backend to 'tensorflow' (this is normally the default)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"KERAS_BACKEND"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"tensorflow"</span>
+<span class="c1"># Print parameter DataFrames with three decimals</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-neural-contrast-sensitivity-function-model">
+<h2>The neural contrast sensitivity function model<a class="headerlink" href="#the-neural-contrast-sensitivity-function-model" title="Link to this heading">#</a></h2>
+<p>The contrast sensitivity function (CSF) is a classic measure of visual function from psychophysics. It describes the lowest contrast of a grating that an observer can perceive (the <em>contrast threshold</em>) as a function of the <em>spatial frequency</em> (SF) of the grating, that is, how many pairs of light and dark stripes fit into one degree of visual angle. Instead of the threshold, the CSF is usually expressed as the <em>contrast sensitivity</em>, which is the inverse of the threshold: When the contrast is given in percent, a threshold of 1% corresponds to a sensitivity of 100. Humans are most sensitive to SFs of a few cycles per degree, and their sensitivity falls off towards lower and, more steeply, towards higher SFs. In ophthalmology, the CSF is used, for example, to detect deficits in visual function.</p>
+<p>Roelofzen et al. (2025) translated the CSF into a model of the blood oxygenation level-dependent (BOLD) response that is similar to a pRF model. The neural CSF (nCSF) model estimates a CSF for the neuron population of every vertex: To which SFs does the population respond, and how much contrast does it need to respond? Whereas a pRF model describes <em>where</em> in the visual field a neuron population responds, the nCSF model describes <em>which</em> visual patterns it responds to.</p>
+<section id="input-spatial-frequency-and-contrast">
+<h3>Input: Spatial frequency and contrast<a class="headerlink" href="#input-spatial-frequency-and-contrast" title="Link to this heading">#</a></h3>
+<p>In this practical, we use the BOLD response of a single subject from Roelofzen et al. (2025), which was recorded with a 7 Tesla MRI scanner. The dataset has the tag <code class="docutils literal notranslate"><span class="pre">7t-ncsf-visual</span></code>. We can get a description of the dataset with <code class="docutils literal notranslate"><span class="pre">prfmodel.examples.describe_dataset</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.examples</span><span class="w"> </span><span class="kn">import</span> <span class="n">describe_dataset</span><span class="p">,</span> <span class="n">load_dataset</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">describe_dataset</span><span class="p">(</span><span class="s2">"7t-ncsf-visual"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The dataset contains two tasks: In the <code class="docutils literal notranslate"><span class="pre">csf</span></code> task, the subject saw gratings with different SFs and contrasts, which we use to fit the nCSF model. In the <code class="docutils literal notranslate"><span class="pre">prf</span></code> task, the subject saw bars that moved through the visual field, which we only need for an optional exercise at the end of this practical. We load the <code class="docutils literal notranslate"><span class="pre">csf</span></code> task for both hemispheres (the default). The response is given for every vertex of a standardized cortical surface from the Human Connectome Project (HCP; Van Essen et al., 2012). Like in the <a class="reference internal" href="04-cf-visual-fmri.html"><span class="std std-doc">fourth practical</span></a>, we also load this surface with the tag <code class="docutils literal notranslate"><span class="pre">hcp-999999-surface</span></code> to visualize the response and the model parameters later.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Downloads on first use and caches in a user data directory (see prfmodel.examples.get_data_dir)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"7t-ncsf-visual"</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">"csf"</span><span class="p">)</span>
+<span class="n">surface</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"hcp-999999-surface"</span><span class="p">,</span> <span class="n">surface_type</span><span class="o">=</span><span class="s2">"inflated"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The stimulus can be accessed through the <code class="docutils literal notranslate"><span class="pre">dataset.stimulus</span></code> attribute.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stimulus</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">stimulus</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">stimulus</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Unlike the stimulus of a pRF model, the stimulus of a CSF model has no design matrix and no grid. Every time frame shows a grating that covers the entire screen, so we do not need to describe which part of the visual field is stimulated. Instead, the stimulus describes the <em>features</em> of the grating at every time frame: its SF (<code class="docutils literal notranslate"><span class="pre">stimulus.sf</span></code>, in cycles per degree) and its Michelson contrast (<code class="docutils literal notranslate"><span class="pre">stimulus.contrast</span></code>, in percent). The <code class="docutils literal notranslate"><span class="pre">frame_duration</span></code> is the duration of a time frame in seconds, which is the repetition time (TR) of 1.5 seconds. During blank frames, the screen does not show a grating. Blank frames have a contrast and an SF of zero.</p>
+<p>We plot the contrast of the grating at every time frame with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_csf_stimulus_design</span></code>. The color shows the SF of the grating (in cycles per degree). The function leaves out the blank frames, so they show up as gaps between the lines. Because the contrasts span more than two orders of magnitude, we use a logarithmic y-axis.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plotting_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">style_axes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_csf_stimulus_design</span>
+
+<span class="n">time_frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">is_blank</span> <span class="o">=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">contrast</span> <span class="o">==</span> <span class="mf">0.0</span>
+
+<span class="c1"># SFs of the gratings (in cycles per degree)</span>
+<span class="n">sf_levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">[</span><span class="o">~</span><span class="n">is_blank</span><span class="p">])</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_csf_stimulus_design</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">"log"</span><span class="p">)</span>
+<span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Time frame (in TR)"</span><span class="p">,</span> <span class="s2">"Contrast (in %)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 1</p>
+<p>How is the experiment structured? How many blocks with gratings are there, and how is each block built up? How often is each SF shown, and at how many contrast levels (hint: use <code class="docutils literal notranslate"><span class="pre">np.unique</span></code> on <code class="docutils literal notranslate"><span class="pre">stimulus.sf</span></code> and <code class="docutils literal notranslate"><span class="pre">stimulus.contrast</span></code>)?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="building-the-model-step-by-step">
+<h3>Building the model step by step<a class="headerlink" href="#building-the-model-step-by-step" title="Link to this heading">#</a></h3>
+<p>The nCSF model gets from input (i.e., the SF and contrast at every time frame) to output (i.e., the predicted BOLD response) in several steps. Each step is performed by a <em>submodel</em> that does a dedicated computation:</p>
+<ol class="arabic simple">
+<li><p>The <em>contrast sensitivity function</em> (CSF) describes how sensitive the neuron population is to every SF.</p></li>
+<li><p>The <em>contrast response function</em> (CRF) turns the contrast of the grating and the sensitivity at its SF into the predicted neuron population activity at every time frame.</p></li>
+<li><p>The <em>impulse response</em> turns the neuron population activity into a predicted BOLD response.</p></li>
+<li><p>The <em>scaling</em> adjusts the baseline and amplitude of the predicted BOLD response.</p></li>
+</ol>
+<p>In prfmodel, the first two steps together form the <em>tuning model</em> of the nCSF model. Note that, compared to the canonical Gaussian 2D pRF model from the first practical, the nCSF model has no stimulus encoding step: The tuning profile of a pRF model is defined on the stimulus grid, so it must be combined with the design matrix to predict the activity at every time frame. The CSF tuning model directly predicts the activity at every time frame from the SF and contrast of the grating at that frame.</p>
+<p>We build up the model one submodel at a time and then combine all submodels into the full model. To explore how the parameters of each submodel affect its predictions, we use interactive figures. The code that creates the figures is hidden: Run a hidden cell to show its figure and move the sliders to change the parameters. The figure updates when you release a slider. You can expand a hidden cell if you are curious about its code. Note that the sliders of <code class="docutils literal notranslate"><span class="pre">cs_peak</span></code>, <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code>, and <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code> move on a logarithmic scale.</p>
+<p>The first hidden cell defines helper functions for the interactive figures. Some of them are shared by all practicals and are imported from the module <code class="docutils literal notranslate"><span class="pre">plotting_helpers.py</span></code>, which lies next to this notebook.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Helper functions for the interactive figures { display-mode: "form" }</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ipywidgets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">widgets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plotting_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BLUE</span><span class="p">,</span> <span class="n">GRAY</span><span class="p">,</span> <span class="n">make_slider</span><span class="p">,</span> <span class="n">show_interactive</span><span class="p">,</span> <span class="n">style_axes</span><span class="p">,</span> <span class="n">to_frame</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.csf</span><span class="w"> </span><span class="kn">import</span> <span class="n">predict_contrast_sensitivity</span>
+
+<span class="c1"># Starting value, minimum, maximum, step size, and logarithmic scale of the slider for each parameter</span>
+<span class="n">PARAM_SLIDERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"cs_peak"</span><span class="p">:</span> <span class="p">(</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"sf_peak"</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"width_r"</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"slope_crf"</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">START_VALUES</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">PARAM_SLIDERS</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="c1"># Spatial frequencies for drawing smooth CSF curves (in cycles per degree)</span>
+<span class="n">sf_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+
+<span class="c1"># One color for every SF of the gratings, the same as in plot_csf_stimulus_design (the default matplotlib colors)</span>
+<span class="n">sf_colors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">sf_levels</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">"axes.prop_cycle"</span><span class="p">]</span><span class="o">.</span><span class="n">by_key</span><span class="p">()[</span><span class="s2">"color"</span><span class="p">]))</span>
+
+<span class="c1"># Contrast sensitivity that corresponds to the contrast of every time frame (NaN for blank frames)</span>
+<span class="n">stimulus_sensitivity</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_blank</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">contrast</span><span class="p">)</span>
+
+<span class="c1"># First and last time frame and SF of every sweep through the contrasts at a single SF</span>
+<span class="n">sweeps</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">sweep_start</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_frames</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">frame</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_frames</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">!=</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">[</span><span class="n">sweep_start</span><span class="p">]</span> <span class="ow">or</span> <span class="n">is_blank</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">!=</span> <span class="n">is_blank</span><span class="p">[</span><span class="n">sweep_start</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_blank</span><span class="p">[</span><span class="n">sweep_start</span><span class="p">]:</span>
+            <span class="n">sweeps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sweep_start</span><span class="p">,</span> <span class="n">frame</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">[</span><span class="n">sweep_start</span><span class="p">]))</span>
+        <span class="n">sweep_start</span> <span class="o">=</span> <span class="n">frame</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_sliders</span><span class="p">(</span><span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">custom_sliders</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ValueWidget</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Create a slider for each parameter; `custom_sliders` replace the values from `PARAM_SLIDERS` for a parameter."""</span>
+    <span class="n">sliders</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">log</span> <span class="o">=</span> <span class="n">custom_sliders</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">PARAM_SLIDERS</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">sliders</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_slider</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sliders</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">predict_sensitivity</span><span class="p">(</span><span class="n">sf</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cs_peak</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sf_peak</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width_r</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Predict the contrast sensitivity of a single CSF at the spatial frequencies `sf`."""</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">to_frame</span><span class="p">(</span><span class="n">cs_peak</span><span class="o">=</span><span class="n">cs_peak</span><span class="p">,</span> <span class="n">sf_peak</span><span class="o">=</span><span class="n">sf_peak</span><span class="p">,</span> <span class="n">width_r</span><span class="o">=</span><span class="n">width_r</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">predict_contrast_sensitivity</span><span class="p">(</span>
+            <span class="n">sf</span><span class="o">=</span><span class="n">sf</span><span class="p">,</span>
+            <span class="n">cs_peak</span><span class="o">=</span><span class="n">params</span><span class="p">[[</span><span class="s2">"cs_peak"</span><span class="p">]],</span>
+            <span class="n">sf_peak</span><span class="o">=</span><span class="n">params</span><span class="p">[[</span><span class="s2">"sf_peak"</span><span class="p">]],</span>
+            <span class="n">width_l</span><span class="o">=</span><span class="mf">0.68</span><span class="p">,</span>
+            <span class="n">width_r</span><span class="o">=</span><span class="n">params</span><span class="p">[[</span><span class="s2">"width_r"</span><span class="p">]],</span>
+        <span class="p">)</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_csf</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="n">cs_peak</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sf_peak</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width_r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw the CSF over the stimulus; time frames below the curve have a contrast above the threshold."""</span>
+    <span class="n">frame_sensitivity</span> <span class="o">=</span> <span class="n">predict_sensitivity</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">,</span> <span class="n">cs_peak</span><span class="p">,</span> <span class="n">sf_peak</span><span class="p">,</span> <span class="n">width_r</span><span class="p">)</span>
+    <span class="n">is_above</span> <span class="o">=</span> <span class="o">~</span><span class="n">is_blank</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">stimulus_sensitivity</span> <span class="o">&lt;</span> <span class="n">frame_sensitivity</span><span class="p">)</span>
+    <span class="n">is_below</span> <span class="o">=</span> <span class="o">~</span><span class="n">is_blank</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">is_above</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">[</span><span class="n">is_below</span><span class="p">],</span> <span class="n">stimulus_sensitivity</span><span class="p">[</span><span class="n">is_below</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">"Below threshold"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">[</span><span class="n">is_above</span><span class="p">],</span> <span class="n">stimulus_sensitivity</span><span class="p">[</span><span class="n">is_above</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Above threshold"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sf_values</span><span class="p">,</span> <span class="n">predict_sensitivity</span><span class="p">(</span><span class="n">sf_values</span><span class="p">,</span> <span class="n">cs_peak</span><span class="p">,</span> <span class="n">sf_peak</span><span class="p">,</span> <span class="n">width_r</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">"log"</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">"log"</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="n">sf_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sf_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2000.0</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"upper right"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Spatial frequency (in cycles/degree)"</span><span class="p">,</span> <span class="s2">"Contrast sensitivity"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">mark_sweeps</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Shade the sweeps through the contrasts and label them with their SF (in cycles per degree)."""</span>
+    <span class="k">for</span> <span class="n">first_frame</span><span class="p">,</span> <span class="n">last_frame</span><span class="p">,</span> <span class="n">sf</span> <span class="ow">in</span> <span class="n">sweeps</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axvspan</span><span class="p">(</span><span class="n">first_frame</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">last_frame</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#f2f2f2"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">first_frame</span> <span class="o">+</span> <span class="n">last_frame</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sf</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis_transform</span><span class="p">(),</span> <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"#595959"</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="contrast-sensitivity-function">
+<h3>Contrast sensitivity function<a class="headerlink" href="#contrast-sensitivity-function" title="Link to this heading">#</a></h3>
+<p>The nCSF model describes the CSF with an asymmetric log-parabola: With logarithmic axes, the CSF is a downward-opening parabola that can have different curvatures to the left and to the right of its peak. The CSF <span class="math notranslate nohighlight">\(S(f)\)</span> at the SF <span class="math notranslate nohighlight">\(f\)</span> has four parameters: the peak contrast sensitivity <span class="math notranslate nohighlight">\(CS_p\)</span> (<code class="docutils literal notranslate"><span class="pre">cs_peak</span></code>), the SF at the peak <span class="math notranslate nohighlight">\(f_p\)</span> (<code class="docutils literal notranslate"><span class="pre">sf_peak</span></code>), and the curvatures of the left branch <span class="math notranslate nohighlight">\(w_L\)</span> (<code class="docutils literal notranslate"><span class="pre">width_l</span></code>) and of the right branch <span class="math notranslate nohighlight">\(w_R\)</span> (<code class="docutils literal notranslate"><span class="pre">width_r</span></code>):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\log_{10} S(f) = \log_{10} CS_p - \left(\log_{10} f - \log_{10} f_p\right)^2 \cdot
+\begin{cases}
+w_L^2 &amp; \text{if } f &lt; f_p \\
+w_R^2 &amp; \text{if } f \geq f_p
+\end{cases}
+\end{split}\]</div>
+<p>Note that despite their names, larger values of <code class="docutils literal notranslate"><span class="pre">width_l</span></code> and <code class="docutils literal notranslate"><span class="pre">width_r</span></code> make the CSF <em>narrower</em>. Like Roelofzen et al. (2025), prfmodel fixes <code class="docutils literal notranslate"><span class="pre">width_l</span></code> at 0.68 by default, so that only <code class="docutils literal notranslate"><span class="pre">cs_peak</span></code>, <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code>, and <code class="docutils literal notranslate"><span class="pre">width_r</span></code> are estimated.</p>
+<p>We can predict the contrast sensitivity at the SF of every time frame with <code class="docutils literal notranslate"><span class="pre">prfmodel.models.csf.predict_contrast_sensitivity</span></code>. Like all model parameters in prfmodel, we store the parameters in a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>, where each row corresponds to a different unit (e.g., a vertex) and each column to a different parameter. The function expects every parameter as a DataFrame with a single column, so we select the columns with double brackets.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">csf_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"cs_peak"</span><span class="p">:</span> <span class="p">[</span><span class="mf">50.0</span><span class="p">],</span>
+        <span class="s2">"sf_peak"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+        <span class="s2">"width_r"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">simulated_sensitivity</span> <span class="o">=</span> <span class="n">predict_contrast_sensitivity</span><span class="p">(</span>
+    <span class="n">sf</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">,</span>
+    <span class="n">cs_peak</span><span class="o">=</span><span class="n">csf_params</span><span class="p">[[</span><span class="s2">"cs_peak"</span><span class="p">]],</span>
+    <span class="n">sf_peak</span><span class="o">=</span><span class="n">csf_params</span><span class="p">[[</span><span class="s2">"sf_peak"</span><span class="p">]],</span>
+    <span class="n">width_l</span><span class="o">=</span><span class="mf">0.68</span><span class="p">,</span>
+    <span class="n">width_r</span><span class="o">=</span><span class="n">csf_params</span><span class="p">[[</span><span class="s2">"width_r"</span><span class="p">]],</span>
+<span class="p">)</span>
+
+<span class="n">simulated_sensitivity</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One row per unit with one value for every time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To relate the CSF to the stimulus, we plot every time frame with a grating as a point in the space of the CSF with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_csf_stimulus_curve</span></code>: The SF of the grating is on the x-axis, and the contrast sensitivity that corresponds to its contrast (100 / contrast) is on the y-axis. Both axes are logarithmic. The function draws the predicted CSF on top of the points (black line), connecting the sensitivities at the SFs in the stimulus. A neuron population responds to the grating at a time frame if the contrast lies above its threshold, that is, if the point lies <em>below</em> its CSF. Points at the top of the plot have a low contrast and only drive neuron populations with a high sensitivity.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_csf_stimulus_curve</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_csf_stimulus_curve</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">simulated_sensitivity</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Stimulus and CSF in CSF space"</span><span class="p">)</span>
+<span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Spatial frequency (in cycles/degree)"</span><span class="p">,</span> <span class="s2">"Contrast sensitivity (100 / contrast)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The interactive figure below draws the CSF as a smooth curve over a wider range of SFs (blue line). Time frames with a contrast above the threshold of the CSF (filled blue circles) lie below the curve, and time frames with a contrast below the threshold (empty gray circles) lie above it.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Contrast sensitivity function { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_csf</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+    <span class="n">draw_csf</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Contrast sensitivity function"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_csf</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"cs_peak"</span><span class="p">,</span> <span class="s2">"sf_peak"</span><span class="p">,</span> <span class="s2">"width_r"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 2</p>
+<p>Use the sliders to change the CSF parameters to the following combinations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cs_peak=300</span></code>, <code class="docutils literal notranslate"><span class="pre">sf_peak=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">width_r=0.7</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cs_peak=20</span></code>, <code class="docutils literal notranslate"><span class="pre">sf_peak=6.0</span></code>, <code class="docutils literal notranslate"><span class="pre">width_r=1.5</span></code></p></li>
+</ul>
+<p>How does the CSF change? Which time frames have a contrast above the threshold of the neuron population?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 3</p>
+<p>Why does it make sense to fix <code class="docutils literal notranslate"><span class="pre">width_l</span></code> instead of estimating it from the data? Think about which SFs the stimulus contains and move <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code> to values around 1 cycle per degree.</p>
+</div>
+</section>
+<section id="contrast-response-function">
+<h3>Contrast response function<a class="headerlink" href="#contrast-response-function" title="Link to this heading">#</a></h3>
+<p>The CSF gives us the contrast threshold of the neuron population at every SF: <span class="math notranslate nohighlight">\(Q(f) = 100 / S(f)\)</span> (in percent). The contrast response function (CRF) turns the contrast <span class="math notranslate nohighlight">\(C(t)\)</span> of the grating at time frame <span class="math notranslate nohighlight">\(t\)</span> into the predicted activity of the neuron population. The nCSF model uses a Naka-Rushton function with the threshold at the SF of the grating <span class="math notranslate nohighlight">\(f(t)\)</span> as the semi-saturation constant:</p>
+<div class="math notranslate nohighlight">
+\[
+R(t) = \frac{C(t)^q}{C(t)^q + Q(f(t))^q}
+\]</div>
+<p>The predicted activity is zero when there is no contrast, reaches half of its maximum when the contrast equals the threshold, and approaches one when the contrast lies far above the threshold. The exponent <span class="math notranslate nohighlight">\(q\)</span> (<code class="docutils literal notranslate"><span class="pre">slope_crf</span></code>) determines how steeply the activity rises around the threshold.</p>
+<p>We can predict the contrast response with <code class="docutils literal notranslate"><span class="pre">prfmodel.models.csf.predict_contrast_response</span></code>. It takes the contrast at every time frame and the contrast sensitivity at the SF of every time frame. We first predict the sensitivity for the SFs of the stimulus and then the response to its contrasts.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.csf</span><span class="w"> </span><span class="kn">import</span> <span class="n">predict_contrast_response</span>
+
+<span class="n">crf_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"cs_peak"</span><span class="p">:</span> <span class="p">[</span><span class="mf">50.0</span><span class="p">],</span>
+        <span class="s2">"sf_peak"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+        <span class="s2">"width_r"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+        <span class="s2">"slope_crf"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Contrast sensitivity at the SF of every time frame</span>
+<span class="n">frame_sensitivity</span> <span class="o">=</span> <span class="n">predict_contrast_sensitivity</span><span class="p">(</span>
+    <span class="n">sf</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">sf</span><span class="p">,</span>
+    <span class="n">cs_peak</span><span class="o">=</span><span class="n">crf_params</span><span class="p">[[</span><span class="s2">"cs_peak"</span><span class="p">]],</span>
+    <span class="n">sf_peak</span><span class="o">=</span><span class="n">crf_params</span><span class="p">[[</span><span class="s2">"sf_peak"</span><span class="p">]],</span>
+    <span class="n">width_l</span><span class="o">=</span><span class="mf">0.68</span><span class="p">,</span>
+    <span class="n">width_r</span><span class="o">=</span><span class="n">crf_params</span><span class="p">[[</span><span class="s2">"width_r"</span><span class="p">]],</span>
+<span class="p">)</span>
+
+<span class="n">simulated_activity</span> <span class="o">=</span> <span class="n">predict_contrast_response</span><span class="p">(</span>
+    <span class="n">contrast</span><span class="o">=</span><span class="n">stimulus</span><span class="o">.</span><span class="n">contrast</span><span class="p">,</span>
+    <span class="n">sensitivity</span><span class="o">=</span><span class="n">frame_sensitivity</span><span class="p">,</span>
+    <span class="n">slope_crf</span><span class="o">=</span><span class="n">crf_params</span><span class="p">[[</span><span class="s2">"slope_crf"</span><span class="p">]],</span>
+<span class="p">)</span>
+
+<span class="n">simulated_activity</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One row per unit with one value for every time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the CRF for each SF in the stimulus: the predicted activity as a function of the contrast. The dot on each curve marks the contrast threshold of the population at this SF, where the activity reaches half of its maximum.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Contrast response function { display-mode: "form" }</span>
+<span class="c1"># Contrasts to predict the response for (in percent)</span>
+<span class="n">contrast_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_crf</span><span class="p">(</span><span class="n">cs_peak</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sf_peak</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width_r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">slope_crf</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sensitivity</span> <span class="o">=</span> <span class="n">predict_sensitivity</span><span class="p">(</span><span class="n">sf_levels</span><span class="p">,</span> <span class="n">cs_peak</span><span class="p">,</span> <span class="n">sf_peak</span><span class="p">,</span> <span class="n">width_r</span><span class="p">)</span>
+    <span class="c1"># One row with the sensitivity at a single SF for every contrast</span>
+    <span class="n">sensitivity_per_contrast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">sensitivity</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">contrast_values</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">activity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">predict_contrast_response</span><span class="p">(</span><span class="n">contrast</span><span class="o">=</span><span class="n">contrast_values</span><span class="p">,</span> <span class="n">sensitivity</span><span class="o">=</span><span class="n">sensitivity_per_contrast</span><span class="p">,</span> <span class="n">slope_crf</span><span class="o">=</span><span class="p">[[</span><span class="n">slope_crf</span><span class="p">]])</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">sf</span><span class="p">,</span> <span class="n">sf_sensitivity</span><span class="p">,</span> <span class="n">sf_activity</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sf_levels</span><span class="p">,</span> <span class="n">sensitivity</span><span class="p">,</span> <span class="n">activity</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">contrast_values</span><span class="p">,</span> <span class="n">sf_activity</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">sf_colors</span><span class="p">[</span><span class="n">sf</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sf</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">sf_sensitivity</span>
+        <span class="k">if</span> <span class="n">contrast_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="n">contrast_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">sf_colors</span><span class="p">[</span><span class="n">sf</span><span class="p">],</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">"log"</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"SF (cycles/degree)"</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"upper left"</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Contrast response function"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Contrast (in %)"</span><span class="p">,</span> <span class="s2">"Predicted activity"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_crf</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"cs_peak"</span><span class="p">,</span> <span class="s2">"sf_peak"</span><span class="p">,</span> <span class="s2">"width_r"</span><span class="p">,</span> <span class="s2">"slope_crf"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 4</p>
+<p>Move the <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code> slider. How does the CRF change? What happens for very large values of <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code>? What does the neuron population then “compute”?</p>
+</div>
+</section>
+<section id="the-csf-tuning-model">
+<h3>The CSF tuning model<a class="headerlink" href="#the-csf-tuning-model" title="Link to this heading">#</a></h3>
+<p>In prfmodel, <code class="docutils literal notranslate"><span class="pre">prfmodel.models.csf.CSFTuning</span></code> combines the CSF and the CRF into the tuning model of the nCSF model. It predicts the neuron population activity at every time frame of the stimulus in the same two steps as above.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.csf</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSFTuning</span>
+
+<span class="n">csf_tuning</span> <span class="o">=</span> <span class="n">CSFTuning</span><span class="p">()</span>  <span class="c1"># Fixes width_l at 0.68 by default</span>
+
+<span class="n">simulated_tuning_response</span> <span class="o">=</span> <span class="n">csf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">crf_params</span><span class="p">)</span>
+
+<span class="n">simulated_tuning_response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One row per unit with one value for every time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the CSF (left) and the predicted neuron population activity at every time frame (right). The shaded areas mark the sweeps through the contrasts, and the number above each sweep is its SF (in cycles per degree).</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: CSF tuning model { display-mode: "form" }</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_tuning</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">activity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">csf_tuning</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_csf</span><span class="p">,</span> <span class="n">ax_activity</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">draw_csf</span><span class="p">(</span><span class="n">ax_csf</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">ax_csf</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Contrast sensitivity function"</span><span class="p">)</span>
+
+    <span class="n">mark_sweeps</span><span class="p">(</span><span class="n">ax_activity</span><span class="p">)</span>
+    <span class="n">ax_activity</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">activity</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax_activity</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
+    <span class="n">ax_activity</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted neuron population activity"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_activity</span><span class="p">,</span> <span class="s2">"Time frame (in TR)"</span><span class="p">,</span> <span class="s2">"Predicted activity"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span><span class="n">plot_tuning</span><span class="p">,</span> <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"cs_peak"</span><span class="p">,</span> <span class="s2">"sf_peak"</span><span class="p">,</span> <span class="s2">"width_r"</span><span class="p">,</span> <span class="s2">"slope_crf"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 5</p>
+<p>Why does the predicted neuron population activity have this particular shape? How does it relate to the stimulus? Change <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code> to 0.5 and to 12. How does the predicted activity change and why?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 6</p>
+<p>The stimulus only contains gratings with six different SFs. Can you find two clearly different CSFs (i.e., combinations of <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code> and <code class="docutils literal notranslate"><span class="pre">width_r</span></code>) that predict a similar neuron population activity? What does this mean for estimating the CSF from data?</p>
+</div>
+</section>
+<section id="impulse-response-and-scaling">
+<h3>Impulse response and scaling<a class="headerlink" href="#impulse-response-and-scaling" title="Link to this heading">#</a></h3>
+<p>The remaining two submodels are the same as in the canonical Gaussian 2D pRF model from the first practical: The predicted neuron population activity is convolved with an impulse response that accounts for the slow and delayed BOLD response (<code class="docutils literal notranslate"><span class="pre">prfmodel.impulse.DerivativeTwoGammaImpulse</span></code> with the parameter <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>). Then, the convolved response is scaled with the parameters <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> (<code class="docutils literal notranslate"><span class="pre">prfmodel.scaling.BaselineAmplitude</span></code>). See the first practical for interactive figures of both submodels.</p>
+<p>The impulse response must be sampled at the same rate as the stimulus. The model takes the sampling rate from the <code class="docutils literal notranslate"><span class="pre">frame_duration</span></code> of the stimulus, so we do not need to create a custom impulse response model for the TR of 1.5 seconds.</p>
+</section>
+<section id="the-full-canonical-model">
+<h3>The full canonical model<a class="headerlink" href="#the-full-canonical-model" title="Link to this heading">#</a></h3>
+<p>Now that we have seen every submodel, we can combine them into the full nCSF model. prfmodel implements it as the canonical model <code class="docutils literal notranslate"><span class="pre">prfmodel.models.csf.CSFModel</span></code>, which uses the submodels from above by default.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.models.csf</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSFModel</span>
+
+<span class="n">csf_model</span> <span class="o">=</span> <span class="n">CSFModel</span><span class="p">()</span>
+
+<span class="n">csf_model</span><span class="o">.</span><span class="n">parameter_names</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The model has more parameters than the submodels that we have seen so far: <code class="docutils literal notranslate"><span class="pre">delay</span></code>, <code class="docutils literal notranslate"><span class="pre">dispersion</span></code>, <code class="docutils literal notranslate"><span class="pre">undershoot</span></code>, <code class="docutils literal notranslate"><span class="pre">u_dispersion</span></code>, and <code class="docutils literal notranslate"><span class="pre">ratio</span></code> determine the shape of the two gamma densities of the impulse response. These parameters are optional: If they are missing from the parameter DataFrame, the model uses default values, which correspond to the impulse response from the first practical. We make a prediction with all other parameters at once.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">start_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"cs_peak"</span><span class="p">:</span> <span class="p">[</span><span class="mf">50.0</span><span class="p">],</span>
+        <span class="s2">"sf_peak"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+        <span class="s2">"width_r"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+        <span class="s2">"slope_crf"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+        <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span>
+        <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Make prediction with nCSF model</span>
+<span class="n">simulated_response</span> <span class="o">=</span> <span class="n">csf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">start_params</span><span class="p">)</span>
+
+<span class="n">simulated_response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One predicted timecourse with one value per time frame</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure below shows the CSF (left) and the predicted BOLD response of the full model (right). The dashed gray line shows the prediction for the starting parameters above. Use the sliders to see how all parameters together shape the predicted BOLD response.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Interactive figure: Full model { display-mode: "form" }</span>
+<span class="n">start_response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">csf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">START_VALUES</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_prediction</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">csf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_csf</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">draw_csf</span><span class="p">(</span><span class="n">ax_csf</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">ax_csf</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Contrast sensitivity function"</span><span class="p">)</span>
+
+    <span class="n">mark_sweeps</span><span class="p">(</span><span class="n">ax_response</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Starting parameters"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Current parameters"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"upper left"</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Predicted BOLD response"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame (in TR)"</span><span class="p">,</span> <span class="s2">"Predicted BOLD response"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span>
+    <span class="n">plot_prediction</span><span class="p">,</span>
+    <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"cs_peak"</span><span class="p">,</span> <span class="s2">"sf_peak"</span><span class="p">,</span> <span class="s2">"width_r"</span><span class="p">,</span> <span class="s2">"slope_crf"</span><span class="p">,</span> <span class="s2">"weight_deriv"</span><span class="p">,</span> <span class="s2">"baseline"</span><span class="p">,</span> <span class="s2">"amplitude"</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 7</p>
+<p>Compare the predicted BOLD response to the predicted neuron population activity of the CSF tuning model for the same parameters. How does the impulse response change the response to each sweep? Why do you think the first sweep of every block goes from high to low contrast and the second sweep from low to high contrast?</p>
+</div>
+</section>
+</section>
+<section id="fitting-the-model-to-data">
+<h2>Fitting the model to data<a class="headerlink" href="#fitting-the-model-to-data" title="Link to this heading">#</a></h2>
+<section id="inspecting-the-data">
+<h3>Inspecting the data<a class="headerlink" href="#inspecting-the-data" title="Link to this heading">#</a></h3>
+<p>Before we fit the nCSF model to empirical data, we inspect the recorded BOLD response timecourses, which we can access from the <code class="docutils literal notranslate"><span class="pre">dataset.response</span></code> attribute.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">response</span>
+
+<span class="n">response</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># One timecourse for every vertex (left hemisphere first)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The dataset contains a timecourse with 214 time frames for each of the 118,584 vertices of the standardized surface (59,292 per hemisphere). The responses were already detrended, converted to percent signal change (PSC), and averaged over the runs of the experiment. Thus, every timecourse fluctuates around zero, and we do not need to convert it before fitting.</p>
+<p>To visualize the response on the inflated surface, we create a helper function with <code class="docutils literal notranslate"><span class="pre">make_surface_plot</span></code> from <code class="docutils literal notranslate"><span class="pre">plotting_helpers.py</span></code> like in the first practical. The helper shows three views that focus on the visual cortex in the occipital lobe: the inner (medial) side of each hemisphere, where the calcarine sulcus lies, and both hemispheres from behind (posterior). Like in the fourth practical, the response is already given for every vertex of the surface, so we do not need to project it from a volume onto the surface.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plotting_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_surface_plot</span>
+
+<span class="n">plot_surf_stat_map_helper</span> <span class="o">=</span> <span class="n">make_surface_plot</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We plot the standard deviation of each timecourse on the surface to get an overview of the variability in the BOLD timecourses across the surface.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate standard deviation of each timecourse</span>
+<span class="n">response_sd</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plot_surf_stat_map_helper</span><span class="p">(</span><span class="n">response_sd</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"BOLD response standard deviation (in PSC)"</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The dataset also contains a region of interest (ROI) label for every vertex. The labels come from the template atlas by Benson et al. (2014), which predicts the location of twelve visual areas from the anatomy of the subject’s brain. Vertices outside these areas have the label 0.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">roi_index</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">roi_index</span>  <span class="c1"># One ROI label per vertex</span>
+
+<span class="n">dataset</span><span class="o">.</span><span class="n">roi_mapping</span>  <span class="c1"># Which ROI each label refers to</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We plot the ROIs on the surface. Note that the helper averages the values of neighboring vertices for plotting, so vertices at the borders between ROIs can get the color of a different ROI.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+
+<span class="n">roi_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">roi_mapping</span> <span class="k">if</span> <span class="n">label</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Only color vertices that belong to one of the ROIs</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_surf_stat_map_helper</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">roi_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">roi_index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">roi_labels</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"Paired"</span><span class="p">)</span><span class="o">.</span><span class="n">colors</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">roi_labels</span><span class="p">)]),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Visual areas (Benson et al., 2014)"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Label the colors of the colorbar (the last axes of the figure) with the names of the ROIs</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">roi_labels</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">roi_mapping</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">roi_labels</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 8</p>
+<p>Compare the ROIs to the map of the response standard deviation. Do the vertices with the largest variability lie inside the ROIs? Do all parts of V1 have a similarly variable response?</p>
+</div>
+</section>
+<section id="selecting-valid-vertices">
+<h3>Selecting valid vertices<a class="headerlink" href="#selecting-valid-vertices" title="Link to this heading">#</a></h3>
+<p>The nCSF model only makes sense for vertices that respond to visual stimulation, and fitting all vertices of the surface would take a long time. Therefore, we only fit the model to vertices that belong to one of the ROIs. We also make sure that their responses vary over time: A vertex with a constant response contains no information about the stimulus.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Vertices in one of the ROIs with a response that varies over time</span>
+<span class="n">response_is_valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">roi_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">response_sd</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+
+<span class="n">response_valid</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span>
+
+<span class="c1"># Name of the ROI of every valid vertex</span>
+<span class="n">roi_valid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">roi_index</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">])</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">roi_mapping</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fill_valid_vertices</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fill values for the valid vertices into an array with one value per vertex, using NaN for all other vertices."""</span>
+    <span class="n">values_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">response_is_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">values_full</span><span class="p">[</span><span class="n">response_is_valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+    <span class="k">return</span> <span class="n">values_full</span>
+
+
+<span class="n">response_valid</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 9</p>
+<p>Visualize the BOLD response of the valid vertices (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_response_heatmap</span></code>). Can you see the blocks of the stimulus? How does the response change within a block? Do all valid vertices respond to the stimulus?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Before we let prfmodel fit the model, you can try to fit it yourself. The figure below shows the observed BOLD response of a V1 vertex with a clear signal (gray) together with the prediction of the nCSF model (blue). The R-squared in the title shows how much of the variance in the observed response the prediction explains (1 is a perfect fit).</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># @title Manual fit? { display-mode: "form" }</span>
+<span class="n">vertex_index</span> <span class="o">=</span> <span class="mi">4635</span>  <span class="c1"># A valid V1 vertex with a clear response to the stimulus</span>
+<span class="n">vertex_response</span> <span class="o">=</span> <span class="n">response_valid</span><span class="p">[</span><span class="n">vertex_index</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_manual_fit</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">csf_model</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">to_frame</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">r_squared</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">vertex_response</span> <span class="o">-</span> <span class="n">prediction</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">vertex_response</span> <span class="o">-</span> <span class="n">vertex_response</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_csf</span><span class="p">,</span> <span class="n">ax_response</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"width_ratios"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">]},</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">draw_csf</span><span class="p">(</span><span class="n">ax_csf</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">ax_csf</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Contrast sensitivity function"</span><span class="p">)</span>
+
+    <span class="n">mark_sweeps</span><span class="p">(</span><span class="n">ax_response</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">vertex_response</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRAY</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Observed"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_frames</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Predicted"</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"upper left"</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">ax_response</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Vertex </span><span class="si">{</span><span class="n">vertex_index</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">roi_valid</span><span class="p">[</span><span class="n">vertex_index</span><span class="p">]</span><span class="si">}</span><span class="s2">): R-squared = </span><span class="si">{</span><span class="n">r_squared</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax_response</span><span class="p">,</span> <span class="s2">"Time frame (in TR)"</span><span class="p">,</span> <span class="s2">"BOLD response (in PSC)"</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">show_interactive</span><span class="p">(</span>
+    <span class="n">plot_manual_fit</span><span class="p">,</span>
+    <span class="n">make_sliders</span><span class="p">(</span><span class="s2">"cs_peak"</span><span class="p">,</span> <span class="s2">"sf_peak"</span><span class="p">,</span> <span class="s2">"width_r"</span><span class="p">,</span> <span class="s2">"slope_crf"</span><span class="p">,</span> <span class="s2">"weight_deriv"</span><span class="p">,</span> <span class="s2">"baseline"</span><span class="p">,</span> <span class="s2">"amplitude"</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 10</p>
+<p>Move the sliders until the prediction matches the observed response as well as you can. Which R-squared can you reach? Which parameters are easy to find and which are hard? Why?</p>
+</div>
+</section>
+<section id="grid-search">
+<h3>Grid search<a class="headerlink" href="#grid-search" title="Link to this heading">#</a></h3>
+<p>We fit the nCSF model in three stages like in the first practical. In the first stage, we perform a grid search to find good starting values for the parameters of the CSF tuning model (i.e., <code class="docutils literal notranslate"><span class="pre">cs_peak</span></code>, <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code>, <code class="docutils literal notranslate"><span class="pre">width_r</span></code>, and <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code>). prfmodel does not have a function that creates grid values for the nCSF model, so we create them ourselves. All four parameters are positive and act on a logarithmic scale, so we space their values logarithmically with <code class="docutils literal notranslate"><span class="pre">np.geomspace</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cs_peak</span></code> between 2 and 400, which covers the contrast sensitivities in the stimulus (100 / 80 = 1.25 to 100 / 0.25 = 400).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sf_peak</span></code> between 0.25 and 10 cycles per degree. Values below the lowest SF in the stimulus (0.5 cycles per degree) allow CSFs that fall off across all SFs in the stimulus.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">width_r</span></code> between 0.3 and 2.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slope_crf</span></code> between 0.5 and 8.</p></li>
+</ul>
+<p>For <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code>, <code class="docutils literal notranslate"><span class="pre">baseline</span></code>, and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code>, we only provide a single value so that they stay constant across the entire grid. The grid has 12 × 12 × 6 × 8 = 6,912 parameter combinations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grid_param_ranges</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"cs_peak"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="s2">"sf_peak"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="s2">"width_r"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="s2">"slope_crf"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="s2">"weight_deriv"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span>
+    <span class="s2">"baseline"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+    <span class="s2">"amplitude"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To run the grid search, we construct the <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.GridFitter</span></code>. We set <code class="docutils literal notranslate"><span class="pre">batch_size=100</span></code> to let the fitter evaluate 100 parameter combinations at the same time. By default, the <code class="docutils literal notranslate"><span class="pre">loss</span></code> is the negative correlation coefficient, which ignores differences in baseline and amplitude between model predictions and observed data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridFitter</span>
+
+<span class="c1"># Create grid fitter object</span>
+<span class="n">grid_fitter</span> <span class="o">=</span> <span class="n">GridFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">csf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+    <span class="n">compile_step</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Setting 'compile_step=True' speeds up the fitting</span>
+<span class="p">)</span>
+
+<span class="c1"># Run grid search</span>
+<span class="n">grid_history</span><span class="p">,</span> <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">parameter_values</span><span class="o">=</span><span class="n">grid_param_ranges</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">grid_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Because the grid search can only return values that are in the grid, we check how the estimates are distributed across the grid with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_grid_parameter_distribution</span></code>. Estimates at the smallest or largest value of the grid are highlighted in red.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_grid_parameter_distribution</span>
+
+<span class="n">csf_param_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"cs_peak"</span><span class="p">,</span> <span class="s2">"sf_peak"</span><span class="p">,</span> <span class="s2">"width_r"</span><span class="p">,</span> <span class="s2">"slope_crf"</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">flat</span><span class="p">,</span> <span class="n">csf_param_names</span><span class="p">):</span>
+    <span class="n">plot_grid_parameter_distribution</span><span class="p">(</span><span class="n">grid_params</span><span class="p">,</span> <span class="n">grid_param_ranges</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>  <span class="c1"># Detects log spacing</span>
+    <span class="c1"># Label every other grid value instead of the powers of ten</span>
+    <span class="n">tick_values</span> <span class="o">=</span> <span class="n">grid_param_ranges</span><span class="p">[</span><span class="n">name</span><span class="p">][::</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">tick_values</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tick_values</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_formatter</span><span class="p">(</span><span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">NullFormatter</span><span class="p">())</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 11</p>
+<p>Which parameters often have estimates at the smallest or largest value of the grid? What could be the reason (hint: think about the vertices in the ROIs that do not respond to the stimulus)?</p>
+</div>
+</section>
+<section id="least-squares">
+<h3>Least-squares<a class="headerlink" href="#least-squares" title="Link to this heading">#</a></h3>
+<p>In the grid search, we ignored the <code class="docutils literal notranslate"><span class="pre">baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">amplitude</span></code> parameters. Like in the first practical, we estimate them with least-squares by regressing the observed responses on the predicted responses for each vertex.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeastSquaresFitter</span>
+
+<span class="c1"># Create least-squares fitter</span>
+<span class="n">ls_fitter</span> <span class="o">=</span> <span class="n">LeastSquaresFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">csf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Run least squares fit</span>
+<span class="n">ls_history</span><span class="p">,</span> <span class="n">ls_params</span> <span class="o">=</span> <span class="n">ls_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">grid_params</span><span class="p">,</span>
+    <span class="n">slope_name</span><span class="o">=</span><span class="s2">"amplitude"</span><span class="p">,</span>  <span class="c1"># Names of parameters to be optimized with least squares</span>
+    <span class="n">intercept_name</span><span class="o">=</span><span class="s2">"baseline"</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ls_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="stochastic-gradient-descent">
+<h3>Stochastic gradient descent<a class="headerlink" href="#stochastic-gradient-descent" title="Link to this heading">#</a></h3>
+<p>Finally, we use SGD to finetune all parameters at once, starting from the least-squares estimates.</p>
+<p>We need to be more careful with the nCSF parameters than with the pRF parameters in the first practical. All four CSF parameters must be positive, but that is not enough: The data only constrain the CSF within the range of SFs and contrasts in the stimulus. Beyond this range, SGD can move the parameters of some vertices to implausible values without changing the prediction much. Without upper bounds, some vertices end up with a peak SF of more than 100 cycles per degree, a <code class="docutils literal notranslate"><span class="pre">width_r</span></code> of more than 10, or a <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code> of more than 100. Therefore, we keep each CSF parameter between a lower and an upper bound during SGD.</p>
+<p>In the first practical, we used a <code class="docutils literal notranslate"><span class="pre">ParameterTransform</span></code> in an adapter to let SGD optimize <code class="docutils literal notranslate"><span class="pre">sigma</span></code> in log space. prfmodel also provides <code class="docutils literal notranslate"><span class="pre">prfmodel.fitters.adapter.ParameterConstraint</span></code>, which keeps a parameter above a lower <em>or</em> below an upper bound. To keep a parameter between a lower <em>and</em> an upper bound, we write our own <code class="docutils literal notranslate"><span class="pre">ParameterTransform</span></code>: SGD optimizes the parameter on an unbounded scale <span class="math notranslate nohighlight">\(y\)</span>, and the model sees the value <span class="math notranslate nohighlight">\(x = \text{lower} + (\text{upper} - \text{lower}) \cdot \text{sigmoid}(y)\)</span>, which always lies between the bounds. The transformation from the bounded to the unbounded scale is the inverse of this function: <span class="math notranslate nohighlight">\(y = \log\left((x - \text{lower}) / (\text{upper} - x)\right)\)</span>. Starting values must lie strictly between the bounds. The bounds are a bit wider than the grid, so that SGD can move the estimates beyond the grid values.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span><span class="p">,</span> <span class="n">ParameterTransform</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">box_transform</span><span class="p">(</span><span class="n">parameter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParameterTransform</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Keep a parameter strictly between `lower` and `upper` during SGD."""</span>
+    <span class="k">return</span> <span class="n">ParameterTransform</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">parameter_name</span><span class="p">],</span>
+        <span class="n">transform_fun</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">ops</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">x</span><span class="p">)),</span>  <span class="c1"># From the bounded to the unbounded scale</span>
+        <span class="n">inverse_fun</span><span class="o">=</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="n">lower</span> <span class="o">+</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">*</span> <span class="n">ops</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>  <span class="c1"># From the unbounded to the bounded scale</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># Lower and upper bound of each CSF parameter</span>
+<span class="n">parameter_bounds</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"cs_peak"</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">),</span>
+    <span class="s2">"sf_peak"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span>
+    <span class="s2">"width_r"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span>
+    <span class="s2">"slope_crf"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">Adapter</span><span class="p">([</span><span class="n">box_transform</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span> <span class="ow">in</span> <span class="n">parameter_bounds</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The default optimizer of SGD (Adam) changes each parameter on the unbounded scale by at most about the learning rate in each step. With the default learning rate of 0.001, 500 steps can only move the parameters a little, so we increase the learning rate to 0.01. Like in the first practical, we fix <code class="docutils literal notranslate"><span class="pre">weight_deriv</span></code> to its starting value.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">keras.optimizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adam</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.fitters</span><span class="w"> </span><span class="kn">import</span> <span class="n">SGDFitter</span>
+
+<span class="n">sgd_fitter</span> <span class="o">=</span> <span class="n">SGDFitter</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">csf_model</span><span class="p">,</span>
+    <span class="n">stimulus</span><span class="o">=</span><span class="n">stimulus</span><span class="p">,</span>
+    <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span><span class="p">,</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">),</span>
+    <span class="n">compile_step</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Setting 'compile_step=True' speeds up the fitting</span>
+<span class="p">)</span>
+
+<span class="n">sgd_history</span><span class="p">,</span> <span class="n">sgd_params</span> <span class="o">=</span> <span class="n">sgd_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">response_valid</span><span class="p">,</span>
+    <span class="n">init_parameters</span><span class="o">=</span><span class="n">ls_params</span><span class="p">,</span>
+    <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">"weight_deriv"</span><span class="p">],</span>  <span class="c1"># Fix weight_deriv to starting value</span>
+    <span class="n">num_steps</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sgd_params</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="evaluating-the-model-fit">
+<h2>Evaluating the model fit<a class="headerlink" href="#evaluating-the-model-fit" title="Link to this heading">#</a></h2>
+<p>We make predictions with the SGD estimates and compute the R-squared of each vertex. Like in the first practical, we wrap our <code class="docutils literal notranslate"><span class="pre">csf_model</span></code> in <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.batched</span></code> to make predictions for batches of vertices sequentially, and compute the R-squared of each vertex with <code class="docutils literal notranslate"><span class="pre">prfmodel.utils.calculate_r_squared</span></code>. We look at the distribution of the R-squared scores with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_hist</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_r_squared_hist</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched</span><span class="p">,</span> <span class="n">calculate_r_squared</span>
+
+<span class="n">predict_batched</span> <span class="o">=</span> <span class="n">batched</span><span class="p">(</span><span class="n">csf_model</span><span class="p">)</span>
+
+<span class="n">pred_response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">predict_batched</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">sgd_params</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">))</span>
+
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">calculate_r_squared</span><span class="p">(</span><span class="n">response_valid</span><span class="p">,</span> <span class="n">pred_response</span><span class="p">)</span>  <span class="c1"># One score per vertex</span>
+
+<span class="n">plot_r_squared_hist</span><span class="p">(</span><span class="n">r_squared</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 12</p>
+<p>Compare the R-squared between the least-squares and the SGD stage (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_r_squared_comparison</span></code>). Does SGD improve the fit and if so, by how much?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 13</p>
+<p>Plot the R-squared on the inflated surface (hint: use <code class="docutils literal notranslate"><span class="pre">fill_valid_vertices</span></code>). In which parts of the visual cortex does the model fit the data well? Why does it fit poorly in large parts of V1 and V2? (hint: Plot the R-squared against the eccentricity that the template atlas predicts for each vertex, which is stored in <code class="docutils literal notranslate"><span class="pre">dataset.units[&quot;benson14_eccen&quot;]</span></code>, and remember the size of the screen.)</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We compare the R-squared between ROIs with <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_parameter_by_roi</span></code>, which shows the mean and standard deviation across the vertices in each ROI. The function expects a DataFrame, so we wrap the R-squared in one.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">prfmodel.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_parameter_by_roi</span>
+
+<span class="c1"># Visual areas ordered roughly from early to higher visual cortex</span>
+<span class="n">roi_order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"V1"</span><span class="p">,</span> <span class="s2">"V2"</span><span class="p">,</span> <span class="s2">"V3"</span><span class="p">,</span> <span class="s2">"hV4"</span><span class="p">,</span> <span class="s2">"VO1"</span><span class="p">,</span> <span class="s2">"VO2"</span><span class="p">,</span> <span class="s2">"V3a"</span><span class="p">,</span> <span class="s2">"V3b"</span><span class="p">,</span> <span class="s2">"LO1"</span><span class="p">,</span> <span class="s2">"LO2"</span><span class="p">,</span> <span class="s2">"TO1"</span><span class="p">,</span> <span class="s2">"TO2"</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+<span class="n">plot_parameter_by_roi</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"R-squared"</span><span class="p">:</span> <span class="n">r_squared</span><span class="p">}),</span> <span class="s2">"R-squared"</span><span class="p">,</span> <span class="n">roi_valid</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">roi_order</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 14</p>
+<p>Plot the predicted vs. the observed response for vertices with a high, medium, and low R-squared (hint: use <code class="docutils literal notranslate"><span class="pre">prfmodel.plotting.plot_observed_predicted</span></code>). Can you see any patterns in the observed response that the nCSF model does not capture?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="interpreting-the-model-parameters">
+<h2>Interpreting the model parameters<a class="headerlink" href="#interpreting-the-model-parameters" title="Link to this heading">#</a></h2>
+<p>Like in the first practical, we only interpret the parameters of vertices for which we can trust the estimates. We select vertices that fulfill four criteria:</p>
+<ul class="simple">
+<li><p>The R-squared is above 0.3 (note that this threshold is somewhat arbitrary).</p></li>
+<li><p>The amplitude is positive.</p></li>
+<li><p>The peak SF lies within the range of SFs in the stimulus (0.5 to 18 cycles per degree).</p></li>
+<li><p>The peak contrast sensitivity lies within the range of contrast sensitivities in the stimulus (100 / 80 = 1.25 to 100 / 0.25 = 400).</p></li>
+</ul>
+<p>The second criterion excludes vertices whose response <em>decreases</em> when the gratings are shown. The model can fit such a response with a negative amplitude, which flips the sign of the predicted response, but the CSF then describes which gratings decrease the response and not to which gratings the neuron population is sensitive. The last two criteria make sure that the peak of the CSF lies inside the stimulus in CSF space, similar to the criterion that the pRF center lies inside the stimulus in the first practical. A peak outside the stimulus is only weakly constrained by the data because we never measured the response at the peak.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cs_peak</span> <span class="o">=</span> <span class="n">sgd_params</span><span class="p">[</span><span class="s2">"cs_peak"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">sf_peak</span> <span class="o">=</span> <span class="n">sgd_params</span><span class="p">[</span><span class="s2">"sf_peak"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">width_r</span> <span class="o">=</span> <span class="n">sgd_params</span><span class="p">[</span><span class="s2">"width_r"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="n">r_squared_threshold</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+<span class="c1"># Range of contrast sensitivities in the stimulus</span>
+<span class="n">stimulus_sensitivity_range</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">contrast</span><span class="p">[</span><span class="o">~</span><span class="n">is_blank</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">stimulus</span><span class="o">.</span><span class="n">contrast</span><span class="p">[</span><span class="o">~</span><span class="n">is_blank</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+
+<span class="n">selection_criteria</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="sa">f</span><span class="s2">"r_squared &gt; </span><span class="si">{</span><span class="n">r_squared_threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="n">r_squared</span> <span class="o">&gt;</span> <span class="n">r_squared_threshold</span><span class="p">,</span>
+    <span class="s2">"amplitude &gt; 0"</span><span class="p">:</span> <span class="n">sgd_params</span><span class="p">[</span><span class="s2">"amplitude"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="s2">"sf_peak inside stimulus"</span><span class="p">:</span> <span class="p">(</span><span class="n">sf_peak</span> <span class="o">&gt;=</span> <span class="n">sf_levels</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sf_peak</span> <span class="o">&lt;=</span> <span class="n">sf_levels</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+    <span class="s2">"cs_peak inside stimulus"</span><span class="p">:</span> <span class="p">(</span><span class="n">cs_peak</span> <span class="o">&gt;=</span> <span class="n">stimulus_sensitivity_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">cs_peak</span> <span class="o">&lt;=</span> <span class="n">stimulus_sensitivity_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+<span class="p">})</span>
+
+<span class="n">is_selected</span> <span class="o">=</span> <span class="n">selection_criteria</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fill_selected_vertices</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fill values for the selected vertices into an array with one value per vertex, using NaN for all others."""</span>
+    <span class="k">return</span> <span class="n">fill_valid_vertices</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_selected</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+
+
+<span class="c1"># Number of valid vertices that fulfill each criterion and all criteria together</span>
+<span class="n">selection_criteria</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">all_criteria</span><span class="o">=</span><span class="n">is_selected</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>First, we look at the peak SF and plot it on the surface. Because the SFs are spaced logarithmically, we plot the logarithm of the peak SF.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_surf_stat_map_helper</span><span class="p">(</span>
+    <span class="n">fill_selected_vertices</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">sf_peak</span><span class="p">)),</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">5.0</span><span class="p">),</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">"viridis"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Peak SF (log10 of cycles/degree)"</span><span class="p">,</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 15</p>
+<p>How does the peak SF change across the surface? Plot the peak contrast sensitivity (<code class="docutils literal notranslate"><span class="pre">cs_peak</span></code>) on the surface as well. How does it change across the surface?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To compare the CSFs between visual areas, we predict the CSF of every selected vertex and plot the median CSF of each ROI with at least 50 selected vertices. Note that the median CSF is not the same as the CSF of the median parameters. We group the ROIs into early visual cortex, ventral visual cortex, and dorsal and lateral visual cortex.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">roi_groups</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Early"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"V1"</span><span class="p">,</span> <span class="s2">"V2"</span><span class="p">,</span> <span class="s2">"V3"</span><span class="p">],</span>
+    <span class="s2">"Ventral"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"hV4"</span><span class="p">,</span> <span class="s2">"VO1"</span><span class="p">,</span> <span class="s2">"VO2"</span><span class="p">],</span>
+    <span class="s2">"Dorsal and lateral"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"V3a"</span><span class="p">,</span> <span class="s2">"V3b"</span><span class="p">,</span> <span class="s2">"LO1"</span><span class="p">,</span> <span class="s2">"LO2"</span><span class="p">,</span> <span class="s2">"TO1"</span><span class="p">,</span> <span class="s2">"TO2"</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">roi_colors</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">color</span> <span class="k">for</span> <span class="n">names</span> <span class="ow">in</span> <span class="n">roi_groups</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">"tab10"</span><span class="p">)</span><span class="o">.</span><span class="n">colors</span><span class="p">)}</span>
+
+<span class="c1"># ROIs with at least 50 selected vertices</span>
+<span class="n">selected_rois</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">roi_order</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">is_selected</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">roi_valid</span> <span class="o">==</span> <span class="n">name</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="p">]</span>
+
+<span class="c1"># Spatial frequencies to predict the contrast sensitivity for (in cycles per degree)</span>
+<span class="n">sf_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">roi_groups</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">selected_rois</span><span class="p">]:</span>
+        <span class="n">roi_params</span> <span class="o">=</span> <span class="n">sgd_params</span><span class="p">[</span><span class="n">is_selected</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">roi_valid</span> <span class="o">==</span> <span class="n">name</span><span class="p">)]</span>
+        <span class="n">roi_sensitivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">predict_contrast_sensitivity</span><span class="p">(</span>
+                <span class="n">sf</span><span class="o">=</span><span class="n">sf_range</span><span class="p">,</span>
+                <span class="n">cs_peak</span><span class="o">=</span><span class="n">roi_params</span><span class="p">[[</span><span class="s2">"cs_peak"</span><span class="p">]],</span>
+                <span class="n">sf_peak</span><span class="o">=</span><span class="n">roi_params</span><span class="p">[[</span><span class="s2">"sf_peak"</span><span class="p">]],</span>
+                <span class="n">width_l</span><span class="o">=</span><span class="mf">0.68</span><span class="p">,</span>
+                <span class="n">width_r</span><span class="o">=</span><span class="n">roi_params</span><span class="p">[[</span><span class="s2">"width_r"</span><span class="p">]],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sf_range</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">roi_sensitivity</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">roi_colors</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xscale</span><span class="o">=</span><span class="s2">"log"</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">"log"</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="n">group</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Spatial frequency (in cycles/degree)"</span><span class="p">,</span> <span class="s2">"Median contrast sensitivity"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 16</p>
+<p>How do the CSFs differ between visual areas? Which areas are most sensitive to high SFs?</p>
+</div>
+<p>The CSF is often summarized with two numbers that describe the whole curve:</p>
+<ul class="simple">
+<li><p>The <em>SF cutoff</em> (SFmax) is the highest SF that a neuron population can detect at all. It is the SF at which the sensitivity drops to 1, that is, where even a grating with 100% contrast lies at the threshold.</p></li>
+<li><p>The <em>area under the log CSF</em> (AULCSF) summarizes the sensitivity across all SFs. It is the area between the CSF and a sensitivity of 1 when both axes are logarithmic.</p></li>
+</ul>
+<p>For the asymmetric log-parabola, both measures follow directly from the parameters (as long as <code class="docutils literal notranslate"><span class="pre">cs_peak</span></code> is above 1):</p>
+<div class="math notranslate nohighlight">
+\[
+\log_{10} \text{SF}_{max} = \log_{10} f_p + \frac{\sqrt{\log_{10} CS_p}}{w_R}
+\qquad
+\text{AULCSF} = \frac{2}{3} \left(\log_{10} CS_p\right)^{3/2} \left(\frac{1}{w_L} + \frac{1}{w_R}\right)
+\]</div>
+<p>We compute both measures and compare them, together with the peak SF, between ROIs. The SF cutoff of broad CSFs can lie far beyond the highest SF in the stimulus, where it is an extrapolation, so we compare the logarithm of the SFs.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">width_l</span> <span class="o">=</span> <span class="mf">0.68</span>
+
+<span class="n">log_cs_peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">cs_peak</span><span class="p">)</span>
+
+<span class="n">csf_measures</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">"log10_sf_peak"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">sf_peak</span><span class="p">),</span>
+    <span class="s2">"log10_sf_max"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">sf_peak</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">log_cs_peak</span><span class="p">)</span> <span class="o">/</span> <span class="n">width_r</span><span class="p">,</span>
+    <span class="s2">"aulcsf"</span><span class="p">:</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">log_cs_peak</span><span class="o">**</span><span class="mf">1.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">width_l</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">width_r</span><span class="p">),</span>
+<span class="p">})</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <span class="n">axes</span><span class="p">,</span>
+    <span class="n">csf_measures</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"Peak SF (log10 of cycles/degree)"</span><span class="p">,</span> <span class="s2">"SF cutoff (log10 of cycles/degree)"</span><span class="p">,</span> <span class="s2">"AULCSF"</span><span class="p">],</span>
+<span class="p">):</span>
+    <span class="n">plot_parameter_by_roi</span><span class="p">(</span><span class="n">csf_measures</span><span class="p">[</span><span class="n">is_selected</span><span class="p">],</span> <span class="n">name</span><span class="p">,</span> <span class="n">roi_valid</span><span class="p">[</span><span class="n">is_selected</span><span class="p">],</span> <span class="n">order</span><span class="o">=</span><span class="n">selected_rois</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"ROI"</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we look at how the CSF changes across the visual field. In the visual system, acuity is highest at the center of the visual field and falls off towards the periphery. Do the CSFs of the neuron populations follow the same pattern? We do not know the pRFs of the vertices from the <code class="docutils literal notranslate"><span class="pre">csf</span></code> task, but we can use the eccentricity that the template atlas predicts for each vertex. The gratings covered the screen up to about 5 degrees from its center (the bars in the <code class="docutils literal notranslate"><span class="pre">prf</span></code> task cover about -5.1 to 5.1 degrees), so we only look at vertices with an eccentricity below 5 degrees. We plot the median peak SF in bins of 1 degree for V1, V2, and V3.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">eccentricity</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s2">"benson14_eccen"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="n">response_is_valid</span><span class="p">]</span>
+
+<span class="n">eccentricity_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">bin_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">eccentricity_bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">eccentricity_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"V1"</span><span class="p">,</span> <span class="s2">"V2"</span><span class="p">,</span> <span class="s2">"V3"</span><span class="p">]:</span>
+    <span class="n">is_roi</span> <span class="o">=</span> <span class="n">is_selected</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">roi_valid</span> <span class="o">==</span> <span class="n">name</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">eccentricity</span> <span class="o">&lt;</span> <span class="n">eccentricity_bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># Bin of every selected vertex in the ROI</span>
+    <span class="n">bin_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">eccentricity</span><span class="p">[</span><span class="n">is_roi</span><span class="p">],</span> <span class="n">eccentricity_bins</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">median_sf_peak</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">sf_peak</span><span class="p">[</span><span class="n">is_roi</span><span class="p">][</span><span class="n">bin_index</span> <span class="o">==</span> <span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bin_index</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">20</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_centers</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">median_sf_peak</span><span class="p">,</span> <span class="s2">"o-"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">roi_colors</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (n = </span><span class="si">{</span><span class="n">is_roi</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Peak SF across the visual field"</span><span class="p">)</span>
+<span class="n">style_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"Eccentricity of the template atlas (in degrees)"</span><span class="p">,</span> <span class="s2">"Median peak SF (in cycles/degree)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 17</p>
+<p>How does the peak SF change with eccentricity? Do the estimated CSFs agree with the results reported by Roelofzen et al. (2025)?</p>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 18 (optional, advanced)</p>
+<p>In this practical, we fitted the model to the response averaged over all runs and evaluated it on the same data. The dataset also contains the average of the odd and of the even runs as separate splits (<code class="docutils literal notranslate"><span class="pre">load_dataset(&quot;7t-ncsf-visual&quot;,</span> <span class="pre">task=&quot;csf&quot;,</span> <span class="pre">split=&quot;odd&quot;)</span></code>). Following the <a class="reference internal" href="02-prf-visual-fmri-cv.html"><span class="std std-doc">second practical</span></a>, fit the nCSF model to the odd runs and evaluate its predictions on the even runs. Then, fix <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code> for all vertices at the median of its estimates (i.e., use a single value for <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code> in the grid and add it to the <code class="docutils literal notranslate"><span class="pre">fixed_parameters</span></code> of SGD) and repeat. Which of the two models predicts the even runs better?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="exercise admonition">
+<p class="admonition-title">Exercise 19 (optional, advanced)</p>
+<p>Fit the canonical Gaussian 2D pRF model from the first practical to the <code class="docutils literal notranslate"><span class="pre">prf</span></code> task of the dataset (<code class="docutils literal notranslate"><span class="pre">load_dataset(&quot;7t-ncsf-visual&quot;,</span> <span class="pre">task=&quot;prf&quot;)</span></code>). How does the peak SF of the nCSF model relate to the eccentricity and size of the estimated pRFs?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The nCSF model describes to which SFs and contrasts a neuron population responds. Its tuning model combines a CSF (an asymmetric log-parabola with the parameters <code class="docutils literal notranslate"><span class="pre">cs_peak</span></code>, <code class="docutils literal notranslate"><span class="pre">sf_peak</span></code>, and <code class="docutils literal notranslate"><span class="pre">width_r</span></code>) with a contrast response function (a Naka-Rushton function with the exponent <code class="docutils literal notranslate"><span class="pre">slope_crf</span></code>).</p></li>
+<li><p>Unlike pRF models, the nCSF model does not need a stimulus grid or a stimulus encoding step. The stimulus only describes the SF and contrast of a full-screen grating at every time frame.</p></li>
+<li><p>We fit the nCSF model with the same stages as pRF models: grid search, least-squares, and SGD. During SGD, we keep the CSF parameters between bounds, because the data hardly constrain them beyond the range of SFs and contrasts in the stimulus.</p></li>
+<li><p>The estimated CSFs differ between visual areas and across the visual field: The peak SF is highest in early visual cortex and decreases with eccentricity.</p></li>
+</ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Benson, N. C., Butt, O. H., Brainard, D. H., &amp; Aguirre, G. K. (2014). Correction of distortion in flattened representations of the cortical surface allows prediction of V1-V3 functional organization from anatomy. <em>PLoS Computational Biology</em>, <em>10</em>(3), e1003538. https://doi.org/10.1371/journal.pcbi.1003538</p>
+<p>Roelofzen, C., Daghlian, M., van Dijk, J. A., de Jong, M. C., &amp; Dumoulin, S. O. (2025). Modeling neural contrast sensitivity functions in human visual cortex. <em>Imaging Neuroscience</em>, <em>3</em>, imag_a_00469. https://doi.org/10.1162/imag_a_00469</p>
+<p>Van Essen, D. C., Ugurbil, K., Auerbach, E., Barch, D., Behrens, T. E. J., Bucholz, R., Chang, A., Chen, L., Corbetta, M., Curtiss, S. W., Della Penna, S., Feinberg, D., Glasser, M. F., Harel, N., Heath, A. C., Larson-Prior, L., Marcus, D., Michalareas, G., Moeller, S., … WU-Minn HCP Consortium. (2012). The Human Connectome Project: A data acquisition perspective. <em>NeuroImage</em>, <em>62</em>(4), 2222-2231. https://doi.org/10.1016/j.neuroimage.2012.02.018</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="06-prf-numerosity.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Practical 6: The Gaussian 1D population receptive field model for numerosity</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../solutions/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Solutions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-and-setup">Installation and Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-neural-contrast-sensitivity-function-model">The neural contrast sensitivity function model</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-spatial-frequency-and-contrast">Input: Spatial frequency and contrast</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-model-step-by-step">Building the model step by step</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contrast-sensitivity-function">Contrast sensitivity function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contrast-response-function">Contrast response function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-csf-tuning-model">The CSF tuning model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#impulse-response-and-scaling">Impulse response and scaling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-canonical-model">The full canonical model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-model-to-data">Fitting the model to data</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-data">Inspecting the data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-valid-vertices">Selecting valid vertices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid-search">Grid search</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#least-squares">Least-squares</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-gradient-descent">Stochastic gradient descent</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-the-model-fit">Evaluating the model fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-the-model-parameters">Interpreting the model parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Popylar Team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Spinoza Centre for Neuroimaging and Netherlands eScience Center.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
