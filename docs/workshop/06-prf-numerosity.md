@@ -703,12 +703,6 @@ We can print the parameters estimated by the grid search.
 grid_params
 ```
 
-> **Exercise 8:** Plot how the estimates of `mu` and `sigma` are distributed across the values of the grid (hint: use `prfmodel.plotting.plot_grid_parameter_distribution`). Do many vertices have estimates at the smallest or largest value of the grid? What could this mean?
-
-```{code-cell} ipython3
-# Your code goes here
-```
-
 ### Least-squares
 
 In the grid search, we ignored the `baseline` and `amplitude` parameters. In prfmodel, we estimate them with least-squares by regressing the observed responses on the predicted pRF model responses for each vertex. The intercept and slope of the least-squares regression become the `baseline` and `amplitude` parameter, respectively. Because the observed and predicted responses are both detrended, which also removes their mean, the `baseline` estimates are close to zero.
@@ -773,18 +767,6 @@ We can print the SGD parameter estimates.
 sgd_params
 ```
 
-> **Exercise 9:** Compare the SGD parameter estimates against the least-squares estimates. How do they differ? (hint: you can use `plot_grid_parameter_distribution` again)
-
-```{code-cell} ipython3
-# Your code goes here
-```
-
-> **Exercise 10:** Run SGD again, but fix `weight_deriv` to its starting value with `fixed_parameters=["weight_deriv"]` (like in the first practical). How does this change the estimates of `mu` and `sigma`? Store the results in new variables so that the rest of the notebook still uses the estimates from above.
-
-```{code-cell} ipython3
-# Your code goes here
-```
-
 ## Evaluating the model fit
 
 Now that the pRF model parameters are estimated, we can compare the model predictions against the observed responses. Because we want to make predictions for all vertices at once, we wrap our `prf_model` in the `prfmodel.utils.batched` function. The modifier changes the behavior of the model to make predictions for batches of vertices sequentially. This saves us a lot of memory at the expense of minimal runtime overhead.
@@ -805,12 +787,6 @@ from prfmodel.utils import calculate_r_squared
 
 r_squared = calculate_r_squared(vertex_response, pred_response)  # One score per vertex
 r_squared.shape
-```
-
-> **Exercise 11:** Plot the distribution of R-squared scores across vertices (hint: use `prfmodel.plotting.plot_r_squared_hist`). For how many vertices does the model fit the data well?
-
-```{code-cell} ipython3
-# Your code goes here
 ```
 
 In addition to computing the R-squared scores, we compare the predicted against the observed timecourses for individual vertices. The figure below shows the estimated pRF of a vertex (left) and its observed (gray) and predicted (blue) BOLD response (right). Select the numerosity map with the `roi` dropdown menu. The `rank` slider goes through the vertices of the map sorted by their R-squared score, from the highest score (rank 0) to the lowest.
@@ -852,10 +828,6 @@ def plot_vertex_fit(roi: int, rank: int) -> None:
 
 show_interactive(plot_vertex_fit, make_vertex_widgets("rank"))
 ```
-
-> **Exercise 12:** Move the `rank` slider to the vertices with the lowest R-squared scores in the left NumTO (i.e., the highest ranks). Why does the model not fit well for these vertices? Do you see differences between the numerosity maps?
-
-+++
 
 ## Interpreting the model parameters
 
@@ -948,15 +920,9 @@ ax.tick_params(axis="x", labelrotation=45)
 plt.setp(ax.get_xticklabels(), ha="right");
 ```
 
-> **Exercise 13:** How do the preferred numerosity and the pRF size differ between the numerosity maps? Keep in mind that the variation within each map is large and that the number of selected vertices differs strongly between maps (see the table above).
+> **Exercise 8:** How do the preferred numerosity and the pRF size differ between the numerosity maps? Keep in mind that the variation within each map is large and that the number of selected vertices differs strongly between maps (see the table above).
 
 +++
-
-> **Exercise 14:** Change the R-squared threshold (`r_squared_threshold`) and recreate the table and the plots. Do the differences between the maps change?
-
-```{code-cell} ipython3
-# Your code goes here
-```
 
 ## Preferred numerosity on the cortical surface
 
@@ -983,7 +949,7 @@ plot_numerosity_flatmaps(
 )
 ```
 
-> **Exercise 15:** Plot the flatmaps with the outline of another numerosity map, for example, NumTO (ROI labels 1 and 7). Does the preferred numerosity change gradually within the maps?
+> **Exercise 9:** Plot the flatmaps with the outline of another numerosity map, for example, NumTO (ROI labels 1 and 7). Does the preferred numerosity change gradually within the maps?
 
 ```{code-cell} ipython3
 # Your code goes here
@@ -1077,11 +1043,11 @@ plot_distance_numerosity(
 );
 ```
 
-> **Exercise 16:** How does the preferred numerosity change along the right NumTO? Do the four stimulus conditions show the same change? What does this tell us about whether the map represents numerosity rather than other visual properties of the dots, such as their size, total area, density, or circumference (see Exercise 2)?
+> **Exercise 10:** How does the preferred numerosity change along the right NumTO? Do the four stimulus conditions show the same change? What does this tell us about whether the map represents numerosity rather than other visual properties of the dots, such as their size, total area, density, or circumference (see Exercise 2)?
 
 +++
 
-> **Exercise 17 (optional):** Repeat the analysis for another numerosity map, for example, the left NumPC1 (ROI label 3). Does the preferred numerosity change in a similar way along this map?
+> **Exercise 11 (optional):** Repeat the analysis for another numerosity map, for example, the left NumPC1 (ROI label 3). Does the preferred numerosity change in a similar way along this map?
 
 ```{code-cell} ipython3
 # Your code goes here
