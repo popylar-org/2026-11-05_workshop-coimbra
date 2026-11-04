@@ -1,0 +1,60 @@
+cff-version: 1.2.0
+title: Popylar Population Receptive Field Modeling Workshop
+message: >-
+  If you use these workshop materials, please cite them using
+  the metadata from this file.
+type: software
+authors:
+  - given-names: Malte
+    family-names: Lüken
+    email: m.luken@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+  - given-names: Tomas
+    family-names: Knapen
+    email: t.knapen@spinozacentre.nl
+    affiliation: Spinoza Centre for Neuroimaging
+  - given-names: Serge
+    family-names: Dumoulin
+    email: s.dumoulin@spinozacentre.nl
+    affiliation: Spinoza Centre for Neuroimaging
+  - given-names: Ben
+    family-names: Harvey
+    email: b.m.harvey@uu.nl
+    affiliation: Utrecht University
+  - given-names: Kiran
+    family-names: Mauro
+    affiliation: Utrecht University
+  - given-names: Ilona
+    family-names: Bloem
+    affiliation: Spinoza Centre for Neuroimaging
+  - given-names: Xaver
+    family-names: Funk
+    affiliation: Leiden University
+  - given-names: Marcus
+    family-names: Daghlian
+    affiliation: University College London
+  - given-names: Koen
+    family-names: Haak
+    affiliation: Tilburg University
+  - given-names: Natalia
+    family-names: Petridou
+    affiliation: University Medical Center Utrecht
+  - given-names: Frans
+    family-names: Cornelissen
+    affiliation: University Medical Center Groningen
+repository-code: 'https://github.com/popylar-org/2026-11-05_workshop-coimbra'
+url: 'https://popylar-org.github.io/2026-11-05_workshop-coimbra/'
+abstract: >-
+  Website and materials for the Popylar population receptive
+  field (pRF) modelling workshop at the University of Coimbra
+  (5–6 November 2026). The materials contain hands-on
+  practicals that show how to fit pRF and related models
+  to neuroimaging data (fMRI and ECoG) with the prfmodel
+  Python package.
+keywords:
+  - population receptive field
+  - connective field
+  - contrast sensitivity function
+  - computational neuroscience
+  - workshop
+license: Apache-2.0

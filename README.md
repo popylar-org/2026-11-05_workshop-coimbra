@@ -41,3 +41,28 @@ add a jupytext header with a `kernelspec` and put code in `{code-cell}` blocks
 `.ipynb` files under `notebooks/` and get an "Open in Colab" badge. Code is not executed
 during the build. Prefer plain Markdown in notebook pages, since MyST directives such as
 admonitions are not rendered on Colab.
+
+Plotting helper functions that several notebooks share live in `docs/workshop/plotting_helpers.py`.
+The notebooks import it from their own directory. For Colab, modules listed in `colab_modules`
+in `docs/conf.py` are copied next to the generated notebooks, and a cell inserted before the first
+import of a module downloads it from the `gh-pages` branch.
+
+### Solutions
+
+Write exercises in the practicals as blockquotes that start with a bold label, e.g.
+`> **Exercise 3:** ...`. Their solutions live in a file of the same name in `docs/solutions/`,
+with one `## Exercise <number>` section per exercise (see `docs/solutions/01-prf-visual-fmri.md`).
+The pages in `docs/solutions/` show the practical from `docs/workshop/` with each solution inserted
+below its exercise as a collapsed box (see `docs/_ext/solutions.py`), so the practicals are not
+copied. Each solution goes directly below its exercise and any code cells that follow it, but above
+a `# Your code goes here` cell. The build warns about exercises without a solution and solutions
+without an exercise.
+
+## Generative AI usage
+
+Claude Code (Opus version 5.5) was used to partially generate and improve the workshop materials. All improvements were
+manually evaluated and approved by the authors.
+
+## Copyright
+
+2026, Netherlands eScience Center, Vrije Universiteit Amsterdam, Netherlands Institute for Neuroscience

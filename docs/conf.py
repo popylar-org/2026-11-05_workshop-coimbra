@@ -15,6 +15,8 @@ author = "The Popylar Team"
 extensions = [
     "myst_nb",
     "sphinx_copybutton",
+    "sphinxcontrib.mermaid",
+    "solutions",
     "colab_notebooks",
 ]
 
@@ -27,13 +29,25 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "**.ipynb_checkpoints",
+    # The MyST .md files are the sources; local .ipynb copies would be found as duplicate documents.
+    "**.ipynb",
 ]
 
 # -- MyST / MyST-NB ----------------------------------------------------------
 
-myst_enable_extensions = ["colon_fence", "deflist", "html_image"]
+myst_enable_extensions = ["colon_fence", "deflist", "dollarmath", "html_image"]
+# Generate anchors for headings so that the notebook table of contents can link to sections.
+myst_heading_anchors = 3
 # Code is not executed at build time; participants run the notebooks on Colab.
 nb_execution_mode = "off"
+# Shell commands such as `!pip install` are not valid Python and cannot be highlighted.
+suppress_warnings = ["misc.highlighting_failure"]
+
+# -- Mermaid -----------------------------------------------------------------
+
+# Scale diagrams to the width of the page instead of a fixed height; they are small enough to not need fullscreen.
+mermaid_height = "auto"
+mermaid_fullscreen = False
 
 # -- HTML output -------------------------------------------------------------
 
@@ -53,13 +67,21 @@ html_theme_options = {
     "navbar_persistent": [],
 }
 
+# -- Solutions (see _ext/solutions.py) ---------------------------------------
+
+# Every document in solutions_dir except the index renders the practical of the same name in solutions_practicals_dir
+# with the solutions inserted below its exercises.
+solutions_dir = "solutions"
+solutions_practicals_dir = "workshop"
+
 # -- Colab notebooks (see _ext/colab_notebooks.py) ---------------------------
 
 colab_repo = "popylar-org/2026-11-05_workshop-coimbra"
 colab_branch = "gh-pages"
 colab_notebook_dir = "notebooks"
-# Prepended as the first code cell of every generated notebook.
-colab_setup_cell = "%pip install git+https://github.com/popylar-org/prfmodel.git"
+# Modules that the notebooks import; copied next to the notebooks and downloaded by a cell that is inserted before
+# the first import of the module in every notebook in the same directory.
+colab_modules = ["workshop/plotting_helpers.py", "workshop/helpers.py", "workshop/dataset.py"]
 
 # -- Versions (see poly.py) --------------------------------------------------
 
