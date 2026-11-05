@@ -36,6 +36,7 @@ Malte Lüken ([m.luken@esciencecenter.nl](mailto:m.luken@esciencecenter.nl))
 :hidden:
 
 schedule
+slides/index
 workshop/index
 solutions/index
 ```
